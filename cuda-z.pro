@@ -16,8 +16,8 @@ CUSOURCES = src/cudainfo.cu
 
 unix:LIBS += -lcuda
 win32:LIBS += \
-	C:\CUDA\lib\cuda.lib \
-	C:\CUDA\lib\cudart.lib
+	$(CUDA_LIB_PATH)\cuda.lib \
+	$(CUDA_LIB_PATH)\cudart.lib
 
 BUILD_H = src/build.h
 QMAKE_EXTRA_VARIABLES += BUILD_H
@@ -49,7 +49,7 @@ RCC_DIR = bld/rcc
 # Cuda extra-compiler for handling files specified in the CUSOURCES variable
 #
 
-QMAKE_CUC = nvcc.exe
+QMAKE_CUC = $(CUDA_BIN_PATH)/nvcc.exe
 
 {
     cu.name = Cuda ${QMAKE_FILE_IN}
