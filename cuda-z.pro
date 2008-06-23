@@ -52,30 +52,31 @@ RCC_DIR = bld/rcc
 QMAKE_CUC = $(CUDA_BIN_PATH)/nvcc.exe
 
 {
-    cu.name = Cuda ${QMAKE_FILE_IN}
-    cu.input = CUSOURCES
-    cu.CONFIG += no_link
-    cu.variable_out = OBJECTS
+	cu.name = Cuda ${QMAKE_FILE_IN}
+	cu.input = CUSOURCES
+	cu.CONFIG += no_link
+	cu.variable_out = OBJECTS
 
-    isEmpty(QMAKE_CUC) {
-        win32:QMAKE_CUC = nvcc.exe
-        else:QMAKE_CUC = nvcc
-    }
-    isEmpty(CU_DIR):CU_DIR = .
-    isEmpty(QMAKE_CPP_MOD_CU):QMAKE_CPP_MOD_CU = 
-    isEmpty(QMAKE_EXT_CPP_CU):QMAKE_EXT_CPP_CU = .cu
+	isEmpty(QMAKE_CUC) {
+		win32:QMAKE_CUC = $(CUDA_BIN_PATH)/nvcc.exe
+		else:QMAKE_CUC = nvcc
+	}
+	isEmpty(CU_DIR):CU_DIR = .
+	isEmpty(QMAKE_CPP_MOD_CU):QMAKE_CPP_MOD_CU = 
+	isEmpty(QMAKE_EXT_CPP_CU):QMAKE_EXT_CPP_CU = .cu
 
-    QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE $$QMAKE_CXXFLAGS_RTTI_ON $$QMAKE_CXXFLAGS_WARN_ON $$QMAKE_CXXFLAGS_STL_ON
-    QMAKE_CUEXTRAFLAGS += -Xcompiler $$join(QMAKE_CUFLAGS, ",")
-    QMAKE_CUEXTRAFLAGS += $(DEFINES) $(INCPATH) $$join(QMAKE_COMPILER_DEFINES, " -D", -D)
-    QMAKE_CUEXTRAFLAGS += -c
+	INCLUDEPATH += $(CUDA_INC_PATH)
+	QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE $$QMAKE_CXXFLAGS_RTTI_ON $$QMAKE_CXXFLAGS_WARN_ON $$QMAKE_CXXFLAGS_STL_ON
+	QMAKE_CUEXTRAFLAGS += -Xcompiler $$join(QMAKE_CUFLAGS, ",")
+	QMAKE_CUEXTRAFLAGS += $(DEFINES) $(INCPATH) $$join(QMAKE_COMPILER_DEFINES, " -D", -D)
+	QMAKE_CUEXTRAFLAGS += -c
 
-    cu.commands = $$QMAKE_CUC $$QMAKE_CUEXTRAFLAGS -o $$OBJECTS_DIR/$${QMAKE_CPP_MOD_CU}${QMAKE_FILE_BASE}$${QMAKE_EXT_OBJ} ${QMAKE_FILE_NAME}$$escape_expand(\n\t)
-    cu.output = $$OBJECTS_DIR/$${QMAKE_CPP_MOD_CU}${QMAKE_FILE_BASE}$${QMAKE_EXT_OBJ}
-    silent:cu.commands = @echo nvcc ${QMAKE_FILE_IN} && $$cu.commands
-    QMAKE_EXTRA_COMPILERS += cu
+	cu.commands = $$QMAKE_CUC $$QMAKE_CUEXTRAFLAGS -o $$OBJECTS_DIR/$${QMAKE_CPP_MOD_CU}${QMAKE_FILE_BASE}$${QMAKE_EXT_OBJ} ${QMAKE_FILE_NAME}$$escape_expand(\n\t)
+	cu.output = $$OBJECTS_DIR/$${QMAKE_CPP_MOD_CU}${QMAKE_FILE_BASE}$${QMAKE_EXT_OBJ}
+	silent:cu.commands = @echo nvcc ${QMAKE_FILE_IN} && $$cu.commands
+	QMAKE_EXTRA_COMPILERS += cu
 
-    build_pass|isEmpty(BUILDS):cuclean.depends = compiler_cu_clean
-    else:cuclean.CONFIG += recursive
-    QMAKE_EXTRA_TARGETS += cuclean
+	build_pass|isEmpty(BUILDS):cuclean.depends = compiler_cu_clean
+	else:cuclean.CONFIG += recursive
+	QMAKE_EXTRA_TARGETS += cuclean
 }
