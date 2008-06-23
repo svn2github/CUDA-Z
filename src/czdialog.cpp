@@ -109,6 +109,7 @@ void CZDialog::setupCoreTab(
 	labelCapabilityText->setText(QString("%1.%2").arg(info.major).arg(info.minor));
 	labelClockText->setText(QString(tr("%1 MHz")).arg((double)info.core.clockRate / 1000));
 	labelWrapText->setNum(info.core.SIMDWidth);
+	labelRegsText->setNum(info.core.regsPerBlock);
 	labelThreadsText->setNum(info.core.maxThreadsPerBlock);
 	labelThreadsDimTextX->setNum(info.core.maxThreadsDim[0]);
 	labelThreadsDimTextY->setNum(info.core.maxThreadsDim[1]);

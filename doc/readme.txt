@@ -50,7 +50,7 @@ In Windows you need:
 
 Now you have enough tools for building CUDA-Z. I would recommend you to add
 all binaries diretories to global PATH variable or to vsvars32.bat that lives
-in "C:\Programme\Microsoft Visual Studio 8\Common7\Tools\"
+in your "X:\Programme\Microsoft Visual Studio 8\Common7\Tools\" .
 Now open Visual Studio 2005 Command Prompt, go to folder where you place source
 of CUDA-Z and type:
    > qmake
