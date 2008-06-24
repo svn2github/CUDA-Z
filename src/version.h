@@ -17,7 +17,8 @@
 #define CZ_VER_MINOR		1		/*!< Application minor version number. */
 #define CZ_VER_STRING		"0.1"		/*!< Application version string. */
 
-#define CZ_VER_STATE		"SVN"	 	/*!< Application release state. E.g.
+#define CZ_VER_STATE		"SVN"
+					 	/*!< Application release state. E.g.
 						     - nondefined / commented out - stable release version.
 						     - "Beta" - beta version/release candidate.
 						     - "Alpha" - alpha version.
