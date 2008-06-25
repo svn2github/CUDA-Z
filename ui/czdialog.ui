@@ -533,7 +533,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabSpeed" >
+     <widget class="QWidget" name="tabBandwidth" >
       <property name="geometry" >
        <rect>
         <x>0</x>
@@ -543,7 +543,7 @@
        </rect>
       </property>
       <attribute name="title" >
-       <string>Speed</string>
+       <string>Bandwidth</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4" >
        <item row="0" column="0" >
