@@ -2,6 +2,7 @@ TEMPLATE = app
 QT = gui core
 CONFIG += qt release warn_on
 #CONFIG += console
+CONFIG += static
 
 FORMS = ui/czdialog.ui
 HEADERS = \
