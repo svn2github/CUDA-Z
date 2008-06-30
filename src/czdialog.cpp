@@ -9,6 +9,8 @@
 #include "czdialog.h"
 #include "version.h"
 
+QSplashScreen *splash;
+
 /*!
 	\class CZDialog
 	\brief This class implements main window of the application.
@@ -47,6 +49,13 @@ void CZDialog::readCudaDevices() {
 	for(int i = 0; i < num; i++) {
 		struct CZDeviceInfo info;
 		if(readCudaDeviceInfo(info, i) == 0) {
+			splash->showMessage(tr("Getting information about %1 ...").arg(info.deviceName),
+				Qt::AlignLeft | Qt::AlignBottom);
+			qApp->processEvents();
+
+//			wait(10000000);
+			
+//			\todo calcDevicePerformance(info);
 			deviceList.append(info);
 		}
 	}

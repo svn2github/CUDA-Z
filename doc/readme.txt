@@ -57,6 +57,7 @@ In Windows you need:
    QMAKE_CFLAGS_DEBUG	= -Zi -MTd
    QMAKE_LFLAGS_WINDOWS	= /SUBSYSTEM:WINDOWS
    Build Qt static with new configuration file.
+   IMPORTANT: CUDA-Z package release must be linked with static Qt!
 3. CUDA driver and CUDA toolkit installed on your computer.
    http://www.nvidia.com/object/cuda_get.html
    After generation of EXE file it still needs cudart.dll nvcuda.dll... :-(

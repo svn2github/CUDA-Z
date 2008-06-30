@@ -711,7 +711,7 @@ p, li { white-space: pre-wrap; }
      <item>
       <widget class="QPushButton" name="pushOk" >
        <property name="text" >
-        <string>&amp;Ok</string>
+        <string>&amp;OK</string>
        </property>
        <property name="default" >
         <bool>true</bool>

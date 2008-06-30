@@ -6,7 +6,6 @@
 
 #include <QApplication>
 #include <QMessageBox>
-#include <QSplashScreen>
 #include <QDebug>
 
 #include "czdialog.h"
@@ -52,18 +51,16 @@ int main(int argc, char *argv[]) {
 	QApplication app(argc, argv);
 
 	QPixmap pixmap(":/img/splash.png");
-	QSplashScreen splash(pixmap);
-	splash.show();
-	app.processEvents();
+	splash = new QSplashScreen(pixmap);
+	splash->show();
 
-//	wait(10000000);
-
-	splash.showMessage(QObject::tr("Checking CUDA ..."),
+	splash->showMessage(QObject::tr("Checking CUDA ..."),
 		Qt::AlignLeft | Qt::AlignBottom);
 	app.processEvents();
 	if(!testCudaPresent()) {
 		QMessageBox::critical(0, QObject::tr(CZ_NAME_LONG),
 			QObject::tr("CUDA not found!"));
+		delete splash;
 		exit(1);
 	}
 
@@ -73,10 +70,11 @@ int main(int argc, char *argv[]) {
 	if(devs == 0) {
 		QMessageBox::critical(0, QObject::tr(CZ_NAME_LONG),
 			QObject::tr("No CUDA devices found!"));
+		delete splash;
 		exit(1);
 	}
 
-	splash.showMessage(QObject::tr("Found %1 CUDA Device(s) ...").arg(devs),
+	splash->showMessage(QObject::tr("Found %1 CUDA Device(s) ...").arg(devs),
 		Qt::AlignLeft | Qt::AlignBottom);
 	app.processEvents();
 
@@ -84,8 +82,10 @@ int main(int argc, char *argv[]) {
 
 	CZDialog window;
 	window.show(); 
-	splash.finish(&window);
+	splash->finish(&window);
 
 	app.connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
+
+	delete splash;
 	return app.exec();
 }
