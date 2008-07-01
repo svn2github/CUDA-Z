@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>317</width>
+    <width>318</width>
     <height>275</height>
    </rect>
   </property>
@@ -13,7 +13,7 @@
    <string/>
   </property>
   <property name="windowIcon" >
-   <iconset>
+   <iconset resource="../res/cuda-z.qrc" >
     <normaloff>:/img/icon.png</normaloff>:/img/icon.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" >
@@ -27,7 +27,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>293</width>
+        <width>294</width>
         <height>197</height>
        </rect>
       </property>
@@ -93,7 +93,10 @@
               <enum>QFrame::Sunken</enum>
              </property>
              <property name="text" >
-              <string>&lt;logo></string>
+              <string/>
+             </property>
+             <property name="pixmap" >
+              <pixmap resource="../res/cuda-z.qrc" >:/img/logo-unknown.png</pixmap>
              </property>
              <property name="alignment" >
               <set>Qt::AlignCenter</set>
@@ -354,7 +357,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>293</width>
+        <width>294</width>
         <height>197</height>
        </rect>
       </property>
@@ -538,7 +541,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>293</width>
+        <width>294</width>
         <height>197</height>
        </rect>
       </property>
@@ -569,7 +572,7 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>293</width>
+        <width>294</width>
         <height>197</height>
        </rect>
       </property>
@@ -590,7 +593,10 @@ p, li { white-space: pre-wrap; }
               <enum>QFrame::Sunken</enum>
              </property>
              <property name="text" >
-              <string>&lt;logo></string>
+              <string/>
+             </property>
+             <property name="pixmap" >
+              <pixmap resource="../res/cuda-z.qrc" >:/img/icon.png</pixmap>
              </property>
             </widget>
            </item>
@@ -726,7 +732,9 @@ p, li { white-space: pre-wrap; }
   <tabstop>comboDevice</tabstop>
   <tabstop>pushOk</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../res/cuda-z.qrc" />
+ </resources>
  <connections>
   <connection>
    <sender>pushOk</sender>

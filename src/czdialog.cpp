@@ -166,7 +166,7 @@ void CZDialog::setupSpeedTab(
 	\brief Fill tab "About" with information about this program.
 */
 void CZDialog::setupAboutTab() {
-	labelAppLogo->setPixmap(QPixmap(":/img/icon.png"));
+//	labelAppLogo->setPixmap(QPixmap(":/img/icon.png"));
 	labelAppName->setText(QString("<b><i><font size=\"+2\">%1</font></i></b><br>%2").arg(CZ_NAME_SHORT).arg(CZ_NAME_LONG));
 
 	QString version = QString(tr("<b>Version</b> %1")).arg(CZ_VERSION);
