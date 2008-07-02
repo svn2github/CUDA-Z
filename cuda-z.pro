@@ -31,7 +31,9 @@ QMAKE_EXTRA_TARGETS += build_h
 QCLEANFILES = \
 	Makefile \
 	Makefile.Debug \
-	Makefile.Release
+	Makefile.Release \
+	version.nsi \
+	build.nsi
 win32:QCLEANFILES += bin\cuda-z.exe
 QMAKE_EXTRA_VARIABLES += QCLEANFILES
 
@@ -39,6 +41,11 @@ qclean.target = qclean
 qclean.commands = -$(DEL_FILE) $(EXPORT_QCLEANFILES) #$(EXPORT_BUILD_H)
 qclean.depends = clean
 QMAKE_EXTRA_TARGETS += qclean
+
+pkg-win32.target = pkg-win32
+pkg-win32.commands = makensis.exe cuda-z.nsi
+pkg-win32.depends = release
+QMAKE_EXTRA_TARGETS += pkg-win32
 
 DESTDIR = bin
 OBJECTS_DIR = bld/o

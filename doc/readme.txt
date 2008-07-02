@@ -58,18 +58,33 @@ In Windows you need:
    QMAKE_LFLAGS_WINDOWS	= /SUBSYSTEM:WINDOWS
    Build Qt static with new configuration file.
    IMPORTANT: CUDA-Z package release must be linked with static Qt!
+   My smallest version of Qt configured with commandline:
+   # configure.exe -release -static -no-exceptions -no-accessibility
+                   -no-stl -no-sql-sqlite -no-qt3support -no-opengl
+                   -platform win32-msvc2005 -no-gif -no-libmng -no-libtiff
+                   -no-libjpeg -vcproj -dsp -no-incredibuild-xge -no-rtti
+                   -no-3dnow -no-sse -no-sse2 -no-openssl -no-dbus
+                   -no-phonon -no-webkit -no-style-plastique
+                   -no-style-cleanlooks -no-style-motif -no-style-cde
 3. CUDA driver and CUDA toolkit installed on your computer.
    http://www.nvidia.com/object/cuda_get.html
    After generation of EXE file it still needs cudart.dll nvcuda.dll... :-(
 
 Now you have enough tools for building CUDA-Z. I would recommend you to add
-all binaries diretories to global PATH variable or to vsvars32.bat that lives
-in your "X:\Programme\Microsoft Visual Studio 8\Common7\Tools\" .
+all binaries folders of insalled tools to system PATH variable or tovsvars32.bat
+that lives in your "X:\Programme\Microsoft Visual Studio 8\Common7\Tools\" .
 Now open Visual Studio 2005 Command Prompt, go to folder where you have placed
 source of CUDA-Z and type:
    > qmake
    > nmake
-If no error occures you will found cuda-z.exe in bin folder.
+If no error occures you will found cuda-z.exe in ./bin folder.
+
+To make binary release package for windows you should additionaly install
+NSIS 2.37 (or higher) and add it's folder in system PATH valiable.
+Copy necessary libraries cudart.dll nvcuda.dll to ./bin folder from CUDA toolkit
+bin folder and your C:\Windows\system32 (or where you have it installed).
+Than you can generate package by calling in Visual Studio 2005 Command Prompt:
+   > nmake pkg-win32
 
 I didn't try to build CUDA-Z in Linux and MacOS X, but it should be even
 easier comparing to Windows. You can get gcc and g++ from your OS destibuter

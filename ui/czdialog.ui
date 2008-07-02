@@ -666,6 +666,9 @@ p, li { white-space: pre-wrap; }
              <property name="text" >
               <string>&lt;copyrights></string>
              </property>
+             <property name="wordWrap" >
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
           </layout>

@@ -48,8 +48,7 @@
 #define CZ_ORG_URL		"http://sourceforge.net/projects/cuda-z/"
 						/*!< URL of project. */
 
-#define CZ_COPY_INFO		"This software is distributed under the terms\n" \
-				"of the GNU General Public License Version 2."
+#define CZ_COPY_INFO		"This software is distributed under the terms of the GNU General Public License Version 2."
 						/*!< Program's copyright information. */
 /*@}*/
 
