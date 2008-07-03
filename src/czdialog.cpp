@@ -103,7 +103,7 @@ void CZDialog::slotShowDevice(int index) {
 void CZDialog::setupDeviceInfo(int dev) {
 	setupCoreTab(deviceList[dev]);
 	setupMemoryTab(deviceList[dev]);
-	setupSpeedTab(deviceList[dev]);
+	setupBandwidthTab(deviceList[dev]);
 }
 
 /*!
@@ -154,9 +154,9 @@ void CZDialog::setupMemoryTab(
 }
 
 /*!
-	\brief Fill tab "Speed" with CUDA devices information.
+	\brief Fill tab "Bandwidth" with CUDA devices information.
 */
-void CZDialog::setupSpeedTab(
+void CZDialog::setupBandwidthTab(
 	struct CZDeviceInfo &info
 ) {
 	// NIY!
@@ -174,7 +174,7 @@ void CZDialog::setupAboutTab() {
 	version += QString(tr("<br><b>Built</b> %1 %2").arg(CZ_DATE).arg(CZ_TIME));
 #endif//CZ_VER_STATE
 	labelAppVersion->setText(version);
-	labelAppURL->setText(QString("<a href=\"%1\">%1</a>").arg(CZ_ORG_URL));
+	labelAppURL->setText(tr("<b>Mainpage</b> <a href=\"%1\">%1</a><br><b>Project</b> <a href=\"%2\">%2</a>").arg(CZ_ORG_URL_MAINPAGE).arg(CZ_ORG_URL_PROJECT));
 	labelAppAuthor->setText(QString(tr("<b>Author</b> %1")).arg(CZ_ORG_NAME));
 	labelAppCopy->setText(CZ_COPY_INFO);
 }

@@ -45,8 +45,9 @@
 
 #define CZ_ORG_NAME		"AG"		/*!< Organization name. */
 #define CZ_ORG_DOMAIN		"cuda-z.sf.net"	/*!< Organization domain name. */
-#define CZ_ORG_URL		"http://sourceforge.net/projects/cuda-z/"
-						/*!< URL of project. */
+#define CZ_ORG_URL_MAINPAGE	"http://cuda-z.sourceforge.net/"
+						/*!< URL of main web site. */
+#define CZ_ORG_URL_PROJECT	"http://sourceforge.net/projects/cuda-z/"
 
 #define CZ_COPY_INFO		"This software is distributed under the terms of the GNU General Public License Version 2."
 						/*!< Program's copyright information. */

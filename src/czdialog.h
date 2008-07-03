@@ -33,7 +33,7 @@ private:
 
 	void setupCoreTab(struct CZDeviceInfo &info);
 	void setupMemoryTab(struct CZDeviceInfo &info);
-	void setupSpeedTab(struct CZDeviceInfo &info);
+	void setupBandwidthTab(struct CZDeviceInfo &info);
 
 	void setupAboutTab();
 
