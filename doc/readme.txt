@@ -22,7 +22,7 @@ What is CUDA-device?
 --------------------
 
 It is simple... It is a device that supports CUDA. NVIDIA call it 
-"CUDA-enabled products ".
+"CUDA-enabled products".
 http://www.nvidia.com/object/cuda_learn_products.html
 
 What I need for running CUDA-Z utility?
@@ -68,7 +68,7 @@ In Windows you need:
                    -no-style-cleanlooks -no-style-motif -no-style-cde
 3. CUDA driver and CUDA toolkit installed on your computer.
    http://www.nvidia.com/object/cuda_get.html
-   After generation of EXE file it still needs cudart.dll nvcuda.dll... :-(
+   After generation of EXE file, it still needs cudart.dll... :-(
 
 Now you have enough tools for building CUDA-Z. I would recommend you to add
 all binary folders of installed tools to system PATH variable or tovsvars32.bat

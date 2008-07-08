@@ -43,9 +43,9 @@ Section "-Go"
 	SetOutPath $OUTDIR
 	File /oname=cuda-z.exe bin\cuda-z.exe
 	File /oname=cudart.dll bin\cudart.dll
-	SearchPath $1 nvcuda.dll
-	IfFileExists $1 +2 0
-	File /oname=nvcuda.dll bin\nvcuda.dll
+#	SearchPath $1 nvcuda.dll
+#	IfFileExists $1 +2 0
+#	File /oname=nvcuda.dll bin\nvcuda.dll
 
 	ExecWait '"$OUTDIR\cuda-z.exe"'
 
@@ -53,9 +53,8 @@ Section "-Go"
 	IfFileExists $OUTDIR\cuda-z.exe -1 0
 	Delete $OUTDIR\cudart.dll
 	IfFileExists $OUTDIR\cudart.dll -1 0
-	Delete $OUTDIR\nvcuda.dll
-	IfFileExists $OUTDIR\nvcuda.dll -1 0
+#	Delete $OUTDIR\nvcuda.dll
+#	IfFileExists $OUTDIR\nvcuda.dll -1 0
 	SetOutPath $TEMP
 	RMDir $OUTDIR
 SectionEnd
-

@@ -13,15 +13,6 @@
 #include "version.h"
 
 /*!
-	\brief Call function that checks CUDA presents.
-*/
-bool testCudaPresent() {
-	bool res = cudaCheck();
-	qDebug() << "CUDA Present:" << res;
-	return res;
-}
-
-/*!
 	\brief Call function that returns numbed of CUDA-devices.
 */
 int getCudaDeviceNum() {
@@ -34,7 +25,9 @@ int getCudaDeviceNum() {
 	\brief Busy loop wait function.
 	Actually, I don't know how to call sleep() function from Qt code :).
 */
-void wait(int n) {
+void wait(
+	int n			/*!< Number of times to tun this busy loop to. */
+) {
 	char str[256];
 	int i;
 
@@ -46,7 +39,10 @@ void wait(int n) {
 /*!
 	\brief Main initialization function.
 */
-int main(int argc, char *argv[]) {
+int main(
+	int argc,		/*!< Count of command line arguments. */
+	char *argv[]		/*!< List of command line arguments. */
+) {
 
 	QApplication app(argc, argv);
 
@@ -57,14 +53,6 @@ int main(int argc, char *argv[]) {
 	splash->showMessage(QObject::tr("Checking CUDA ..."),
 		Qt::AlignLeft | Qt::AlignBottom);
 	app.processEvents();
-	if(!testCudaPresent()) {
-		QMessageBox::critical(0, QObject::tr(CZ_NAME_LONG),
-			QObject::tr("CUDA not found!"));
-		delete splash;
-		exit(1);
-	}
-
-//	wait(10000000);
 
 	int devs = getCudaDeviceNum();
 	if(devs == 0) {

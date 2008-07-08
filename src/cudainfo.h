@@ -36,6 +36,19 @@ struct CZDeviceInfoMem {
 };
 
 /*!
+	\brief Information about CUDA-device bandwidth.
+*/
+struct CZDeviceInfoBand {
+	int		copyHDPage;		/*!< Copy rate from host pageable to device memory in KB/s. */
+	int		copyHDPin;		/*!< Copy rate from host pinned to device memory in KB/s. */
+	int		copyDHPage;		/*!< Copy rate from device to host pageable memory in KB/s. */
+	int		copyDHPin;		/*!< Copy rate from device to host pinned memory in KB/s. */
+	int		copyDD;			/*!< Copy rate from device to device memory in KB/s. */
+	/* Service part of structure. */
+	void		*localData;
+};
+
+/*!
 	\brief Information about CUDA-device.
 */
 struct CZDeviceInfo {
@@ -45,11 +58,13 @@ struct CZDeviceInfo {
 	int		minor;			/*!< Minor revision numbers defining the device's compute capability. */
 	struct CZDeviceInfoCore	core;
 	struct CZDeviceInfoMem	mem;
+	struct CZDeviceInfoBand	band;
 };
 
-bool cudaCheck(void);
 int cudaDeviceFound(void);
 int cudaReadDeviceInfo(struct CZDeviceInfo *info, int num);
+int cudaCalcDeviceBandwidth(struct CZDeviceInfo *info);
+int cudaCleanDevice(struct CZDeviceInfo *info);
 
 #ifdef __cplusplus
 }

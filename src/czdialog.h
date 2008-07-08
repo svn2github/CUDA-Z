@@ -20,13 +20,16 @@ class CZDialog: public QDialog, public Ui::CZDialog {
 
 public:
 	CZDialog(QWidget *parent = 0, Qt::WFlags f = 0);
+	~CZDialog();
 
 private:
 	QList<struct CZDeviceInfo> deviceList;
 
 	void readCudaDevices();
+	void freeCudaDevices();
 	int getCudaDeviceNumber();
 	int readCudaDeviceInfo(struct CZDeviceInfo &info, int dev);
+	int calcCudaDeviceBandwidth(struct CZDeviceInfo &info);
 
 	void setupDeviceList();
 	void setupDeviceInfo(int dev);
