@@ -16,18 +16,29 @@
 #define CZ_BAND_BUF_SIZE	(32 * (1 << 20))	/*!< Transfer buffer size. */
 #define CZ_BAND_LOOPS_NUM	(10)			/*!< Number of loops to run transfer test to. */
 
-/*
+/*!
 	\brief Prototype of function \a cuDeviceGetAttribute().
 */
 typedef CUresult (CUDAAPI *cuDeviceGetAttribute_t)(int *pi, CUdevice_attribute attrib, CUdevice dev);
 
-/*
+/*!
+	\brief Prototype of function \a cuInit().
+*/
+typedef CUresult (CUDAAPI *cuInit_t)(unsigned int Flags);
+
+/*!
 	\brief Pointer to function \a cuDeviceGetAttribute().
 	This parameter is initializaed by #cudaIsInit().
 */
 static cuDeviceGetAttribute_t p_cuDeviceGetAttribute = NULL;
 
-/*
+/*!
+	\brief Pointer to function \a cuInit().
+	This parameter is initializaed by #cudaIsInit().
+*/
+static cuInit_t p_cuInit = NULL;
+
+/*!
 	\brief Check if CUDa fully initialized.
 	This function loads nvcuda.dll and finds function \a cuDeviceGetAttribute.
 	\return \a true in case of success, \a false in case of error.
@@ -36,26 +47,37 @@ static bool cudaIsInit(void) {
 
 	HINSTANCE hDll;
 
-//	printf("cudaIsInit called\n");
-
-	if(p_cuDeviceGetAttribute == NULL) {
-
-//		printf("load nvcuda.dll\n");
+	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
 
 		hDll = LoadLibrary(L"nvcuda.dll");
 		if(hDll == NULL) {
 			return false;
 		}
 
-//		printf("getting cuDeviceGetAttribute\n");
-
 		p_cuDeviceGetAttribute = (cuDeviceGetAttribute_t)GetProcAddress(hDll, "cuDeviceGetAttribute");
 		if(p_cuDeviceGetAttribute == NULL) {
-//			printf("flail cuDeviceGetAttribute\n");
 			return false;
 		}
 
-//		printf("got cuDeviceGetAttribute at 0x%08X\n", p_cuDeviceGetAttribute);
+		p_cuInit = (cuInit_t)GetProcAddress(hDll, "cuInit");
+		if(p_cuInit == NULL) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/*!
+	\brief Check if CUDA is present here.
+*/
+bool cudaCheck(void) {
+
+	if(!cudaIsInit())
+		return false;
+
+	if(p_cuInit(0) == CUDA_ERROR_NOT_INITIALIZED) {
+		return false;
 	}
 
 	return true;
@@ -85,7 +107,6 @@ int cudaReadDeviceInfo(
 ) {
 	cudaDeviceProp prop;
 	int overlap;
-
 
 	if(info == NULL)
 		return -1;

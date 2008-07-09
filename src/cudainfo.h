@@ -61,6 +61,7 @@ struct CZDeviceInfo {
 	struct CZDeviceInfoBand	band;
 };
 
+bool cudaCheck(void);
 int cudaDeviceFound(void);
 int cudaReadDeviceInfo(struct CZDeviceInfo *info, int num);
 int cudaCalcDeviceBandwidth(struct CZDeviceInfo *info);
