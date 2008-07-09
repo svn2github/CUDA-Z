@@ -15,6 +15,104 @@
 QSplashScreen *splash;
 
 /*!
+	\class CZUpdateThread
+	\brief This class implements bandwidth data update procedure.
+*/
+
+/*!
+	\brief Creates the bandwidth data update thread.
+*/
+CZUpdateThread::CZUpdateThread(
+	QObject *parent			/*!< Parent of the thread. */
+)	: QThread(parent) {
+
+	restart = false;
+	abort = false;
+	info = NULL;
+	index = -1;
+
+	qDebug() << "Thread created";
+}
+
+/*!
+	\brief Terminates the bandwidth data update thread.
+	This function waits util bandwidth test will be over.
+*/
+CZUpdateThread::~CZUpdateThread() {
+
+	mutex.lock();
+	abort = true;
+	condition.wakeOne();
+	mutex.unlock();
+
+	wait();
+
+	qDebug() << "Thread is done";
+}
+
+/*!
+	\brief Push bandwidth test in thread.
+*/
+void CZUpdateThread::testBandwidth(
+	struct CZDeviceInfo *info,	/*!< Information about CUDA-device. */
+	int index			/*!< Index of device in list. */
+) {
+	QMutexLocker locker(&mutex);
+
+	this->info = info;
+	this->index = index;
+
+	qDebug() << "Rising update action for device" << index;
+
+	if (!isRunning()) {
+		start();
+	} else {
+		restart = true;
+		condition.wakeOne();
+	}
+}
+
+/*!
+	\brief Main work function of the thread.
+*/
+void CZUpdateThread::run() {
+
+	static struct CZDeviceInfo *lastInfo = NULL;
+	static int lastIndex = -1;
+
+	forever {
+	        mutex.lock();
+		struct CZDeviceInfo *info = this->info;
+		int index = this->index;
+        	mutex.unlock();
+
+		if((lastIndex != index) && (lastIndex != -1)) {
+			cudaCleanDevice(lastInfo);
+		}
+
+		if(abort) {
+			cudaCleanDevice(info);
+			return;
+		}
+
+		if(info != NULL) {
+			qDebug() << "Starting test for device" << index;
+			cudaCalcDeviceBandwidth(info);
+			if(!restart)
+				emit testedBandwidth(index);
+			lastInfo = info;
+			lastIndex = index;
+		}
+
+		mutex.lock();
+		if(!restart)
+			condition.wait(&mutex);
+		restart = false;
+		mutex.unlock();
+	}
+}
+
+/*!
 	\class CZDialog
 	\brief This class implements main window of the application.
 */
@@ -26,6 +124,7 @@ QSplashScreen *splash;
 	- Reads out CUDA-device information in to list.
 	- Sets up connections.
 	- Fills up data in to tabs of GUI.
+	- Starts bandwidth data update thread.
 */
 CZDialog::CZDialog(
 	QWidget *parent,	/*!< Parent of widget. */
@@ -43,13 +142,25 @@ CZDialog::CZDialog(
 	setupDeviceList();
 	setupDeviceInfo(comboDevice->currentIndex());
 	setupAboutTab();
+	freeCudaDevices();
+
+	updateThread = new CZUpdateThread(this);
+	updateThread->start();
+	connect(updateThread, SIGNAL(testedBandwidth(int)), SLOT(slotUpdateBandwidth(int)));
+
+	updateTimer = new QTimer(this);
+	connect(updateTimer, SIGNAL(timeout()), SLOT(slotUpdateTimer()));
+	updateTimer->start(5000);
 }
 
 /*
 	\brief Class destructor. This function makes class data cleanup actions.
 */
 CZDialog::~CZDialog() {
-	freeCudaDevices();
+	updateTimer->stop();
+	delete updateTimer;
+	delete updateThread;
+//	freeCudaDevices();
 }
 
 /*!
@@ -91,9 +202,8 @@ void CZDialog::readCudaDevices() {
 */
 void CZDialog::freeCudaDevices() {
 
-	while(deviceList.size() > 0) {
-		cudaCleanDevice(&deviceList[0]);
-		deviceList.removeFirst();
+	for(int i = 0; i < deviceList.size(); i++) {
+		cudaCleanDevice(&deviceList[i]);
 	}
 }
 
@@ -144,8 +254,37 @@ void CZDialog::slotShowDevice(
 	int index			/*!< Index of device in list. */
 ) {
 	setupDeviceInfo(index);
+	if(checkUpdateResults->checkState() == Qt::Checked) {
+		qDebug() << "Switch device -> update bandwidth for device" << index;
+		updateThread->testBandwidth(&deviceList[index], index);
+	}
 }
 
+/*!
+	\brief This slot updates bandwidth information of device
+	pointed by \a index.
+*/
+void CZDialog::slotUpdateBandwidth(
+	int index			/*!< Index of device in list. */
+) {
+	if(index == comboDevice->currentIndex())
+	setupBandwidthTab(deviceList[index]);
+}
+
+/*!
+	\brief This slot updates bandwidth information of current device
+	every timer tick.
+*/
+void CZDialog::slotUpdateTimer() {
+
+	int index = comboDevice->currentIndex();
+	if(checkUpdateResults->checkState() == Qt::Checked) {
+		qDebug() << "Timer shot -> update bandwidth for device" << index;
+		updateThread->testBandwidth(&deviceList[index], index);
+	} else {
+		qDebug() << "Timer shot -> update ignored";
+	}
+}
 
 /*!
 	\brief Place in dialog's tabs information about given device.

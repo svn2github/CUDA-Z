@@ -8,12 +8,41 @@
 #define CZ_DIALOG_H
 
 #include <QSplashScreen>
+#include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
+#include <QTimer>
 
 #include "ui_czdialog.h"
 #include "cudainfo.h"
 
 extern void wait(int n); // implemented in main.cpp
 extern QSplashScreen *splash;
+
+class CZUpdateThread: public QThread {
+	Q_OBJECT
+
+public:
+	CZUpdateThread(QObject *parent = 0);
+	~CZUpdateThread();
+
+	void testBandwidth(struct CZDeviceInfo *info, int index);
+
+signals:
+	void testedBandwidth(int index);
+
+protected:
+	void run();
+
+private:
+	struct CZDeviceInfo *info;
+	int index;
+
+	QMutex mutex;
+	QWaitCondition condition;
+	bool restart;
+	bool abort;
+};
 
 class CZDialog: public QDialog, public Ui::CZDialog {
 	Q_OBJECT
@@ -24,6 +53,8 @@ public:
 
 private:
 	QList<struct CZDeviceInfo> deviceList;
+	CZUpdateThread *updateThread;
+	QTimer *updateTimer;
 
 	void readCudaDevices();
 	void freeCudaDevices();
@@ -42,6 +73,8 @@ private:
 
 private slots:
 	void slotShowDevice(int index);
+	void slotUpdateBandwidth(int index);
+	void slotUpdateTimer();
 };
 
 #endif//CZ_DIALOG_H

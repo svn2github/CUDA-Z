@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>318</width>
+    <width>317</width>
     <height>295</height>
    </rect>
   </property>
@@ -27,7 +27,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>294</width>
+        <width>293</width>
         <height>217</height>
        </rect>
       </property>
@@ -387,7 +387,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>294</width>
+        <width>293</width>
         <height>217</height>
        </rect>
       </property>
@@ -571,7 +571,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>294</width>
+        <width>293</width>
         <height>217</height>
        </rect>
       </property>
@@ -722,6 +722,16 @@
          </property>
         </spacer>
        </item>
+       <item row="5" column="0" colspan="3" >
+        <widget class="QCheckBox" name="checkUpdateResults" >
+         <property name="text" >
+          <string>Update results in background</string>
+         </property>
+         <property name="checked" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tabAbout" >
@@ -729,7 +739,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>294</width>
+        <width>293</width>
         <height>217</height>
        </rect>
       </property>
