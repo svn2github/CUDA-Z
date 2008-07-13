@@ -215,7 +215,7 @@ int cudaCalcDeviceBandwidthAlloc(
 
 		printf("Host pinned is at 0x%08X.\n", lData->memHostPin);
 
-		printf("Alloc local buffer 1 for %s.\n", info->deviceName);
+		printf("Alloc device buffer 1 for %s.\n", info->deviceName);
 
 		CZ_CUDA_CALL(cudaMalloc((void**)&lData->memDevice1, CZ_BAND_BUF_SIZE),
 			cudaFreeHost(lData->memHostPin);
@@ -225,7 +225,7 @@ int cudaCalcDeviceBandwidthAlloc(
 
 		printf("Device buffer 1 is at 0x%08X.\n", lData->memDevice1);
 
-		printf("Alloc local buffer 2 for %s.\n", info->deviceName);
+		printf("Alloc device buffer 2 for %s.\n", info->deviceName);
 
 		CZ_CUDA_CALL(cudaMalloc((void**)&lData->memDevice2, CZ_BAND_BUF_SIZE),
 			cudaFree(lData->memDevice1);
@@ -272,12 +272,12 @@ int cudaCalcDeviceBandwidthFree(
 		if(lData->memHostPin != NULL)
 			cudaFreeHost(lData->memHostPin);
 
-		printf("Free local buffer 1 for %s.\n", info->deviceName);
+		printf("Free device buffer 1 for %s.\n", info->deviceName);
 
 		if(lData->memDevice1 != NULL)
 			cudaFree(lData->memDevice1);
 
-		printf("Free local buffer 2 for %s.\n", info->deviceName);
+		printf("Free device buffer 2 for %s.\n", info->deviceName);
 
 		if(lData->memDevice2 != NULL)
 			cudaFree(lData->memDevice2);
