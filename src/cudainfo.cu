@@ -13,8 +13,20 @@
 
 #include "cudainfo.h"
 
-#define CZ_BAND_BUF_SIZE	(32 * (1 << 20))	/*!< Transfer buffer size. */
+#define CZ_BAND_BUF_SIZE	(10 * (1 << 20))	/*!< Transfer buffer size. */
 #define CZ_BAND_LOOPS_NUM	(10)			/*!< Number of loops to run transfer test to. */
+
+/*!
+	\brief Error handling of CUDA RT calls.
+*/
+#define CZ_CUDA_CALL(funcCall, errProc) \
+	{ \
+		cudaError_t errCode; \
+		if((errCode = (funcCall)) != cudaSuccess) { \
+			printf("CUDA Error: %s\n", cudaGetErrorString(errCode)); \
+			errProc; \
+		} \
+	}
 
 /*!
 	\brief Prototype of function \a cuDeviceGetAttribute().
@@ -91,10 +103,9 @@ int cudaDeviceFound(void) {
 
 	int count;
 
-	if(cudaGetDeviceCount(&count) == cudaSuccess) {
-		return count;
-	}
-	return 0;
+	CZ_CUDA_CALL(cudaGetDeviceCount(&count),
+		return 0);
+	return count;
 }
 
 /*!
@@ -117,10 +128,8 @@ int cudaReadDeviceInfo(
 	if(num >= cudaDeviceFound())
 		return -1;
 
-	if(cudaGetDeviceProperties(&prop, num) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-		return -1;
-	}
+	CZ_CUDA_CALL(cudaGetDeviceProperties(&prop, num),
+		return -1);
 
 	if(p_cuDeviceGetAttribute(&overlap, CU_DEVICE_ATTRIBUTE_GPU_OVERLAP, num) != CUDA_SUCCESS)
 		return -1;
@@ -152,25 +161,14 @@ int cudaReadDeviceInfo(
 }
 
 /*!
-	\brief Global service data structure for bandwith calulations.
-*/
-struct CZDeviceInfoBandGlobalData {
-	void		*memHostPage;	/*!< Pageable host memory. */
-	void		*memHostPin;	/*!< Pinned host memory. */
-};
-
-/*!
 	\brief Local service data structure for bandwith calulations.
 */
 struct CZDeviceInfoBandLocalData {
-	void		*memDevice1;	/*!< Device memory. */
-	void		*memDevice2;	/*!< Device memory. */
+	void		*memHostPage;	/*!< Pageable host memory. */
+	void		*memHostPin;	/*!< Pinned host memory. */
+	void		*memDevice1;	/*!< Device memory buffer 1. */
+	void		*memDevice2;	/*!< Device memory buffer 2. */
 };
-
-/*!
-	\brief Global service data.
-*/
-CZDeviceInfoBandGlobalData *globalData = NULL;
 
 /*!
 	\brief Allocate buffers for bandwidth calculations.
@@ -179,81 +177,64 @@ CZDeviceInfoBandGlobalData *globalData = NULL;
 int cudaCalcDeviceBandwidthAlloc(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
-	CZDeviceInfoBandGlobalData *gData;
 	CZDeviceInfoBandLocalData *lData;
 
 	if(info == NULL)
 		return -1;
 
-	if(globalData == NULL) {
-
-		printf("Alloc global buffers.\n");
-
-		gData = (CZDeviceInfoBandGlobalData*)malloc(sizeof(gData));
-		if(gData == NULL) {
-			return -1;
-		}
-
-		printf("Alloc host pageable.\n");
-
-		gData->memHostPage = (void*)malloc(CZ_BAND_BUF_SIZE);
-		if(gData->memHostPage == NULL) {
-			free(gData);
-			return -1;
-		}
-
-		printf("Host pageable is at 0x%08X.\n", gData->memHostPage);
-
-		printf("Alloc host pinned.\n");
-
-		if(cudaMallocHost((void**)&gData->memHostPin, CZ_BAND_BUF_SIZE) != cudaSuccess) {
-			printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-			free(gData->memHostPage);
-			free(gData);
-			return -1;
-		}
-
-		printf("Host pinned is at 0x%08X.\n", gData->memHostPin);
-
-		globalData = gData;
-	}
-
 	if(info->band.localData == NULL) {
 
 		printf("Selecting %s.\n", info->deviceName);
 
-		if(cudaSetDevice(info->num) != cudaSuccess) {
-			printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-			return -1;
-		}
+		CZ_CUDA_CALL(cudaSetDevice(info->num),
+			return -1);
 
 		printf("Alloc local buffers for %s.\n", info->deviceName);
 
-		lData = (CZDeviceInfoBandLocalData*)malloc(sizeof(lData));
+		lData = (CZDeviceInfoBandLocalData*)malloc(sizeof(*lData));
 		if(lData == NULL) {
 			return -1;
 		}
 
-		printf("Alloc local buffer 1 for %s.\n", info->deviceName);
+		printf("Alloc host pageable for %s.\n", info->deviceName);
 
-		if(cudaMalloc((void**)&lData->memDevice1, CZ_BAND_BUF_SIZE) != cudaSuccess) {
-			printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+		lData->memHostPage = (void*)malloc(CZ_BAND_BUF_SIZE);
+		if(lData->memHostPage == NULL) {
 			free(lData);
 			return -1;
 		}
 
-		printf("Host buffer 1 is at 0x%08X.\n", lData->memDevice1);
+		printf("Host pageable is at 0x%08X.\n", lData->memHostPage);
+
+		printf("Alloc host pinned for %s.\n", info->deviceName);
+
+		CZ_CUDA_CALL(cudaMallocHost((void**)&lData->memHostPin, CZ_BAND_BUF_SIZE),
+			free(lData->memHostPage);
+			free(lData);
+			return -1);
+
+		printf("Host pinned is at 0x%08X.\n", lData->memHostPin);
+
+		printf("Alloc local buffer 1 for %s.\n", info->deviceName);
+
+		CZ_CUDA_CALL(cudaMalloc((void**)&lData->memDevice1, CZ_BAND_BUF_SIZE),
+			cudaFreeHost(lData->memHostPin);
+			free(lData->memHostPage);
+			free(lData);
+			return -1);
+
+		printf("Device buffer 1 is at 0x%08X.\n", lData->memDevice1);
 
 		printf("Alloc local buffer 2 for %s.\n", info->deviceName);
 
-		if(cudaMalloc((void**)&lData->memDevice2, CZ_BAND_BUF_SIZE) != cudaSuccess) {
-			printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+		CZ_CUDA_CALL(cudaMalloc((void**)&lData->memDevice2, CZ_BAND_BUF_SIZE),
 			cudaFree(lData->memDevice1);
+			cudaFreeHost(lData->memHostPin);
+			free(lData->memHostPage);
 			free(lData);
-			return -1;
-		}
+			return -1);
 
-		printf("Host buffer 2 is at 0x%08X.\n", lData->memDevice2);
+		printf("Device buffer 2 is at 0x%08X.\n", lData->memDevice2);
 
 		info->band.localData = (void*)lData;
 	}
@@ -268,40 +249,28 @@ int cudaCalcDeviceBandwidthAlloc(
 int cudaCalcDeviceBandwidthFree(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
-	CZDeviceInfoBandGlobalData *gData;
 	CZDeviceInfoBandLocalData *lData;
 
 	if(info == NULL)
 		return -1;
-
-	gData = globalData;
-	if(gData != NULL) {
-
-		printf("Free host pageable.\n");
-
-		if(gData->memHostPage != NULL)
-			free(gData->memHostPage);
-
-		printf("Free host pinned.\n");
-
-		if(gData->memHostPin != NULL)
-			cudaFreeHost(gData->memHostPin);
-
-		printf("Free global buffers.\n");
-
-		free(gData);
-	}
-	globalData = NULL;
 
 	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
 	if(lData != NULL) {
 
 		printf("Selecting %s.\n", info->deviceName);
 
-		if(cudaSetDevice(info->num) != cudaSuccess) {
-			printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-			return -1;
-		}
+		CZ_CUDA_CALL(cudaSetDevice(info->num),
+			return -1);
+
+		printf("Free host pageable for %s.\n", info->deviceName);
+
+		if(lData->memHostPage != NULL)
+			free(lData->memHostPage);
+
+		printf("Free host pinned for %s.\n", info->deviceName);
+
+		if(lData->memHostPin != NULL)
+			cudaFreeHost(lData->memHostPin);
 
 		printf("Free local buffer 1 for %s.\n", info->deviceName);
 
@@ -312,7 +281,6 @@ int cudaCalcDeviceBandwidthFree(
 
 		if(lData->memDevice2 != NULL)
 			cudaFree(lData->memDevice2);
-
 
 		printf("Free local buffers for %s.\n", info->deviceName);
 
@@ -347,7 +315,6 @@ int cudaCalcDeviceBandwidthTestHD (
 	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
 	int pinned
 ) {
-	CZDeviceInfoBandGlobalData *gData;
 	CZDeviceInfoBandLocalData *lData;
 	float timeMs = 0.0;
 	float bandwidthKBs = 0.0;
@@ -362,26 +329,19 @@ int cudaCalcDeviceBandwidthTestHD (
 
 	printf("Selecting %s.\n", info->deviceName);
 
-	if(cudaSetDevice(info->num) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-		return 0;
-	}
+	CZ_CUDA_CALL(cudaSetDevice(info->num),
+		return 0);
 
-	if(cudaEventCreate(&start) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-		return 0;
-	}
+	CZ_CUDA_CALL(cudaEventCreate(&start),
+		return 0);
 
-	if(cudaEventCreate(&stop) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventCreate(&stop),
 		cudaEventDestroy(start);
-		return 0;
-	}
+		return 0);
 
-	gData = globalData;
 	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
 
-	memHost = pinned? gData->memHostPin: gData->memHostPage;
+	memHost = pinned? lData->memHostPin: lData->memHostPage;
 	memDevice = lData->memDevice1;
 
 	printf("Starting H(0x%08X)->D(0x%08X) test (%s) on %s.\n",
@@ -389,40 +349,32 @@ int cudaCalcDeviceBandwidthTestHD (
 		pinned? "pinned": "pageable",
 		info->deviceName);
 
-	if(cudaEventRecord(start, 0) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventRecord(start, 0),
 		cudaEventDestroy(start);
 		cudaEventDestroy(stop);
-		return 0;
-	}
+		return 0);
+
 	for(i = 0; i < CZ_BAND_LOOPS_NUM; i++) {
-		if(cudaMemcpy(memDevice, memHost, CZ_BAND_BUF_SIZE, cudaMemcpyHostToDevice) != cudaSuccess) {
-			printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+		CZ_CUDA_CALL(cudaMemcpy(memDevice, memHost, CZ_BAND_BUF_SIZE, cudaMemcpyHostToDevice),
 			cudaEventDestroy(start);
 			cudaEventDestroy(stop);
-			return 0;
-		}
-	}
-	if(cudaEventRecord(stop, 0) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0;
+			return 0);
 	}
 
-	if(cudaEventSynchronize(stop) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventRecord(stop, 0),
 		cudaEventDestroy(start);
 		cudaEventDestroy(stop);
-		return 0;
-	}
+		return 0);
 
-	if(cudaEventElapsedTime(&timeMs, start, stop) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventSynchronize(stop),
 		cudaEventDestroy(start);
 		cudaEventDestroy(stop);
-		return 0;
-	}
+		return 0);
+
+	CZ_CUDA_CALL(cudaEventElapsedTime(&timeMs, start, stop),
+		cudaEventDestroy(start);
+		cudaEventDestroy(stop);
+		return 0);
 
 	printf("Test complete in %f ms.\n", timeMs);
 
@@ -438,7 +390,6 @@ int cudaCalcDeviceBandwidthTestDH (
 	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
 	int pinned
 ) {
-	CZDeviceInfoBandGlobalData *gData;
 	CZDeviceInfoBandLocalData *lData;
 	float timeMs = 0.0;
 	float bandwidthKBs = 0.0;
@@ -453,26 +404,19 @@ int cudaCalcDeviceBandwidthTestDH (
 
 	printf("Selecting %s.\n", info->deviceName);
 
-	if(cudaSetDevice(info->num) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-		return 0;
-	}
+	CZ_CUDA_CALL(cudaSetDevice(info->num),
+		return 0);
 
-	if(cudaEventCreate(&start) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-		return 0;
-	}
+	CZ_CUDA_CALL(cudaEventCreate(&start),
+		return 0);
 
-	if(cudaEventCreate(&stop) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventCreate(&stop),
 		cudaEventDestroy(start);
-		return 0;
-	}
+		return 0);
 
-	gData = globalData;
 	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
 
-	memHost = pinned? gData->memHostPin: gData->memHostPage;
+	memHost = pinned? lData->memHostPin: lData->memHostPage;
 	memDevice = lData->memDevice2;
 
 	printf("Starting D(0x%08X)->H(0x%08X) test (%s) on %s.\n",
@@ -480,40 +424,32 @@ int cudaCalcDeviceBandwidthTestDH (
 		pinned? "pinned": "pageable",
 		info->deviceName);
 
-	if(cudaEventRecord(start, 0) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventRecord(start, 0),
 		cudaEventDestroy(start);
 		cudaEventDestroy(stop);
-		return 0;
-	}
+		return 0);
+
 	for(i = 0; i < CZ_BAND_LOOPS_NUM; i++) {
-		if(cudaMemcpy(memDevice, memHost, CZ_BAND_BUF_SIZE, cudaMemcpyHostToDevice) != cudaSuccess) {
-			printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+		CZ_CUDA_CALL(cudaMemcpy(memDevice, memHost, CZ_BAND_BUF_SIZE, cudaMemcpyHostToDevice),
 			cudaEventDestroy(start);
 			cudaEventDestroy(stop);
-			return 0;
-		}
-	}
-	if(cudaEventRecord(stop, 0) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0;
+			return 0);
 	}
 
-	if(cudaEventSynchronize(stop) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventRecord(stop, 0),
 		cudaEventDestroy(start);
 		cudaEventDestroy(stop);
-		return 0;
-	}
+		return 0);
 
-	if(cudaEventElapsedTime(&timeMs, start, stop) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventSynchronize(stop),
 		cudaEventDestroy(start);
 		cudaEventDestroy(stop);
-		return 0;
-	}
+		return 0);
+
+	CZ_CUDA_CALL(cudaEventElapsedTime(&timeMs, start, stop),
+		cudaEventDestroy(start);
+		cudaEventDestroy(stop);
+		return 0);
 
 	printf("Test complete in %f ms.\n", timeMs);
 
@@ -528,7 +464,6 @@ int cudaCalcDeviceBandwidthTestDH (
 int cudaCalcDeviceBandwidthTestDD (
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
-//	CZDeviceInfoBandGlobalData *gData;
 	CZDeviceInfoBandLocalData *lData;
 	float timeMs = 0.0;
 	float bandwidthKBs = 0.0;
@@ -543,23 +478,16 @@ int cudaCalcDeviceBandwidthTestDD (
 
 	printf("Selecting %s.\n", info->deviceName);
 
-	if(cudaSetDevice(info->num) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-		return 0;
-	}
+	CZ_CUDA_CALL(cudaSetDevice(info->num),
+		return 0);
 
-	if(cudaEventCreate(&start) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-		return 0;
-	}
+	CZ_CUDA_CALL(cudaEventCreate(&start),
+		return 0);
 
-	if(cudaEventCreate(&stop) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventCreate(&stop),
 		cudaEventDestroy(start);
-		return 0;
-	}
+		return 0);
 
-//	gData = globalData;
 	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
 
 	memDevice1 = lData->memDevice1;
@@ -569,40 +497,32 @@ int cudaCalcDeviceBandwidthTestDD (
 		memDevice1, memDevice2,
 		info->deviceName);
 
-	if(cudaEventRecord(start, 0) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventRecord(start, 0),
 		cudaEventDestroy(start);
 		cudaEventDestroy(stop);
-		return 0;
-	}
+		return 0);
+
 	for(i = 0; i < CZ_BAND_LOOPS_NUM; i++) {
-		if(cudaMemcpy(memDevice2, memDevice1, CZ_BAND_BUF_SIZE, cudaMemcpyDeviceToDevice) != cudaSuccess) {
-			printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+		CZ_CUDA_CALL(cudaMemcpy(memDevice2, memDevice1, CZ_BAND_BUF_SIZE, cudaMemcpyDeviceToDevice),
 			cudaEventDestroy(start);
 			cudaEventDestroy(stop);
-			return 0;
-		}
-	}
-	if(cudaEventRecord(stop, 0) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0;
+			return 0);
 	}
 
-	if(cudaEventSynchronize(stop) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventRecord(stop, 0),
 		cudaEventDestroy(start);
 		cudaEventDestroy(stop);
-		return 0;
-	}
+		return 0);
 
-	if(cudaEventElapsedTime(&timeMs, start, stop) != cudaSuccess) {
-		printf("CUDA Error: %s\n", cudaGetErrorString(cudaGetLastError()));
+	CZ_CUDA_CALL(cudaEventSynchronize(stop),
 		cudaEventDestroy(start);
 		cudaEventDestroy(stop);
-		return 0;
-	}
+		return 0);
+
+	CZ_CUDA_CALL(cudaEventElapsedTime(&timeMs, start, stop),
+		cudaEventDestroy(start);
+		cudaEventDestroy(stop);
+		return 0);
 
 	printf("Test complete in %f ms.\n", timeMs);
 
@@ -627,6 +547,26 @@ int cudaCalcDeviceBandwidthTest(
 	info->band.copyDHPage = cudaCalcDeviceBandwidthTestDH(info, 0);
 	info->band.copyDHPin = cudaCalcDeviceBandwidthTestDH(info, 1);
 	info->band.copyDD = cudaCalcDeviceBandwidthTestDD(info);
+
+	return 0;
+}
+
+/*!
+	\brief Prepare buffers bandwidth tests.
+	\return \a 0 in case of success, \a -1 in case of error.
+*/
+int cudaPrepareDevice(
+	struct CZDeviceInfo *info
+) {
+
+	if(info == NULL)
+		return -1;
+
+	if(!cudaIsInit())
+		return -1;
+
+	if(cudaCalcDeviceBandwidthAlloc(info) != 0)
+		return -1;
 
 	return 0;
 }

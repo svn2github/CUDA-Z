@@ -15,6 +15,78 @@
 QSplashScreen *splash;
 
 /*!
+	\class CZCudaDeviceInfo
+	\brief This class implements a container for CUDA-device information.
+*/
+
+/*!
+	\brief Creates CUDA-device information container.
+*/
+CZCudaDeviceInfo::CZCudaDeviceInfo(
+	int devNum,
+	QObject *parent
+) 	: QObject(parent) {
+	memset(&_info, 0, sizeof(_info));
+	_info.num = devNum;
+	readInfo();
+	_thread = new CZUpdateThread(this, this);
+	_thread->start();
+}
+
+/*!
+	\brief Destroys cuda information container.
+*/
+CZCudaDeviceInfo::~CZCudaDeviceInfo() {
+	delete _thread;
+}
+
+/*!
+	\brief This function reads CUDA-device basic information.
+	\return \a 0 in case of success, \a -1 in case of error.
+*/
+int CZCudaDeviceInfo::readInfo() {
+	return cudaReadDeviceInfo(&_info, _info.num);
+}
+
+/*!
+	\brief This function prepare some buffers for budwidth tests.
+	\return \a 0 in case of success, \a -1 in case of error.
+*/
+int CZCudaDeviceInfo::prepareDevice() {
+	return cudaPrepareDevice(&_info);
+}
+
+/*!
+	\brief This function updates CUDA-device bandwidth information.
+	\return \a 0 in case of success, \a -1 in case of error.
+*/
+int CZCudaDeviceInfo::updateInfo() {
+	return cudaCalcDeviceBandwidth(&_info);
+}
+
+/*!
+	\brief This function cleans buffers used for budwidth tests.
+	\return \a 0 in case of success, \a -1 in case of error.
+*/
+int CZCudaDeviceInfo::cleanDevice() {
+	return cudaCleanDevice(&_info);
+}
+
+/*!
+	\brief Returns pointer to inforation structure.
+*/
+struct CZDeviceInfo &CZCudaDeviceInfo::info() {
+	return _info;
+}
+
+/*!
+	\brief Returns pointer to update thread.
+*/
+CZUpdateThread *CZCudaDeviceInfo::thread() {
+	return _thread;
+}
+
+/*!
 	\class CZUpdateThread
 	\brief This class implements bandwidth data update procedure.
 */
@@ -23,12 +95,12 @@ QSplashScreen *splash;
 	\brief Creates the bandwidth data update thread.
 */
 CZUpdateThread::CZUpdateThread(
+	CZCudaDeviceInfo *info,
 	QObject *parent			/*!< Parent of the thread. */
 )	: QThread(parent) {
 
-	restart = false;
 	abort = false;
-	info = NULL;
+	this->info = info;
 	index = -1;
 
 	qDebug() << "Thread created";
@@ -54,12 +126,10 @@ CZUpdateThread::~CZUpdateThread() {
 	\brief Push bandwidth test in thread.
 */
 void CZUpdateThread::testBandwidth(
-	struct CZDeviceInfo *info,	/*!< Information about CUDA-device. */
 	int index			/*!< Index of device in list. */
 ) {
 	QMutexLocker locker(&mutex);
 
-	this->info = info;
 	this->index = index;
 
 	qDebug() << "Rising update action for device" << index;
@@ -67,7 +137,6 @@ void CZUpdateThread::testBandwidth(
 	if (!isRunning()) {
 		start();
 	} else {
-		restart = true;
 		condition.wakeOne();
 	}
 }
@@ -77,37 +146,28 @@ void CZUpdateThread::testBandwidth(
 */
 void CZUpdateThread::run() {
 
-	static struct CZDeviceInfo *lastInfo = NULL;
-	static int lastIndex = -1;
+	qDebug() << "Thread started";
+
+	info->prepareDevice();
 
 	forever {
-	        mutex.lock();
-		struct CZDeviceInfo *info = this->info;
+		mutex.lock();
 		int index = this->index;
-        	mutex.unlock();
+		mutex.unlock();
 
-		if((lastIndex != index) && (lastIndex != -1)) {
-			cudaCleanDevice(lastInfo);
-		}
+		qDebug() << "Thread loop triggered";
 
 		if(abort) {
-			cudaCleanDevice(info);
+			info->cleanDevice();
 			return;
 		}
 
-		if(info != NULL) {
-			qDebug() << "Starting test for device" << index;
-			cudaCalcDeviceBandwidth(info);
-			if(!restart)
-				emit testedBandwidth(index);
-			lastInfo = info;
-			lastIndex = index;
-		}
+		info->updateInfo();
+		if(index != -1)
+			emit testedBandwidth(index);
 
 		mutex.lock();
-		if(!restart)
-			condition.wait(&mutex);
-		restart = false;
+		condition.wait(&mutex);
 		mutex.unlock();
 	}
 }
@@ -142,15 +202,10 @@ CZDialog::CZDialog(
 	setupDeviceList();
 	setupDeviceInfo(comboDevice->currentIndex());
 	setupAboutTab();
-	freeCudaDevices();
-
-	updateThread = new CZUpdateThread(this);
-	updateThread->start();
-	connect(updateThread, SIGNAL(testedBandwidth(int)), SLOT(slotUpdateBandwidth(int)));
 
 	updateTimer = new QTimer(this);
 	connect(updateTimer, SIGNAL(timeout()), SLOT(slotUpdateTimer()));
-	updateTimer->start(5000);
+	updateTimer->start(2000);
 }
 
 /*
@@ -159,8 +214,7 @@ CZDialog::CZDialog(
 CZDialog::~CZDialog() {
 	updateTimer->stop();
 	delete updateTimer;
-	delete updateThread;
-//	freeCudaDevices();
+	freeCudaDevices();
 }
 
 /*!
@@ -174,24 +228,20 @@ CZDialog::~CZDialog() {
 */
 void CZDialog::readCudaDevices() {
 
-	int num;
-
-	num = getCudaDeviceNumber();
+	int num = getCudaDeviceNumber();
 
 	for(int i = 0; i < num; i++) {
-		struct CZDeviceInfo info;
-		memset(&info, 0, sizeof(info));
 
-		if(readCudaDeviceInfo(info, i) == 0) {
-			splash->showMessage(tr("Getting information about %1 ...").arg(info.deviceName),
+		CZCudaDeviceInfo *info = new CZCudaDeviceInfo(i);
+
+		if(info->info().major != 0) {
+			splash->showMessage(tr("Getting information about %1 ...").arg(info->info().deviceName),
 				Qt::AlignLeft | Qt::AlignBottom);
 			qApp->processEvents();
 
 //			wait(10000000);
 			
-			if(calcCudaDeviceBandwidth(info) != 0) {
-				qDebug() << "Can't calc bandwidth for" << info.deviceName;
-			}
+			connect(info->thread(), SIGNAL(testedBandwidth(int)), SLOT(slotUpdateBandwidth(int)));
 			deviceList.append(info);
 		}
 	}
@@ -202,8 +252,10 @@ void CZDialog::readCudaDevices() {
 */
 void CZDialog::freeCudaDevices() {
 
-	for(int i = 0; i < deviceList.size(); i++) {
-		cudaCleanDevice(&deviceList[i]);
+	while(deviceList.size() > 0) {
+		CZCudaDeviceInfo *info = deviceList[0];
+		deviceList.removeFirst();
+		delete info;
 	}
 }
 
@@ -216,34 +268,13 @@ int CZDialog::getCudaDeviceNumber() {
 }
 
 /*!
-	\brief Get information about CUDA device.
-	\return \a 0 in case of success, \a -1 in case of error.
-*/
-int CZDialog::readCudaDeviceInfo(
-	struct CZDeviceInfo &info,	/*!< Information about CUDA-device. */
-	int dev				/*!< Number of CUDA-device. */
-) {
-	return cudaReadDeviceInfo(&info, dev);
-}
-
-/*!
-	\brief Get information about CUDA device.
-	\return \a 0 in case of success, \a -1 in case of error.
-*/
-int CZDialog::calcCudaDeviceBandwidth(
-	struct CZDeviceInfo &info	/*!< Information about CUDA-device. */
-) {
-	return cudaCalcDeviceBandwidth(&info);
-}
-
-/*!
 	\brief Put devices in combo box.
 */
 void CZDialog::setupDeviceList() {
 	comboDevice->clear();
 
 	for(int i = 0; i < deviceList.size(); i++) {
-		comboDevice->addItem(QString("%1: %2").arg(i).arg(deviceList[i].deviceName));
+		comboDevice->addItem(QString("%1: %2").arg(i).arg(deviceList[i]->info().deviceName));
 	}
 }
 
@@ -256,7 +287,7 @@ void CZDialog::slotShowDevice(
 	setupDeviceInfo(index);
 	if(checkUpdateResults->checkState() == Qt::Checked) {
 		qDebug() << "Switch device -> update bandwidth for device" << index;
-		updateThread->testBandwidth(&deviceList[index], index);
+		deviceList[index]->thread()->testBandwidth(index);
 	}
 }
 
@@ -268,7 +299,7 @@ void CZDialog::slotUpdateBandwidth(
 	int index			/*!< Index of device in list. */
 ) {
 	if(index == comboDevice->currentIndex())
-	setupBandwidthTab(deviceList[index]);
+	setupBandwidthTab(deviceList[index]->info());
 }
 
 /*!
@@ -280,7 +311,7 @@ void CZDialog::slotUpdateTimer() {
 	int index = comboDevice->currentIndex();
 	if(checkUpdateResults->checkState() == Qt::Checked) {
 		qDebug() << "Timer shot -> update bandwidth for device" << index;
-		updateThread->testBandwidth(&deviceList[index], index);
+		deviceList[index]->thread()->testBandwidth(index);
 	} else {
 		qDebug() << "Timer shot -> update ignored";
 	}
@@ -292,9 +323,9 @@ void CZDialog::slotUpdateTimer() {
 void CZDialog::setupDeviceInfo(
 	int dev				/*!< Number of CUDA-device. */
 ) {
-	setupCoreTab(deviceList[dev]);
-	setupMemoryTab(deviceList[dev]);
-	setupBandwidthTab(deviceList[dev]);
+	setupCoreTab(deviceList[dev]->info());
+	setupMemoryTab(deviceList[dev]->info());
+	setupBandwidthTab(deviceList[dev]->info());
 }
 
 /*!
@@ -351,12 +382,12 @@ void CZDialog::setupBandwidthTab(
 	struct CZDeviceInfo &info	/*!< Information about CUDA-device. */
 ) {
 
-	qDebug() << "BANDWIDTH:";
+/*	qDebug() << "BANDWIDTH:";
 	qDebug() << "copyHDPin:" << info.band.copyHDPin;
 	qDebug() << "copyHDPage:" << info.band.copyHDPage;
 	qDebug() << "copyDHPin:" << info.band.copyDHPin;
 	qDebug() << "copyDHPage:" << info.band.copyDHPage;
-	qDebug() << "copyDD:" << info.band.copyDD;
+	qDebug() << "copyDD:" << info.band.copyDD;*/
 
 	if(info.band.copyHDPin == 0)
 		labelHDRatePinText->setText("--");

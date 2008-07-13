@@ -64,6 +64,7 @@ struct CZDeviceInfo {
 bool cudaCheck(void);
 int cudaDeviceFound(void);
 int cudaReadDeviceInfo(struct CZDeviceInfo *info, int num);
+int cudaPrepareDevice(struct CZDeviceInfo *info);
 int cudaCalcDeviceBandwidth(struct CZDeviceInfo *info);
 int cudaCleanDevice(struct CZDeviceInfo *info);
 

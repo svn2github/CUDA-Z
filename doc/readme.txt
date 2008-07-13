@@ -81,9 +81,9 @@ If no error occurs you will found cuda-z.exe in ./bin folder.
 
 To make binary release package for windows you should additionally install
 NSIS 2.37 (or higher) and add it's folder in system PATH variable.
-Copy necessary libraries cudart.dll nvcuda.dll to ./bin folder from CUDA toolkit
-bin folder and your C:\Windows\system32 (or where you have it installed).
-Than you can generate package by calling in Visual Studio 2005 Command Prompt:
+Copy necessary libraries cudart.dll to ./bin folder from CUDA toolkit
+bin folder. Than you can generate package by calling in
+Visual Studio 2005 Command Prompt:
    > nmake pkg-win32
 
 I didn't try to build CUDA-Z in Linux and MacOS X, but it should be even

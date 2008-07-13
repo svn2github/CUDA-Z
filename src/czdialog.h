@@ -19,14 +19,36 @@
 extern void wait(int n); // implemented in main.cpp
 extern QSplashScreen *splash;
 
+class CZUpdateThread;
+
+class CZCudaDeviceInfo: public QObject {
+	Q_OBJECT
+
+public:
+	CZCudaDeviceInfo(int devNum, QObject *parent = 0);
+	~CZCudaDeviceInfo();
+
+	int readInfo();
+	int prepareDevice();
+	int updateInfo();
+	int cleanDevice();
+
+	struct CZDeviceInfo &info();
+	CZUpdateThread *thread();
+
+private:
+	struct CZDeviceInfo _info;
+	CZUpdateThread *_thread;
+};
+
 class CZUpdateThread: public QThread {
 	Q_OBJECT
 
 public:
-	CZUpdateThread(QObject *parent = 0);
+	CZUpdateThread(CZCudaDeviceInfo *info, QObject *parent = 0);
 	~CZUpdateThread();
 
-	void testBandwidth(struct CZDeviceInfo *info, int index);
+	void testBandwidth(int index);
 
 signals:
 	void testedBandwidth(int index);
@@ -35,12 +57,11 @@ protected:
 	void run();
 
 private:
-	struct CZDeviceInfo *info;
-	int index;
-
 	QMutex mutex;
 	QWaitCondition condition;
-	bool restart;
+	CZCudaDeviceInfo *info;
+
+	int index;
 	bool abort;
 };
 
@@ -52,15 +73,12 @@ public:
 	~CZDialog();
 
 private:
-	QList<struct CZDeviceInfo> deviceList;
-	CZUpdateThread *updateThread;
+	QList<CZCudaDeviceInfo*> deviceList;
 	QTimer *updateTimer;
 
 	void readCudaDevices();
 	void freeCudaDevices();
 	int getCudaDeviceNumber();
-	int readCudaDeviceInfo(struct CZDeviceInfo &info, int dev);
-	int calcCudaDeviceBandwidth(struct CZDeviceInfo &info);
 
 	void setupDeviceList();
 	void setupDeviceInfo(int dev);
