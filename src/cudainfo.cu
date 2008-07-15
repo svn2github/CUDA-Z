@@ -13,8 +13,8 @@
 
 #include "cudainfo.h"
 
-#define CZ_BAND_BUF_SIZE	(10 * (1 << 20))	/*!< Transfer buffer size. */
-#define CZ_BAND_LOOPS_NUM	(10)			/*!< Number of loops to run transfer test to. */
+#define CZ_BAND_BUF_SIZE	(16 * (1 << 20))	/*!< Transfer buffer size. */
+#define CZ_BAND_LOOPS_NUM	(8)			/*!< Number of loops to run transfer test to. */
 
 /*!
 	\brief Error handling of CUDA RT calls.

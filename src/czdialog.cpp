@@ -9,6 +9,8 @@
 #include "czdialog.h"
 #include "version.h"
 
+#define CZ_TIMER_REFRESH	2000	/*!< Test results update timer period (ms). */
+
 /*!
 	\brief Splash screen of application.
 */
@@ -150,12 +152,13 @@ void CZUpdateThread::run() {
 
 	info->prepareDevice();
 
-	forever {
-		mutex.lock();
-		int index = this->index;
-		mutex.unlock();
+	mutex.lock();
+	int index = this->index;
+	mutex.unlock();
 
-		qDebug() << "Thread loop triggered";
+	forever {
+
+		qDebug() << "Thread loop started";
 
 		if(abort) {
 			info->cleanDevice();
@@ -168,6 +171,7 @@ void CZUpdateThread::run() {
 
 		mutex.lock();
 		condition.wait(&mutex);
+		index = this->index;
 		mutex.unlock();
 	}
 }
@@ -205,7 +209,7 @@ CZDialog::CZDialog(
 
 	updateTimer = new QTimer(this);
 	connect(updateTimer, SIGNAL(timeout()), SLOT(slotUpdateTimer()));
-	updateTimer->start(2000);
+	updateTimer->start(CZ_TIMER_REFRESH);
 }
 
 /*
