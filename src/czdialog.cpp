@@ -45,7 +45,7 @@ CZCudaDeviceInfo::~CZCudaDeviceInfo() {
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::readInfo() {
-	return cudaReadDeviceInfo(&_info, _info.num);
+	return CZCudaReadDeviceInfo(&_info, _info.num);
 }
 
 /*!
@@ -53,7 +53,7 @@ int CZCudaDeviceInfo::readInfo() {
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::prepareDevice() {
-	return cudaPrepareDevice(&_info);
+	return CZCudaPrepareDevice(&_info);
 }
 
 /*!
@@ -61,7 +61,7 @@ int CZCudaDeviceInfo::prepareDevice() {
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::updateInfo() {
-	return cudaCalcDeviceBandwidth(&_info);
+	return CZCudaCalcDeviceBandwidth(&_info);
 }
 
 /*!
@@ -69,7 +69,7 @@ int CZCudaDeviceInfo::updateInfo() {
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::cleanDevice() {
-	return cudaCleanDevice(&_info);
+	return CZCudaCleanDevice(&_info);
 }
 
 /*!
@@ -265,7 +265,7 @@ void CZDialog::freeCudaDevices() {
 	\return number of CUDA-devices in case of success, \a 0 if no CUDA-devies were found.
 */
 int CZDialog::getCudaDeviceNumber() {
-	return cudaDeviceFound();
+	return CZCudaDeviceFound();
 }
 
 /*!

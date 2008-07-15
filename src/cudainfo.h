@@ -61,12 +61,12 @@ struct CZDeviceInfo {
 	struct CZDeviceInfoBand	band;
 };
 
-bool cudaCheck(void);
-int cudaDeviceFound(void);
-int cudaReadDeviceInfo(struct CZDeviceInfo *info, int num);
-int cudaPrepareDevice(struct CZDeviceInfo *info);
-int cudaCalcDeviceBandwidth(struct CZDeviceInfo *info);
-int cudaCleanDevice(struct CZDeviceInfo *info);
+bool CZCudaCheck(void);
+int CZCudaDeviceFound(void);
+int CZCudaReadDeviceInfo(struct CZDeviceInfo *info, int num);
+int CZCudaPrepareDevice(struct CZDeviceInfo *info);
+int CZCudaCalcDeviceBandwidth(struct CZDeviceInfo *info);
+int CZCudaCleanDevice(struct CZDeviceInfo *info);
 
 #ifdef __cplusplus
 }

@@ -16,7 +16,7 @@
 	\brief Call function that checks CUDA presents.
 */
 bool testCudaPresent() {
-	bool res = cudaCheck();
+	bool res = CZCudaCheck();
 	qDebug() << "CUDA Present:" << res;
 	return res;
 }
@@ -25,7 +25,7 @@ bool testCudaPresent() {
 	\brief Call function that returns numbed of CUDA-devices.
 */
 int getCudaDeviceNum() {
-	int res = cudaDeviceFound();
+	int res = CZCudaDeviceFound();
 	qDebug() << "CUDA Devices found:" << res;
 	return res;
 }

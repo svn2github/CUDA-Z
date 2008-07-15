@@ -40,13 +40,13 @@ typedef CUresult (CUDAAPI *cuInit_t)(unsigned int Flags);
 
 /*!
 	\brief Pointer to function \a cuDeviceGetAttribute().
-	This parameter is initializaed by #cudaIsInit().
+	This parameter is initializaed by #CZCudaIsInit().
 */
 static cuDeviceGetAttribute_t p_cuDeviceGetAttribute = NULL;
 
 /*!
 	\brief Pointer to function \a cuInit().
-	This parameter is initializaed by #cudaIsInit().
+	This parameter is initializaed by #CZCudaIsInit().
 */
 static cuInit_t p_cuInit = NULL;
 
@@ -55,7 +55,7 @@ static cuInit_t p_cuInit = NULL;
 	This function loads nvcuda.dll and finds function \a cuDeviceGetAttribute.
 	\return \a true in case of success, \a false in case of error.
 */
-static bool cudaIsInit(void) {
+static bool CZCudaIsInit(void) {
 
 	HINSTANCE hDll;
 
@@ -83,9 +83,9 @@ static bool cudaIsInit(void) {
 /*!
 	\brief Check if CUDA is present here.
 */
-bool cudaCheck(void) {
+bool CZCudaCheck(void) {
 
-	if(!cudaIsInit())
+	if(!CZCudaIsInit())
 		return false;
 
 	if(p_cuInit(0) == CUDA_ERROR_NOT_INITIALIZED) {
@@ -99,7 +99,7 @@ bool cudaCheck(void) {
 	\brief Check how many CUDA-devices are present.
 	\return number of CUDA-devices in case of success, \a 0 if no CUDA-devies were found.
 */
-int cudaDeviceFound(void) {
+int CZCudaDeviceFound(void) {
 
 	int count;
 
@@ -112,7 +112,7 @@ int cudaDeviceFound(void) {
 	\brief Read information about a CUDA-device.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int cudaReadDeviceInfo(
+int CZCudaReadDeviceInfo(
 	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
 	int num				/*!< Number (index) of CUDA-device. */
 ) {
@@ -122,10 +122,10 @@ int cudaReadDeviceInfo(
 	if(info == NULL)
 		return -1;
 
-	if(!cudaIsInit())
+	if(!CZCudaIsInit())
 		return -1;
 
-	if(num >= cudaDeviceFound())
+	if(num >= CZCudaDeviceFound())
 		return -1;
 
 	CZ_CUDA_CALL(cudaGetDeviceProperties(&prop, num),
@@ -174,7 +174,7 @@ struct CZDeviceInfoBandLocalData {
 	\brief Allocate buffers for bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int cudaCalcDeviceBandwidthAlloc(
+int CZCudaCalcDeviceBandwidthAlloc(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 	CZDeviceInfoBandLocalData *lData;
@@ -246,7 +246,7 @@ int cudaCalcDeviceBandwidthAlloc(
 	\brief Free buffers for bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int cudaCalcDeviceBandwidthFree(
+int CZCudaCalcDeviceBandwidthFree(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 	CZDeviceInfoBandLocalData *lData;
@@ -295,7 +295,7 @@ int cudaCalcDeviceBandwidthFree(
 	\brief Reset results of bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int cudaCalcDeviceBandwidthReset(
+int CZCudaCalcDeviceBandwidthReset(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 
@@ -315,7 +315,7 @@ int cudaCalcDeviceBandwidthReset(
 	\brief Run host to device data transfer bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int cudaCalcDeviceBandwidthTestHD (
+int CZCudaCalcDeviceBandwidthTestHD (
 	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
 	int pinned			/*!< Use pinned \a (=1) memory buffer instead of pagable \a (=0). */
 ) {
@@ -394,7 +394,7 @@ int cudaCalcDeviceBandwidthTestHD (
 	\brief Run device to host data transfer bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int cudaCalcDeviceBandwidthTestDH (
+int CZCudaCalcDeviceBandwidthTestDH (
 	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
 	int pinned			/*!< Use pinned \a (=1) memory buffer instead of pagable \a (=0). */
 ) {
@@ -473,7 +473,7 @@ int cudaCalcDeviceBandwidthTestDH (
 	\brief Run device to device data transfer bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int cudaCalcDeviceBandwidthTestDD (
+int CZCudaCalcDeviceBandwidthTestDD (
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 	CZDeviceInfoBandLocalData *lData;
@@ -550,15 +550,15 @@ int cudaCalcDeviceBandwidthTestDD (
 	\brief Run several bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int cudaCalcDeviceBandwidthTest(
+int CZCudaCalcDeviceBandwidthTest(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 
-	info->band.copyHDPage = cudaCalcDeviceBandwidthTestHD(info, 0);
-	info->band.copyHDPin = cudaCalcDeviceBandwidthTestHD(info, 1);
-	info->band.copyDHPage = cudaCalcDeviceBandwidthTestDH(info, 0);
-	info->band.copyDHPin = cudaCalcDeviceBandwidthTestDH(info, 1);
-	info->band.copyDD = cudaCalcDeviceBandwidthTestDD(info);
+	info->band.copyHDPage = CZCudaCalcDeviceBandwidthTestHD(info, 0);
+	info->band.copyHDPin = CZCudaCalcDeviceBandwidthTestHD(info, 1);
+	info->band.copyDHPage = CZCudaCalcDeviceBandwidthTestDH(info, 0);
+	info->band.copyDHPin = CZCudaCalcDeviceBandwidthTestDH(info, 1);
+	info->band.copyDD = CZCudaCalcDeviceBandwidthTestDD(info);
 
 	return 0;
 }
@@ -567,17 +567,17 @@ int cudaCalcDeviceBandwidthTest(
 	\brief Prepare buffers bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int cudaPrepareDevice(
+int CZCudaPrepareDevice(
 	struct CZDeviceInfo *info
 ) {
 
 	if(info == NULL)
 		return -1;
 
-	if(!cudaIsInit())
+	if(!CZCudaIsInit())
 		return -1;
 
-	if(cudaCalcDeviceBandwidthAlloc(info) != 0)
+	if(CZCudaCalcDeviceBandwidthAlloc(info) != 0)
 		return -1;
 
 	return 0;
@@ -587,25 +587,25 @@ int cudaPrepareDevice(
 	\brief Calculate bandwidth information about CUDA-device.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int cudaCalcDeviceBandwidth(
+int CZCudaCalcDeviceBandwidth(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 
-//	printf("cudaCalcDeviceBandwidth called!\n");
+//	printf("CZCudaCalcDeviceBandwidth called!\n");
 
 	if(info == NULL)
 		return -1;
 
-	if(cudaCalcDeviceBandwidthReset(info) != 0)
+	if(CZCudaCalcDeviceBandwidthReset(info) != 0)
 		return -1;
 
-	if(!cudaIsInit())
+	if(!CZCudaIsInit())
 		return -1;
 
-	if(cudaCalcDeviceBandwidthAlloc(info) != 0)
+	if(CZCudaCalcDeviceBandwidthAlloc(info) != 0)
 		return -1;
 
-	if(cudaCalcDeviceBandwidthTest(info) != 0)
+	if(CZCudaCalcDeviceBandwidthTest(info) != 0)
 		return -1;
 
 	return 0;
@@ -615,14 +615,14 @@ int cudaCalcDeviceBandwidth(
 	\brief Cleanup after test and bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int cudaCleanDevice(
+int CZCudaCleanDevice(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 
 	if(info == NULL)
 		return -1;
 
-	if(cudaCalcDeviceBandwidthFree(info) != 0)
+	if(CZCudaCalcDeviceBandwidthFree(info) != 0)
 		return -1;
 
 	return 0;
