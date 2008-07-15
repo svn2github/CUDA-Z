@@ -30,15 +30,18 @@
 #define CZ_VER_STRING_BUILD	CZ_VER_STRING
 #endif//CZ_VER_BUILD
 
+/*!
+	\def CZ_VERSION Application version final string.
+*/
 #ifdef CZ_VER_STATE
 #define CZ_VERSION		CZ_VER_STRING_BUILD " " CZ_VER_STATE
 #else
 #define CZ_VERSION		CZ_VER_STRING_BUILD
 #endif//CZ_VER_STATE
-						/*!< Application version final string. */
 
 #define CZ_NAME_SHORT		"CUDA-Z"	/*!< Application short name. */
-#define CZ_NAME_LONG		"CUDA Information Utility"	/*!< Application long name. */
+#define CZ_NAME_LONG		"CUDA Information Utility"
+						/*!< Application long name. */
 
 #define CZ_DATE			__DATE__	/*!< Application compile date. */
 #define CZ_TIME			__TIME__	/*!< Application compile time. */
@@ -48,6 +51,7 @@
 #define CZ_ORG_URL_MAINPAGE	"http://cuda-z.sourceforge.net/"
 						/*!< URL of main web site. */
 #define CZ_ORG_URL_PROJECT	"http://sourceforge.net/projects/cuda-z/"
+						/*!< URL of project page. */
 
 #define CZ_COPY_INFO		"This software is distributed under the terms of the GNU General Public License Version 2."
 						/*!< Program's copyright information. */

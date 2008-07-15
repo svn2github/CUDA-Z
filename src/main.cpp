@@ -31,7 +31,7 @@ int getCudaDeviceNum() {
 }
 
 /*!
-	\brief Busy loop wait function.
+	\brief Busy loop wait function (brutal hack for testing).
 	Actually, I don't know how to call sleep() function from Qt code :).
 */
 void wait(

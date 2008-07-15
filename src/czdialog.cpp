@@ -9,7 +9,7 @@
 #include "czdialog.h"
 #include "version.h"
 
-/*
+/*!
 	\brief Splash screen of application.
 */
 QSplashScreen *splash;
@@ -181,10 +181,10 @@ void CZUpdateThread::run() {
 	\brief Creates a new #CZDialog with the given \a parent.
 	This function does following steps:
 	- Sets up GUI.
-	- Reads out CUDA-device information in to list.
+	- Setup CUDA-device information containers and add them in list.
 	- Sets up connections.
 	- Fills up data in to tabs of GUI.
-	- Starts bandwidth data update thread.
+	- Starts bandwidth data update timer.
 */
 CZDialog::CZDialog(
 	QWidget *parent,	/*!< Parent of widget. */
@@ -209,7 +209,8 @@ CZDialog::CZDialog(
 }
 
 /*
-	\brief Class destructor. This function makes class data cleanup actions.
+	\brief Class destructor.
+	This function makes class data cleanup actions.
 */
 CZDialog::~CZDialog() {
 	updateTimer->stop();
@@ -223,7 +224,7 @@ CZDialog::~CZDialog() {
 	- Initialize CUDA-data structure.
 	- Reads CUDA-information about device.
 	- Shows progress message in splash screen.
-	- Starts bandwidth calculation.
+	- Starts bandwidth calculation thread.
 	- Appends entry in to device-list.
 */
 void CZDialog::readCudaDevices() {

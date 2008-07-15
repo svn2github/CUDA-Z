@@ -311,9 +311,13 @@ int cudaCalcDeviceBandwidthReset(
 	return 0;
 }
 
+/*!
+	\brief Run host to device data transfer bandwidth tests.
+	\return \a 0 in case of success, \a -1 in case of error.
+*/
 int cudaCalcDeviceBandwidthTestHD (
 	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
-	int pinned
+	int pinned			/*!< Use pinned \a (=1) memory buffer instead of pagable \a (=0). */
 ) {
 	CZDeviceInfoBandLocalData *lData;
 	float timeMs = 0.0;
@@ -386,9 +390,13 @@ int cudaCalcDeviceBandwidthTestHD (
 	return (int)bandwidthKBs;
 }
 
+/*!
+	\brief Run device to host data transfer bandwidth tests.
+	\return \a 0 in case of success, \a -1 in case of error.
+*/
 int cudaCalcDeviceBandwidthTestDH (
 	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
-	int pinned
+	int pinned			/*!< Use pinned \a (=1) memory buffer instead of pagable \a (=0). */
 ) {
 	CZDeviceInfoBandLocalData *lData;
 	float timeMs = 0.0;
@@ -461,6 +469,10 @@ int cudaCalcDeviceBandwidthTestDH (
 	return (int)bandwidthKBs;
 }
 
+/*!
+	\brief Run device to device data transfer bandwidth tests.
+	\return \a 0 in case of success, \a -1 in case of error.
+*/
 int cudaCalcDeviceBandwidthTestDD (
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
