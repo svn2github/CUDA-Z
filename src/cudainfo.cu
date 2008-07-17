@@ -13,8 +13,15 @@
 
 #include "cudainfo.h"
 
-#define CZ_BAND_BUF_SIZE	(16 * (1 << 20))	/*!< Transfer buffer size. */
-#define CZ_BAND_LOOPS_NUM	(8)			/*!< Number of loops to run transfer test to. */
+#define MAX(a, b)		((a > b)? a: b)
+
+#define CZ_COPY_BUF_SIZE	(16 * (1 << 20))	/*!< Transfer buffer size. */
+#define CZ_COPY_LOOPS_NUM	(8)			/*!< Number of loops to run transfer test to. */
+
+#define CZ_CALC_LOOPS_NUM	(128)			/*!< Number of loops to run calculation loop. */
+#define CZ_CALC_OPS_NUM		(4)			/*!< Number of operations per one loop. */
+#define CZ_CALC_THREADS_NUM	(CZ_COPY_BUF_SIZE / MAX(sizeof(int), sizeof(float)))
+							/*!< Number of threads to run calculation loop. */
 
 /*!
 	\brief Error handling of CUDA RT calls.
@@ -174,7 +181,7 @@ struct CZDeviceInfoBandLocalData {
 	\brief Allocate buffers for bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int CZCudaCalcDeviceBandwidthAlloc(
+static int CZCudaCalcDeviceBandwidthAlloc(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 	CZDeviceInfoBandLocalData *lData;
@@ -198,7 +205,7 @@ int CZCudaCalcDeviceBandwidthAlloc(
 
 		printf("Alloc host pageable for %s.\n", info->deviceName);
 
-		lData->memHostPage = (void*)malloc(CZ_BAND_BUF_SIZE);
+		lData->memHostPage = (void*)malloc(CZ_COPY_BUF_SIZE);
 		if(lData->memHostPage == NULL) {
 			free(lData);
 			return -1;
@@ -208,7 +215,7 @@ int CZCudaCalcDeviceBandwidthAlloc(
 
 		printf("Alloc host pinned for %s.\n", info->deviceName);
 
-		CZ_CUDA_CALL(cudaMallocHost((void**)&lData->memHostPin, CZ_BAND_BUF_SIZE),
+		CZ_CUDA_CALL(cudaMallocHost((void**)&lData->memHostPin, CZ_COPY_BUF_SIZE),
 			free(lData->memHostPage);
 			free(lData);
 			return -1);
@@ -217,7 +224,7 @@ int CZCudaCalcDeviceBandwidthAlloc(
 
 		printf("Alloc device buffer 1 for %s.\n", info->deviceName);
 
-		CZ_CUDA_CALL(cudaMalloc((void**)&lData->memDevice1, CZ_BAND_BUF_SIZE),
+		CZ_CUDA_CALL(cudaMalloc((void**)&lData->memDevice1, CZ_COPY_BUF_SIZE),
 			cudaFreeHost(lData->memHostPin);
 			free(lData->memHostPage);
 			free(lData);
@@ -227,7 +234,7 @@ int CZCudaCalcDeviceBandwidthAlloc(
 
 		printf("Alloc device buffer 2 for %s.\n", info->deviceName);
 
-		CZ_CUDA_CALL(cudaMalloc((void**)&lData->memDevice2, CZ_BAND_BUF_SIZE),
+		CZ_CUDA_CALL(cudaMalloc((void**)&lData->memDevice2, CZ_COPY_BUF_SIZE),
 			cudaFree(lData->memDevice1);
 			cudaFreeHost(lData->memHostPin);
 			free(lData->memHostPage);
@@ -246,7 +253,7 @@ int CZCudaCalcDeviceBandwidthAlloc(
 	\brief Free buffers for bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int CZCudaCalcDeviceBandwidthFree(
+static int CZCudaCalcDeviceBandwidthFree(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 	CZDeviceInfoBandLocalData *lData;
@@ -295,7 +302,7 @@ int CZCudaCalcDeviceBandwidthFree(
 	\brief Reset results of bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int CZCudaCalcDeviceBandwidthReset(
+static int CZCudaCalcDeviceBandwidthReset(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 
@@ -315,7 +322,7 @@ int CZCudaCalcDeviceBandwidthReset(
 	\brief Run host to device data transfer bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int CZCudaCalcDeviceBandwidthTestHD (
+static float CZCudaCalcDeviceBandwidthTestHD (
 	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
 	int pinned			/*!< Use pinned \a (=1) memory buffer instead of pagable \a (=0). */
 ) {
@@ -358,8 +365,8 @@ int CZCudaCalcDeviceBandwidthTestHD (
 		cudaEventDestroy(stop);
 		return 0);
 
-	for(i = 0; i < CZ_BAND_LOOPS_NUM; i++) {
-		CZ_CUDA_CALL(cudaMemcpy(memDevice, memHost, CZ_BAND_BUF_SIZE, cudaMemcpyHostToDevice),
+	for(i = 0; i < CZ_COPY_LOOPS_NUM; i++) {
+		CZ_CUDA_CALL(cudaMemcpy(memDevice, memHost, CZ_COPY_BUF_SIZE, cudaMemcpyHostToDevice),
 			cudaEventDestroy(start);
 			cudaEventDestroy(stop);
 			return 0);
@@ -382,7 +389,7 @@ int CZCudaCalcDeviceBandwidthTestHD (
 
 	printf("Test complete in %f ms.\n", timeMs);
 
-	bandwidthKBs = (1000 * (float)CZ_BAND_BUF_SIZE * (float)CZ_BAND_LOOPS_NUM) / (timeMs * (float)(1 << 10));
+	bandwidthKBs = (1000 * (float)CZ_COPY_BUF_SIZE * (float)CZ_COPY_LOOPS_NUM) / (timeMs * (float)(1 << 10));
 
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
@@ -394,7 +401,7 @@ int CZCudaCalcDeviceBandwidthTestHD (
 	\brief Run device to host data transfer bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int CZCudaCalcDeviceBandwidthTestDH (
+static float CZCudaCalcDeviceBandwidthTestDH (
 	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
 	int pinned			/*!< Use pinned \a (=1) memory buffer instead of pagable \a (=0). */
 ) {
@@ -437,8 +444,8 @@ int CZCudaCalcDeviceBandwidthTestDH (
 		cudaEventDestroy(stop);
 		return 0);
 
-	for(i = 0; i < CZ_BAND_LOOPS_NUM; i++) {
-		CZ_CUDA_CALL(cudaMemcpy(memDevice, memHost, CZ_BAND_BUF_SIZE, cudaMemcpyHostToDevice),
+	for(i = 0; i < CZ_COPY_LOOPS_NUM; i++) {
+		CZ_CUDA_CALL(cudaMemcpy(memDevice, memHost, CZ_COPY_BUF_SIZE, cudaMemcpyHostToDevice),
 			cudaEventDestroy(start);
 			cudaEventDestroy(stop);
 			return 0);
@@ -461,7 +468,7 @@ int CZCudaCalcDeviceBandwidthTestDH (
 
 	printf("Test complete in %f ms.\n", timeMs);
 
-	bandwidthKBs = (1000 * (float)CZ_BAND_BUF_SIZE * (float)CZ_BAND_LOOPS_NUM) / (timeMs * (float)(1 << 10));
+	bandwidthKBs = (1000 * (float)CZ_COPY_BUF_SIZE * (float)CZ_COPY_LOOPS_NUM) / (timeMs * (float)(1 << 10));
 
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
@@ -473,7 +480,7 @@ int CZCudaCalcDeviceBandwidthTestDH (
 	\brief Run device to device data transfer bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int CZCudaCalcDeviceBandwidthTestDD (
+static float CZCudaCalcDeviceBandwidthTestDD (
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 	CZDeviceInfoBandLocalData *lData;
@@ -514,8 +521,8 @@ int CZCudaCalcDeviceBandwidthTestDD (
 		cudaEventDestroy(stop);
 		return 0);
 
-	for(i = 0; i < CZ_BAND_LOOPS_NUM; i++) {
-		CZ_CUDA_CALL(cudaMemcpy(memDevice2, memDevice1, CZ_BAND_BUF_SIZE, cudaMemcpyDeviceToDevice),
+	for(i = 0; i < CZ_COPY_LOOPS_NUM; i++) {
+		CZ_CUDA_CALL(cudaMemcpy(memDevice2, memDevice1, CZ_COPY_BUF_SIZE, cudaMemcpyDeviceToDevice),
 			cudaEventDestroy(start);
 			cudaEventDestroy(stop);
 			return 0);
@@ -538,7 +545,7 @@ int CZCudaCalcDeviceBandwidthTestDD (
 
 	printf("Test complete in %f ms.\n", timeMs);
 
-	bandwidthKBs = (1000 * (float)CZ_BAND_BUF_SIZE * (float)CZ_BAND_LOOPS_NUM) / (timeMs * (float)(1 << 10));
+	bandwidthKBs = (1000 * (float)CZ_COPY_BUF_SIZE * (float)CZ_COPY_LOOPS_NUM) / (timeMs * (float)(1 << 10));
 
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
@@ -550,7 +557,7 @@ int CZCudaCalcDeviceBandwidthTestDD (
 	\brief Run several bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-int CZCudaCalcDeviceBandwidthTest(
+static int CZCudaCalcDeviceBandwidthTest(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 
@@ -624,6 +631,155 @@ int CZCudaCleanDevice(
 
 	if(CZCudaCalcDeviceBandwidthFree(info) != 0)
 		return -1;
+
+	return 0;
+}
+
+/*!
+	\brief Reset results of preformance calculations.
+	\return \a 0 in case of success, \a -1 in case of error.
+*/
+static int CZCudaCalcDevicePerformanceReset(
+	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+) {
+
+	if(info == NULL)
+		return -1;
+
+	info->perf.calcFixed = 0;
+	info->perf.calcFloat = 0;
+
+	return 0;
+}
+
+/*!
+	\brief GPU code for fixed point test.
+*/
+static __global__ void CZCudaCalcKernelFixed(void *buf) {
+	int val = blockIdx.x * blockDim.x + threadIdx.x;
+	int *arr = (int*)buf;
+	int i;
+
+	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
+		val += 542;
+		val *= val;
+		val -= 862;
+		val /= 475;
+	}
+
+	arr[blockIdx.x * blockDim.x + threadIdx.x] = val;
+}
+
+/*!
+	\brief GPU code for float point test.
+*/
+static __global__ void CZCudaCalcKernelFloat(void *buf) {
+	float val = blockIdx.x * blockDim.x + threadIdx.x;
+	float *arr = (float*)buf;
+	int i;
+
+	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
+		val += 542.314;
+		val *= val;
+		val -= 862.432;
+		val /= 475.4587;
+	}
+
+	arr[blockIdx.x * blockDim.x + threadIdx.x] = val;
+}
+
+/*!
+	\brief Run GPU calculation performace tests.
+	\return \a 0 in case of success, \a -1 in case of error.
+*/
+static float CZCudaCalcDevicePerformanceTest(
+	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
+	int fixed			/*!< Run fixed point \a (=1) test instead of float point \a (=0). */
+) {
+	CZDeviceInfoBandLocalData *lData;
+	float timeMs = 0.0;
+	float performanceKOPs = 0.0;
+	cudaEvent_t start;
+	cudaEvent_t stop;
+
+	if(info == NULL)
+		return 0;
+
+	printf("Selecting %s.\n", info->deviceName);
+
+	CZ_CUDA_CALL(cudaSetDevice(info->num),
+		return 0);
+
+	CZ_CUDA_CALL(cudaEventCreate(&start),
+		return 0);
+
+	CZ_CUDA_CALL(cudaEventCreate(&stop),
+		cudaEventDestroy(start);
+		return 0);
+
+	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
+
+	printf("Starting %s point test on %s.\n",
+		fixed? "fixed": "float",
+		info->deviceName);
+
+	CZ_CUDA_CALL(cudaEventRecord(start, 0),
+		cudaEventDestroy(start);
+		cudaEventDestroy(stop);
+		return 0);
+
+	if(fixed) {
+		CZCudaCalcKernelFixed<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>(lData->memDevice1);
+	} else {
+		CZCudaCalcKernelFloat<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>(lData->memDevice1);
+	}
+
+	CZ_CUDA_CALL(cudaEventRecord(stop, 0),
+		cudaEventDestroy(start);
+		cudaEventDestroy(stop);
+		return 0);
+
+	CZ_CUDA_CALL(cudaEventSynchronize(stop),
+		cudaEventDestroy(start);
+		cudaEventDestroy(stop);
+		return 0);
+
+	CZ_CUDA_CALL(cudaEventElapsedTime(&timeMs, start, stop),
+		cudaEventDestroy(start);
+		cudaEventDestroy(stop);
+		return 0);
+
+	printf("Test complete in %f ms.\n", timeMs);
+
+	performanceKOPs = ((float)CZ_CALC_LOOPS_NUM * (float)CZ_CALC_OPS_NUM * (float)CZ_CALC_THREADS_NUM) / (float)timeMs;
+
+	cudaEventDestroy(start);
+	cudaEventDestroy(stop);
+
+	return (int)performanceKOPs;
+}
+
+/*!
+	\brief Calculate performance information about CUDA-device.
+	\return \a 0 in case of success, \a -1 in case of error.
+*/
+int CZCudaCalcDevicePerformance(
+	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+) {
+
+//	printf("CZCudaCalcDevicePerformance called!\n");
+
+	if(info == NULL)
+		return -1;
+
+	if(CZCudaCalcDevicePerformanceReset(info) != 0)
+		return -1;
+
+	if(!CZCudaIsInit())
+		return -1;
+
+	info->perf.calcFixed = CZCudaCalcDevicePerformanceTest(info, 1);
+	info->perf.calcFloat = CZCudaCalcDevicePerformanceTest(info, 0);
 
 	return 0;
 }

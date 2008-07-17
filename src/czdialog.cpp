@@ -9,7 +9,7 @@
 #include "czdialog.h"
 #include "version.h"
 
-#define CZ_TIMER_REFRESH	2000	/*!< Test results update timer period (ms). */
+#define CZ_TIMER_REFRESH	5000	/*!< Test results update timer period (ms). */
 
 /*!
 	\brief Splash screen of application.
@@ -63,7 +63,11 @@ int CZCudaDeviceInfo::prepareDevice() {
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::updateInfo() {
-	return CZCudaCalcDeviceBandwidth(&_info);
+	int r;
+	r = CZCudaCalcDeviceBandwidth(&_info);
+	if(r == -1)
+		return r;
+	return CZCudaCalcDevicePerformance(&_info);
 }
 
 /*!
@@ -168,6 +172,11 @@ void CZUpdateThread::run() {
 		info->updateInfo();
 		if(index != -1)
 			emit testedBandwidth(index);
+
+		if(abort) {
+			info->cleanDevice();
+			return;
+		}
 
 		mutex.lock();
 		condition.wait(&mutex);
@@ -387,12 +396,14 @@ void CZDialog::setupBandwidthTab(
 	struct CZDeviceInfo &info	/*!< Information about CUDA-device. */
 ) {
 
-/*	qDebug() << "BANDWIDTH:";
+	qDebug() << "BANDWIDTH:";
 	qDebug() << "copyHDPin:" << info.band.copyHDPin;
 	qDebug() << "copyHDPage:" << info.band.copyHDPage;
 	qDebug() << "copyDHPin:" << info.band.copyDHPin;
 	qDebug() << "copyDHPage:" << info.band.copyDHPage;
-	qDebug() << "copyDD:" << info.band.copyDD;*/
+	qDebug() << "copyDD:" << info.band.copyDD;
+	qDebug() << "calcFixed:" << info.perf.calcFixed;
+	qDebug() << "calcFloat:" << info.perf.calcFloat;
 
 	if(info.band.copyHDPin == 0)
 		labelHDRatePinText->setText("--");
@@ -418,6 +429,16 @@ void CZDialog::setupBandwidthTab(
 		labelDDRateText->setText("--");
 	else
 		labelDDRateText->setText(tr("%1 MB/s").arg((double)info.band.copyDD / 1024));
+
+	if(info.perf.calcFixed == 0)
+		labelFixedRateText->setText("--");
+	else
+		labelFixedRateText->setText(tr("%1 Miop/s").arg((double)info.perf.calcFixed / 1024));
+
+	if(info.perf.calcFloat == 0)
+		labelFloatRateText->setText("--");
+	else
+		labelFloatRateText->setText(tr("%1 Mflop/s").arg((double)info.perf.calcFloat / 1024));
 }
 
 /*!

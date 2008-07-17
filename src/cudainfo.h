@@ -39,13 +39,21 @@ struct CZDeviceInfoMem {
 	\brief Information about CUDA-device bandwidth.
 */
 struct CZDeviceInfoBand {
-	int		copyHDPage;		/*!< Copy rate from host pageable to device memory in KB/s. */
-	int		copyHDPin;		/*!< Copy rate from host pinned to device memory in KB/s. */
-	int		copyDHPage;		/*!< Copy rate from device to host pageable memory in KB/s. */
-	int		copyDHPin;		/*!< Copy rate from device to host pinned memory in KB/s. */
-	int		copyDD;			/*!< Copy rate from device to device memory in KB/s. */
+	float		copyHDPage;		/*!< Copy rate from host pageable to device memory in KB/s. */
+	float		copyHDPin;		/*!< Copy rate from host pinned to device memory in KB/s. */
+	float		copyDHPage;		/*!< Copy rate from device to host pageable memory in KB/s. */
+	float		copyDHPin;		/*!< Copy rate from device to host pinned memory in KB/s. */
+	float		copyDD;			/*!< Copy rate from device to device memory in KB/s. */
 	/* Service part of structure. */
 	void		*localData;
+};
+
+/*!
+	\brief Information about CUDA-device performance.
+*/
+struct CZDeviceInfoPerf {
+	float		calcFixed;		/*!< Fixed point calculations performance in KOPS. */
+	float		calcFloat;		/*!< Float point calculations performance in KFOPS. */
 };
 
 /*!
@@ -59,6 +67,7 @@ struct CZDeviceInfo {
 	struct CZDeviceInfoCore	core;
 	struct CZDeviceInfoMem	mem;
 	struct CZDeviceInfoBand	band;
+	struct CZDeviceInfoPerf	perf;
 };
 
 bool CZCudaCheck(void);
@@ -66,6 +75,7 @@ int CZCudaDeviceFound(void);
 int CZCudaReadDeviceInfo(struct CZDeviceInfo *info, int num);
 int CZCudaPrepareDevice(struct CZDeviceInfo *info);
 int CZCudaCalcDeviceBandwidth(struct CZDeviceInfo *info);
+int CZCudaCalcDevicePerformance(struct CZDeviceInfo *info);
 int CZCudaCleanDevice(struct CZDeviceInfo *info);
 
 #ifdef __cplusplus
