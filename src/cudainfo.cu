@@ -18,10 +18,8 @@
 #define CZ_COPY_BUF_SIZE	(16 * (1 << 20))	/*!< Transfer buffer size. */
 #define CZ_COPY_LOOPS_NUM	(8)			/*!< Number of loops to run transfer test to. */
 
-#define CZ_CALC_LOOPS_NUM	(128)			/*!< Number of loops to run calculation loop. */
-#define CZ_CALC_OPS_NUM		(4)			/*!< Number of operations per one loop. */
-#define CZ_CALC_THREADS_NUM	(CZ_COPY_BUF_SIZE / MAX(sizeof(int), sizeof(float)))
-							/*!< Number of threads to run calculation loop. */
+#define CZ_CALC_LOOPS_NUM	(16)			/*!< Number of loops to run calculation loop. */
+#define CZ_CALC_THREADS_NUM	(65536)			/*!< Number of threads to run calculation loop. */
 
 /*!
 	\brief Error handling of CUDA RT calls.
@@ -652,40 +650,203 @@ static int CZCudaCalcDevicePerformanceReset(
 	return 0;
 }
 
+#define CZ_CALC_BLOCK_SIZE	(128)
+#define CZ_CALC_BLOCK_NUM	(16)
+#define CZ_CALC_OPS_NUM		(2)			/*!< Number of operations per one loop. */
+
+// 128 MAD instructions
+#define CZ_CALC_FMAD128(a, b) \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+
 /*!
 	\brief GPU code for fixed point test.
 */
 static __global__ void CZCudaCalcKernelFixed(void *buf) {
-	int val = blockIdx.x * blockDim.x + threadIdx.x;
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int *arr = (int*)buf;
+	int val1 = index;
+	int val2 = arr[index];
 	int i;
 
 	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
-		val += 542;
-		val *= val;
-		val -= 862;
-		val /= 475;
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
 	}
 
-	arr[blockIdx.x * blockDim.x + threadIdx.x] = val;
+	arr[index] = val1 + val2;
 }
 
 /*!
 	\brief GPU code for float point test.
 */
 static __global__ void CZCudaCalcKernelFloat(void *buf) {
-	float val = blockIdx.x * blockDim.x + threadIdx.x;
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	float *arr = (float*)buf;
+	float val1 = index;
+	float val2 = arr[index];
 	int i;
 
 	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
-		val += 542.314;
-		val *= val;
-		val -= 862.432;
-		val /= 475.4587;
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD128(val1, val2);
 	}
 
-	arr[blockIdx.x * blockDim.x + threadIdx.x] = val;
+	arr[index] = val1 + val2;
 }
 
 /*!
@@ -751,7 +912,14 @@ static float CZCudaCalcDevicePerformanceTest(
 
 	printf("Test complete in %f ms.\n", timeMs);
 
-	performanceKOPs = ((float)CZ_CALC_LOOPS_NUM * (float)CZ_CALC_OPS_NUM * (float)CZ_CALC_THREADS_NUM) / (float)timeMs;
+	performanceKOPs = (
+		(float)CZ_CALC_THREADS_NUM * (
+			(float)CZ_CALC_LOOPS_NUM * 
+			(float)CZ_CALC_OPS_NUM *
+			(float)CZ_CALC_BLOCK_SIZE *
+			(float)CZ_CALC_BLOCK_NUM + 1
+		)
+	) / (float)timeMs;
 
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
