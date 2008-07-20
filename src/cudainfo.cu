@@ -13,13 +13,14 @@
 
 #include "cudainfo.h"
 
-#define MAX(a, b)		((a > b)? a: b)
-
 #define CZ_COPY_BUF_SIZE	(16 * (1 << 20))	/*!< Transfer buffer size. */
-#define CZ_COPY_LOOPS_NUM	(8)			/*!< Number of loops to run transfer test to. */
+#define CZ_COPY_LOOPS_NUM	8			/*!< Number of loops to run transfer test to. */
 
-#define CZ_CALC_LOOPS_NUM	(8)			/*!< Number of loops to run calculation loop. */
-#define CZ_CALC_THREADS_NUM	(65536)			/*!< Number of threads to run calculation loop. */
+#define CZ_CALC_LOOPS_NUM	8			/*!< Number of loops to run calculation loop. */
+#define CZ_CALC_THREADS_NUM	65536			/*!< Number of threads to run calculation loop. */
+#define CZ_CALC_BLOCK_SIZE	128			/*!< Size of instruction block. */
+#define CZ_CALC_BLOCK_NUM	16			/*!< Number of instruction blocks in loop. */
+#define CZ_CALC_OPS_NUM		2			/*!< Number of operations per one loop. */
 
 /*!
 	\brief Error handling of CUDA RT calls.
@@ -673,11 +674,9 @@ static int CZCudaCalcDevicePerformanceReset(
 	return 0;
 }
 
-#define CZ_CALC_BLOCK_SIZE	(128)
-#define CZ_CALC_BLOCK_NUM	(16)
-#define CZ_CALC_OPS_NUM		(2)			/*!< Number of operations per one loop. */
-
-// 128 MAD instructions
+/*!
+	\brief 128 MAD instructions for float point test.
+*/
 #define CZ_CALC_FMAD_128(a, b) \
 	a = b * a + b; \
 	b = a * b + a; \
@@ -808,6 +807,9 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = b * a + b; \
 	b = a * b + a; \
 
+/*!
+	\brief 128 MAD instructions for 32-bit integer test.
+*/
 #define CZ_CALC_IMAD32_128(a, b) \
 	a = b * a + b; \
 	b = a * b + a; \
@@ -938,6 +940,9 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = b * a + b; \
 	b = a * b + a; \
 
+/*!
+	\brief 128 MAD instructions for 24-bit integer test.
+*/
 #define CZ_CALC_IMAD24_128(a, b) \
 	a = __umul24(b, a) + b; \
 	b = __umul24(a, b) + a; \
@@ -1068,9 +1073,9 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = __umul24(b, a) + b; \
 	b = __umul24(a, b) + a; \
 
-#define CZ_CALC_MODE_FLOAT	0
-#define CZ_CALC_MODE_INTEGER32	1
-#define CZ_CALC_MODE_INTEGER24	2
+#define CZ_CALC_MODE_FLOAT	0	/*!< Float point test mode. */
+#define CZ_CALC_MODE_INTEGER32	1	/*!< 32-bit integer test mode. */
+#define CZ_CALC_MODE_INTEGER24	2	/*!< 24-bit integer test mode. */
 
 /*!
 	\brief GPU code for float point test.
@@ -1202,7 +1207,7 @@ static float CZCudaCalcDevicePerformanceTest(
 	printf("Starting %s test on %s.\n",
 		(mode == CZ_CALC_MODE_FLOAT)? "float point":
 		(mode == CZ_CALC_MODE_INTEGER32)? "32-bit integer":
-		(mode == CZ_CALC_MODE_INTEGER24)? "24-bit integer": "????",
+		(mode == CZ_CALC_MODE_INTEGER24)? "24-bit integer": "unknown",
 		info->deviceName);
 
 	CZ_CUDA_CALL(cudaEventRecord(start, 0),
