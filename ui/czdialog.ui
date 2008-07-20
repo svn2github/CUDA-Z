@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>317</width>
+    <width>324</width>
     <height>295</height>
    </rect>
   </property>
@@ -27,7 +27,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>293</width>
+        <width>300</width>
         <height>217</height>
        </rect>
       </property>
@@ -387,7 +387,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>293</width>
+        <width>300</width>
         <height>217</height>
        </rect>
       </property>
@@ -571,7 +571,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>293</width>
+        <width>300</width>
         <height>217</height>
        </rect>
       </property>
@@ -730,32 +730,6 @@
         </widget>
        </item>
        <item row="5" column="0" >
-        <widget class="QLabel" name="labelFixedRate" >
-         <property name="text" >
-          <string>Fixed Point</string>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1" colspan="2" >
-        <widget class="QLabel" name="labelFixedRateText" >
-         <property name="frameShape" >
-          <enum>QFrame::Panel</enum>
-         </property>
-         <property name="frameShadow" >
-          <enum>QFrame::Sunken</enum>
-         </property>
-         <property name="text" >
-          <string>&lt;rate Mop/s></string>
-         </property>
-         <property name="textInteractionFlags" >
-          <set>Qt::LinksAccessibleByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0" >
         <widget class="QLabel" name="labelFloatRate" >
          <property name="text" >
           <string>Float Point</string>
@@ -765,7 +739,7 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="1" colspan="2" >
+       <item row="5" column="1" colspan="2" >
         <widget class="QLabel" name="labelFloatRateText" >
          <property name="frameShape" >
           <enum>QFrame::Panel</enum>
@@ -774,14 +748,66 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text" >
-          <string>&lt;rate Mfop/s></string>
+          <string>&lt;rate Mflop/s></string>
          </property>
          <property name="textInteractionFlags" >
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="7" column="0" colspan="3" >
+       <item row="6" column="0" >
+        <widget class="QLabel" name="labelInt32Rate" >
+         <property name="text" >
+          <string>32-bit Integer</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1" colspan="2" >
+        <widget class="QLabel" name="labelInt32RateText" >
+         <property name="frameShape" >
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow" >
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="text" >
+          <string>&lt;rate Miop/s></string>
+         </property>
+         <property name="textInteractionFlags" >
+          <set>Qt::LinksAccessibleByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0" >
+        <widget class="QLabel" name="labelInt24Rate" >
+         <property name="text" >
+          <string>24-bit Integer</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1" colspan="2" >
+        <widget class="QLabel" name="labelInt24RateText" >
+         <property name="frameShape" >
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow" >
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="text" >
+          <string>&lt;rate Miop/s></string>
+         </property>
+         <property name="textInteractionFlags" >
+          <set>Qt::LinksAccessibleByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="3" >
         <spacer name="verticalSpacer_6" >
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -794,7 +820,7 @@
          </property>
         </spacer>
        </item>
-       <item row="8" column="0" colspan="3" >
+       <item row="9" column="0" colspan="3" >
         <widget class="QCheckBox" name="checkUpdateResults" >
          <property name="text" >
           <string>Update results in background</string>
@@ -811,7 +837,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>293</width>
+        <width>300</width>
         <height>217</height>
        </rect>
       </property>

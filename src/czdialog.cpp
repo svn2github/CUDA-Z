@@ -402,8 +402,9 @@ void CZDialog::setupBandwidthTab(
 	qDebug() << "copyDHPin:" << info.band.copyDHPin;
 	qDebug() << "copyDHPage:" << info.band.copyDHPage;
 	qDebug() << "copyDD:" << info.band.copyDD;
-	qDebug() << "calcFixed:" << info.perf.calcFixed;
 	qDebug() << "calcFloat:" << info.perf.calcFloat;
+	qDebug() << "calcInteger32:" << info.perf.calcInteger32;
+	qDebug() << "calcInteger24:" << info.perf.calcInteger24;
 
 	if(info.band.copyHDPin == 0)
 		labelHDRatePinText->setText("--");
@@ -430,15 +431,20 @@ void CZDialog::setupBandwidthTab(
 	else
 		labelDDRateText->setText(tr("%1 MB/s").arg((double)info.band.copyDD / 1024));
 
-	if(info.perf.calcFixed == 0)
-		labelFixedRateText->setText("--");
-	else
-		labelFixedRateText->setText(tr("%1 Miop/s").arg((double)info.perf.calcFixed / 1024));
-
 	if(info.perf.calcFloat == 0)
 		labelFloatRateText->setText("--");
 	else
-		labelFloatRateText->setText(tr("%1 Mflop/s").arg((double)info.perf.calcFloat / 1024));
+		labelFloatRateText->setText(tr("%1 Mflop/s").arg((double)info.perf.calcFloat / 1000));
+
+	if(info.perf.calcInteger32 == 0)
+		labelInt32RateText->setText("--");
+	else
+		labelInt32RateText->setText(tr("%1 Miop/s").arg((double)info.perf.calcInteger32 / 1000));
+
+	if(info.perf.calcInteger24 == 0)
+		labelInt24RateText->setText("--");
+	else
+		labelInt24RateText->setText(tr("%1 Miop/s").arg((double)info.perf.calcInteger24 / 1000));
 }
 
 /*!

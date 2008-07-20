@@ -18,7 +18,7 @@
 #define CZ_COPY_BUF_SIZE	(16 * (1 << 20))	/*!< Transfer buffer size. */
 #define CZ_COPY_LOOPS_NUM	(8)			/*!< Number of loops to run transfer test to. */
 
-#define CZ_CALC_LOOPS_NUM	(16)			/*!< Number of loops to run calculation loop. */
+#define CZ_CALC_LOOPS_NUM	(8)			/*!< Number of loops to run calculation loop. */
 #define CZ_CALC_THREADS_NUM	(65536)			/*!< Number of threads to run calculation loop. */
 
 /*!
@@ -110,6 +110,7 @@ int CZCudaDeviceFound(void) {
 
 	CZ_CUDA_CALL(cudaGetDeviceCount(&count),
 		return 0);
+
 	return count;
 }
 
@@ -387,7 +388,14 @@ static float CZCudaCalcDeviceBandwidthTestHD (
 
 	printf("Test complete in %f ms.\n", timeMs);
 
-	bandwidthKBs = (1000 * (float)CZ_COPY_BUF_SIZE * (float)CZ_COPY_LOOPS_NUM) / (timeMs * (float)(1 << 10));
+	bandwidthKBs = (
+		1000 *
+		(float)CZ_COPY_BUF_SIZE *
+		(float)CZ_COPY_LOOPS_NUM
+	) / (
+		timeMs *
+		(float)(1 << 10)
+	);
 
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
@@ -466,7 +474,14 @@ static float CZCudaCalcDeviceBandwidthTestDH (
 
 	printf("Test complete in %f ms.\n", timeMs);
 
-	bandwidthKBs = (1000 * (float)CZ_COPY_BUF_SIZE * (float)CZ_COPY_LOOPS_NUM) / (timeMs * (float)(1 << 10));
+	bandwidthKBs = (
+		1000 *
+		(float)CZ_COPY_BUF_SIZE *
+		(float)CZ_COPY_LOOPS_NUM
+	) / (
+		timeMs *
+		(float)(1 << 10)
+	);
 
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
@@ -543,7 +558,14 @@ static float CZCudaCalcDeviceBandwidthTestDD (
 
 	printf("Test complete in %f ms.\n", timeMs);
 
-	bandwidthKBs = (1000 * (float)CZ_COPY_BUF_SIZE * (float)CZ_COPY_LOOPS_NUM) / (timeMs * (float)(1 << 10));
+	bandwidthKBs = (
+		1000 *
+		(float)CZ_COPY_BUF_SIZE *
+		(float)CZ_COPY_LOOPS_NUM
+	) / (
+		timeMs *
+		(float)(1 << 10)
+	);
 
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
@@ -644,8 +666,9 @@ static int CZCudaCalcDevicePerformanceReset(
 	if(info == NULL)
 		return -1;
 
-	info->perf.calcFixed = 0;
 	info->perf.calcFloat = 0;
+	info->perf.calcInteger32 = 0;
+	info->perf.calcInteger24 = 0;
 
 	return 0;
 }
@@ -655,7 +678,7 @@ static int CZCudaCalcDevicePerformanceReset(
 #define CZ_CALC_OPS_NUM		(2)			/*!< Number of operations per one loop. */
 
 // 128 MAD instructions
-#define CZ_CALC_FMAD128(a, b) \
+#define CZ_CALC_FMAD_128(a, b) \
 	a = b * a + b; \
 	b = a * b + a; \
 	a = b * a + b; \
@@ -785,37 +808,269 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = b * a + b; \
 	b = a * b + a; \
 
-/*!
-	\brief GPU code for fixed point test.
-*/
-static __global__ void CZCudaCalcKernelFixed(void *buf) {
-	int index = blockIdx.x * blockDim.x + threadIdx.x;
-	int *arr = (int*)buf;
-	int val1 = index;
-	int val2 = arr[index];
-	int i;
+#define CZ_CALC_IMAD32_128(a, b) \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
+	a = b * a + b; \
+	b = a * b + a; \
 
-	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-	}
+#define CZ_CALC_IMAD24_128(a, b) \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; \
+	b = __umul24(a, b) + a; \
 
-	arr[index] = val1 + val2;
-}
+#define CZ_CALC_MODE_FLOAT	0
+#define CZ_CALC_MODE_INTEGER32	1
+#define CZ_CALC_MODE_INTEGER24	2
 
 /*!
 	\brief GPU code for float point test.
@@ -828,22 +1083,86 @@ static __global__ void CZCudaCalcKernelFloat(void *buf) {
 	int i;
 
 	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
-		CZ_CALC_FMAD128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+		CZ_CALC_FMAD_128(val1, val2);
+	}
+
+	arr[index] = val1 + val2;
+}
+
+/*!
+	\brief GPU code for 32-bit integer test.
+*/
+static __global__ void CZCudaCalcKernelInteger32(void *buf) {
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int *arr = (int*)buf;
+	int val1 = index;
+	int val2 = arr[index];
+	int i;
+
+	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+		CZ_CALC_IMAD32_128(val1, val2);
+	}
+
+	arr[index] = val1 + val2;
+}
+
+/*!
+	\brief GPU code for 24-bit integer test.
+*/
+static __global__ void CZCudaCalcKernelInteger24(void *buf) {
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int *arr = (int*)buf;
+	int val1 = index;
+	int val2 = arr[index];
+	int i;
+
+	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
+		CZ_CALC_IMAD24_128(val1, val2);
 	}
 
 	arr[index] = val1 + val2;
@@ -855,7 +1174,7 @@ static __global__ void CZCudaCalcKernelFloat(void *buf) {
 */
 static float CZCudaCalcDevicePerformanceTest(
 	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
-	int fixed			/*!< Run fixed point \a (=1) test instead of float point \a (=0). */
+	int mode			/*!< Run performance test in one of modes. */
 ) {
 	CZDeviceInfoBandLocalData *lData;
 	float timeMs = 0.0;
@@ -880,8 +1199,10 @@ static float CZCudaCalcDevicePerformanceTest(
 
 	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
 
-	printf("Starting %s point test on %s.\n",
-		fixed? "fixed": "float",
+	printf("Starting %s test on %s.\n",
+		(mode == CZ_CALC_MODE_FLOAT)? "float point":
+		(mode == CZ_CALC_MODE_INTEGER32)? "32-bit integer":
+		(mode == CZ_CALC_MODE_INTEGER24)? "24-bit integer": "????",
 		info->deviceName);
 
 	CZ_CUDA_CALL(cudaEventRecord(start, 0),
@@ -889,10 +1210,18 @@ static float CZCudaCalcDevicePerformanceTest(
 		cudaEventDestroy(stop);
 		return 0);
 
-	if(fixed) {
-		CZCudaCalcKernelFixed<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>(lData->memDevice1);
-	} else {
+	switch(mode) {
+	case CZ_CALC_MODE_FLOAT:
 		CZCudaCalcKernelFloat<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>(lData->memDevice1);
+		break;
+
+	case CZ_CALC_MODE_INTEGER32:
+		CZCudaCalcKernelInteger32<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>(lData->memDevice1);
+		break;
+
+	case CZ_CALC_MODE_INTEGER24:
+		CZCudaCalcKernelInteger24<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>(lData->memDevice1);
+		break;
 	}
 
 	CZ_CUDA_CALL(cudaEventRecord(stop, 0),
@@ -946,8 +1275,9 @@ int CZCudaCalcDevicePerformance(
 	if(!CZCudaIsInit())
 		return -1;
 
-	info->perf.calcFixed = CZCudaCalcDevicePerformanceTest(info, 1);
-	info->perf.calcFloat = CZCudaCalcDevicePerformanceTest(info, 0);
+	info->perf.calcFloat = CZCudaCalcDevicePerformanceTest(info, CZ_CALC_MODE_FLOAT);
+	info->perf.calcInteger32 = CZCudaCalcDevicePerformanceTest(info, CZ_CALC_MODE_INTEGER32);
+	info->perf.calcInteger24 = CZCudaCalcDevicePerformanceTest(info, CZ_CALC_MODE_INTEGER24);
 
 	return 0;
 }
