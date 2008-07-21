@@ -722,7 +722,7 @@
        <item row="4" column="0" >
         <widget class="QLabel" name="labelCalcRate" >
          <property name="text" >
-          <string>GPU Core Preformance</string>
+          <string>GPU Core Performance</string>
          </property>
          <property name="alignment" >
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

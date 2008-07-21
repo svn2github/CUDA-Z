@@ -591,7 +591,7 @@ void CZDialog::slotExportToText() {
 		out << "--" << endl;
 	else
 		out << tr("%1 MB/s").arg((double)info.band.copyDD / 1024) << endl;
-	out << tr("GPU Core Preformance") << endl;
+	out << tr("GPU Core Performance") << endl;
 	out << "\t" << tr("Float Point: ");
 	if(info.perf.calcFloat == 0)
 		out << "--" << endl;
