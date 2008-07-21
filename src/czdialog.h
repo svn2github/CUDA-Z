@@ -48,10 +48,10 @@ public:
 	CZUpdateThread(CZCudaDeviceInfo *info, QObject *parent = 0);
 	~CZUpdateThread();
 
-	void testBandwidth(int index);
+	void testPerformance(int index);
 
 signals:
-	void testedBandwidth(int index);
+	void testedPerformance(int index);
 
 protected:
 	void run();
@@ -85,14 +85,16 @@ private:
 
 	void setupCoreTab(struct CZDeviceInfo &info);
 	void setupMemoryTab(struct CZDeviceInfo &info);
-	void setupBandwidthTab(struct CZDeviceInfo &info);
+	void setupPerformanceTab(struct CZDeviceInfo &info);
 
 	void setupAboutTab();
 
 private slots:
 	void slotShowDevice(int index);
-	void slotUpdateBandwidth(int index);
+	void slotUpdatePerformance(int index);
 	void slotUpdateTimer();
+	void slotExportToText();
+	void slotExportToHTML();
 };
 
 #endif//CZ_DIALOG_H

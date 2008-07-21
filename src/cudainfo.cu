@@ -7,7 +7,6 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <string.h>
-#include <windows.h>
 
 #include <QDebug>
 
@@ -56,9 +55,12 @@ static cuDeviceGetAttribute_t p_cuDeviceGetAttribute = NULL;
 */
 static cuInit_t p_cuInit = NULL;
 
+#if defined(Q_WS_WIN)
+#include <windows.h>
 /*!
-	\brief Check if CUDa fully initialized.
-	This function loads nvcuda.dll and finds function \a cuDeviceGetAttribute.
+	\brief Check if CUDA fully initialized.
+	This function loads nvcuda.dll and finds functions \a cuInit()
+	and \a cuDeviceGetAttribute().
 	\return \a true in case of success, \a false in case of error.
 */
 static bool CZCudaIsInit(void) {
@@ -85,6 +87,10 @@ static bool CZCudaIsInit(void) {
 
 	return true;
 }
+#else//!Q_WS_WIN
+#error Function CZCudaIsInit() is not implemented for your platform!
+#endif//Q_WS_WIN
+
 
 /*!
 	\brief Check if CUDA is present here.

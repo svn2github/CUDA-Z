@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>324</width>
-    <height>295</height>
+    <height>302</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -28,7 +28,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>217</height>
+        <height>224</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -388,7 +388,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>217</height>
+        <height>224</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -566,17 +566,17 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabBandwidth" >
+     <widget class="QWidget" name="tabPerformance" >
       <property name="geometry" >
        <rect>
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>217</height>
+        <height>224</height>
        </rect>
       </property>
       <attribute name="title" >
-       <string>Bandwidth</string>
+       <string>Performance</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4" >
        <item row="0" column="0" >
@@ -821,14 +821,38 @@
         </spacer>
        </item>
        <item row="9" column="0" colspan="3" >
-        <widget class="QCheckBox" name="checkUpdateResults" >
-         <property name="text" >
-          <string>Update results in background</string>
-         </property>
-         <property name="checked" >
-          <bool>true</bool>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_4" >
+         <item>
+          <widget class="QCheckBox" name="checkUpdateResults" >
+           <property name="text" >
+            <string>Update Results in Background</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4" >
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0" >
+            <size>
+             <width>17</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushExport" >
+           <property name="text" >
+            <string>&amp;Export >></string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -838,7 +862,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>217</height>
+        <height>224</height>
        </rect>
       </property>
       <attribute name="title" >

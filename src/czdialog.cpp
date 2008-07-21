@@ -5,11 +5,14 @@
 */
 
 #include <QDebug>
+#include <QMenu>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include "czdialog.h"
 #include "version.h"
 
-#define CZ_TIMER_REFRESH	5000	/*!< Test results update timer period (ms). */
+#define CZ_TIMER_REFRESH	2000	/*!< Test results update timer period (ms). */
 
 /*!
 	\brief Splash screen of application.
@@ -59,7 +62,7 @@ int CZCudaDeviceInfo::prepareDevice() {
 }
 
 /*!
-	\brief This function updates CUDA-device bandwidth information.
+	\brief This function updates CUDA-device performance information.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::updateInfo() {
@@ -71,7 +74,7 @@ int CZCudaDeviceInfo::updateInfo() {
 }
 
 /*!
-	\brief This function cleans buffers used for budwidth tests.
+	\brief This function cleans buffers used for bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::cleanDevice() {
@@ -94,11 +97,11 @@ CZUpdateThread *CZCudaDeviceInfo::thread() {
 
 /*!
 	\class CZUpdateThread
-	\brief This class implements bandwidth data update procedure.
+	\brief This class implements performance data update procedure.
 */
 
 /*!
-	\brief Creates the bandwidth data update thread.
+	\brief Creates the performance data update thread.
 */
 CZUpdateThread::CZUpdateThread(
 	CZCudaDeviceInfo *info,
@@ -113,8 +116,8 @@ CZUpdateThread::CZUpdateThread(
 }
 
 /*!
-	\brief Terminates the bandwidth data update thread.
-	This function waits util bandwidth test will be over.
+	\brief Terminates the performance data update thread.
+	This function waits util performance test will be over.
 */
 CZUpdateThread::~CZUpdateThread() {
 
@@ -129,9 +132,9 @@ CZUpdateThread::~CZUpdateThread() {
 }
 
 /*!
-	\brief Push bandwidth test in thread.
+	\brief Push performance test in thread.
 */
-void CZUpdateThread::testBandwidth(
+void CZUpdateThread::testPerformance(
 	int index			/*!< Index of device in list. */
 ) {
 	QMutexLocker locker(&mutex);
@@ -156,11 +159,12 @@ void CZUpdateThread::run() {
 
 	info->prepareDevice();
 
-	mutex.lock();
-	int index = this->index;
-	mutex.unlock();
-
 	forever {
+
+		mutex.lock();
+		condition.wait(&mutex);
+		index = this->index;
+		mutex.unlock();
 
 		qDebug() << "Thread loop started";
 
@@ -171,17 +175,12 @@ void CZUpdateThread::run() {
 
 		info->updateInfo();
 		if(index != -1)
-			emit testedBandwidth(index);
+			emit testedPerformance(index);
 
 		if(abort) {
 			info->cleanDevice();
 			return;
 		}
-
-		mutex.lock();
-		condition.wait(&mutex);
-		index = this->index;
-		mutex.unlock();
 	}
 }
 
@@ -197,7 +196,7 @@ void CZUpdateThread::run() {
 	- Setup CUDA-device information containers and add them in list.
 	- Sets up connections.
 	- Fills up data in to tabs of GUI.
-	- Starts bandwidth data update timer.
+	- Starts Performance data update timer.
 */
 CZDialog::CZDialog(
 	QWidget *parent,	/*!< Parent of widget. */
@@ -205,13 +204,16 @@ CZDialog::CZDialog(
 )	: QDialog(parent, f /*| Qt::MSWindowsFixedSizeDialogHint*/ | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint) {
 
 	setupUi(this);
-	readCudaDevices();
-
-//	qDebug() << "device list size:" << deviceList.size();
-
 	this->setWindowTitle(QString("%1 %2").arg(CZ_NAME_SHORT).arg(CZ_VERSION));
 	connect(comboDevice, SIGNAL(activated(int)), SLOT(slotShowDevice(int)));
+
+	QMenu *exportMenu = new QMenu(pushExport);
+	exportMenu->addAction(tr("to &Text"), this, SLOT(slotExportToText()));
+	exportMenu->addAction(tr("to &HTML"), this, SLOT(slotExportToHTML()));
+	pushExport->setMenu(exportMenu);
 	
+	readCudaDevices();
+//	qDebug() << "device list size:" << deviceList.size();
 	setupDeviceList();
 	setupDeviceInfo(comboDevice->currentIndex());
 	setupAboutTab();
@@ -237,7 +239,7 @@ CZDialog::~CZDialog() {
 	- Initialize CUDA-data structure.
 	- Reads CUDA-information about device.
 	- Shows progress message in splash screen.
-	- Starts bandwidth calculation thread.
+	- Starts Performance calculation thread.
 	- Appends entry in to device-list.
 */
 void CZDialog::readCudaDevices() {
@@ -255,7 +257,7 @@ void CZDialog::readCudaDevices() {
 
 //			wait(10000000);
 			
-			connect(info->thread(), SIGNAL(testedBandwidth(int)), SLOT(slotUpdateBandwidth(int)));
+			connect(info->thread(), SIGNAL(testedPerformance(int)), SLOT(slotUpdatePerformance(int)));
 			deviceList.append(info);
 		}
 	}
@@ -300,32 +302,32 @@ void CZDialog::slotShowDevice(
 ) {
 	setupDeviceInfo(index);
 	if(checkUpdateResults->checkState() == Qt::Checked) {
-		qDebug() << "Switch device -> update bandwidth for device" << index;
-		deviceList[index]->thread()->testBandwidth(index);
+		qDebug() << "Switch device -> update performance for device" << index;
+		deviceList[index]->thread()->testPerformance(index);
 	}
 }
 
 /*!
-	\brief This slot updates bandwidth information of device
+	\brief This slot updates performance information of device
 	pointed by \a index.
 */
-void CZDialog::slotUpdateBandwidth(
+void CZDialog::slotUpdatePerformance(
 	int index			/*!< Index of device in list. */
 ) {
 	if(index == comboDevice->currentIndex())
-	setupBandwidthTab(deviceList[index]->info());
+	setupPerformanceTab(deviceList[index]->info());
 }
 
 /*!
-	\brief This slot updates bandwidth information of current device
+	\brief This slot updates performance information of current device
 	every timer tick.
 */
 void CZDialog::slotUpdateTimer() {
 
 	int index = comboDevice->currentIndex();
 	if(checkUpdateResults->checkState() == Qt::Checked) {
-		qDebug() << "Timer shot -> update bandwidth for device" << index;
-		deviceList[index]->thread()->testBandwidth(index);
+		qDebug() << "Timer shot -> update performance for device" << index;
+		deviceList[index]->thread()->testPerformance(index);
 	} else {
 		qDebug() << "Timer shot -> update ignored";
 	}
@@ -339,7 +341,7 @@ void CZDialog::setupDeviceInfo(
 ) {
 	setupCoreTab(deviceList[dev]->info());
 	setupMemoryTab(deviceList[dev]->info());
-	setupBandwidthTab(deviceList[dev]->info());
+	setupPerformanceTab(deviceList[dev]->info());
 }
 
 /*!
@@ -390,13 +392,13 @@ void CZDialog::setupMemoryTab(
 }
 
 /*!
-	\brief Fill tab "Bandwidth" with CUDA devices information.
+	\brief Fill tab "Performance" with CUDA devices information.
 */
-void CZDialog::setupBandwidthTab(
+void CZDialog::setupPerformanceTab(
 	struct CZDeviceInfo &info	/*!< Information about CUDA-device. */
 ) {
 
-	qDebug() << "BANDWIDTH:";
+/*	qDebug() << "PERFORMANCE:";
 	qDebug() << "copyHDPin:" << info.band.copyHDPin;
 	qDebug() << "copyHDPage:" << info.band.copyHDPage;
 	qDebug() << "copyDHPin:" << info.band.copyDHPin;
@@ -404,7 +406,7 @@ void CZDialog::setupBandwidthTab(
 	qDebug() << "copyDD:" << info.band.copyDD;
 	qDebug() << "calcFloat:" << info.perf.calcFloat;
 	qDebug() << "calcInteger32:" << info.perf.calcInteger32;
-	qDebug() << "calcInteger24:" << info.perf.calcInteger24;
+	qDebug() << "calcInteger24:" << info.perf.calcInteger24;*/
 
 	if(info.band.copyHDPin == 0)
 		labelHDRatePinText->setText("--");
@@ -462,4 +464,162 @@ void CZDialog::setupAboutTab() {
 	labelAppURL->setText(tr("<b>Main page</b> <a href=\"%1\">%1</a><br><b>Project</b> <a href=\"%2\">%2</a>").arg(CZ_ORG_URL_MAINPAGE).arg(CZ_ORG_URL_PROJECT));
 	labelAppAuthor->setText(tr("<b>Author</b> %1").arg(CZ_ORG_NAME));
 	labelAppCopy->setText(CZ_COPY_INFO);
+}
+
+#if defined(Q_WS_WIN)
+#include <windows.h>
+static QString getOSVersion() {
+	QString OSVersion = "Windows";
+
+	SYSTEM_INFO systemInfo;
+	GetSystemInfo(&systemInfo);
+	OSVersion += QString(" %1").arg(
+		(systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)? "AMD64":
+		(systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)? "IA64":
+		(systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)? "x86":
+		"Unknown architecture");
+
+	OSVERSIONINFO versionInfo;
+	ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
+	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&versionInfo);
+	OSVersion += QString(" %1.%2.%3 %4")
+		.arg(versionInfo.dwMajorVersion)
+		.arg(versionInfo.dwMinorVersion)
+		.arg(versionInfo.dwBuildNumber)
+		.arg(QString::fromWCharArray(versionInfo.szCSDVersion));
+
+	return OSVersion;
+}
+#else//!Q_WS_WIN
+#error Function getOSVersion() is not implemented for your platform!
+#endif//Q_WS_WIN
+
+void CZDialog::slotExportToText() {
+
+	struct CZDeviceInfo info = deviceList[comboDevice->currentIndex()]->info();
+
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Text as.."),
+		tr("%1.txt").arg(tr(CZ_NAME_SHORT)), tr("Text files (*.txt);;All files (*.*)"));
+
+	if(fileName.isEmpty())
+		return;
+
+	qDebug() << "Export to text as" << fileName;
+
+	QFile file(fileName);
+	if(!file.open(QFile::WriteOnly | QFile::Text)) {
+		QMessageBox::warning(this, tr(CZ_NAME_SHORT),
+			tr("Cannot write file %1:\n%2.").arg(fileName).arg(file.errorString()));
+		return;
+	}
+
+	QTextStream out(&file);
+	QString title = tr("%1 Report").arg(tr(CZ_NAME_SHORT));
+	QString subtitle;
+
+	out << title << endl;
+	for(int i = 0; i < title.size(); i++)
+		out << "=";
+	out << endl;
+	out << tr("Version: %1").arg(CZ_VERSION);
+#ifdef CZ_VER_STATE
+	out << tr(" Built %1 %2 ").arg(CZ_DATE).arg(CZ_TIME);
+#endif//CZ_VER_STATE
+	out << endl;
+	out << CZ_ORG_URL_MAINPAGE << endl;
+	out << tr("OS Version: %1").arg(getOSVersion()) << endl;
+	out << endl;
+
+	subtitle = tr("Core Information");
+	out << subtitle << endl;
+	for(int i = 0; i < subtitle.size(); i++)
+		out << "-";
+	out << endl;
+	out << "\t" << tr("Name: %1").arg(info.deviceName) << endl;
+	out << "\t" << tr("Compute Capability: %1.%2").arg(info.major).arg(info.minor) << endl;
+	out << "\t" << tr("Clock Rate: %1 MHz").arg((double)info.core.clockRate / 1000) << endl;
+	out << "\t" << tr("Wrap Size: %1").arg(info.core.SIMDWidth) << endl;
+	out << "\t" << tr("Regs Per Block: %1").arg(info.core.regsPerBlock) << endl;
+	out << "\t" << tr("Threads Per Block: %1").arg(info.core.maxThreadsPerBlock) << endl;
+	out << "\t" << tr("Threads Dimentions: %1 x %2 x %3").arg(info.core.maxThreadsDim[0]).arg(info.core.maxThreadsDim[1]).arg(info.core.maxThreadsDim[2]) << endl;
+	out << "\t" << tr("Grid Dimentions: %1 x %2 x %3").arg(info.core.maxGridSize[0]).arg(info.core.maxGridSize[1]).arg(info.core.maxGridSize[2]) << endl;
+	out << endl;
+
+	subtitle = tr("Memory Information");
+	out << subtitle << endl;
+	for(int i = 0; i < subtitle.size(); i++)
+		out << "-";
+	out << endl;
+	out << "\t" << tr("Total Global: %1 MB").arg((double)info.mem.totalGlobal / (1024 * 1024)) << endl;
+	out << "\t" << tr("Shared Per Block: %1 KB").arg((double)info.mem.sharedPerBlock / 1024) << endl;
+	out << "\t" << tr("Pitch: %1 KB").arg((double)info.mem.maxPitch / 1024) << endl;
+	out << "\t" << tr("Total Constant: %1 KB").arg((double)info.mem.totalConst / 1024) << endl;
+	out << "\t" << tr("Texture Alignment: %1").arg(info.mem.textureAlignment) << endl;
+	out << "\t" << tr("GPU Overlap: %1").arg(info.mem.gpuOverlap? tr("Yes"): tr("No")) << endl;
+	out << endl;
+
+	subtitle = tr("Performance Information");
+	out << subtitle << endl;
+	for(int i = 0; i < subtitle.size(); i++)
+		out << "-";
+	out << endl;
+	out << tr("Memory Copy") << endl;
+	out << "\t" << tr("Host Pinned to Device: ");
+	if(info.band.copyHDPin == 0)
+		out << "--" << endl;
+	else
+		out << tr("%1 MB/s").arg((double)info.band.copyHDPin / 1024) << endl;
+	out << "\t" << tr("Host Pageable to Device: ");
+	if(info.band.copyHDPage == 0)
+		out << "--" << endl;
+	else
+		out << tr("%1 MB/s").arg((double)info.band.copyHDPage / 1024) << endl;
+
+	out << "\t" << tr("Device to Host Pinned: ");
+	if(info.band.copyDHPin == 0)
+		out << "--" << endl;
+	else
+		out << tr("%1 MB/s").arg((double)info.band.copyDHPin / 1024) << endl;
+	out << "\t" << tr("Device to Host Pageable: ");
+	if(info.band.copyDHPage == 0)
+		out << "--" << endl;
+	else
+		out << tr("%1 MB/s").arg((double)info.band.copyDHPage / 1024) << endl;
+	out << "\t" << tr("Device to Device: ");
+	if(info.band.copyDD == 0)
+		out << "--" << endl;
+	else
+		out << tr("%1 MB/s").arg((double)info.band.copyDD / 1024) << endl;
+	out << tr("GPU Core Preformance") << endl;
+	out << "\t" << tr("Float Point: ");
+	if(info.perf.calcFloat == 0)
+		out << "--" << endl;
+	else
+		out << tr("%1 Mflop/s").arg((double)info.perf.calcFloat / 1000) << endl;
+	out << "\t" << tr("32-bit Integer: ");
+	if(info.perf.calcInteger32 == 0)
+		out << "--" << endl;
+	else
+		out << tr("%1 Miop/s").arg((double)info.perf.calcInteger32 / 1000) << endl;
+	out << "\t" << tr("24-bit Integer: ");
+	if(info.perf.calcInteger24 == 0)
+		out << "--" << endl;
+	else
+		out << tr("%1 Miop/s").arg((double)info.perf.calcInteger24 / 1000) << endl;
+	out << endl;
+}
+
+void CZDialog::slotExportToHTML() {
+
+	struct CZDeviceInfo info = deviceList[comboDevice->currentIndex()]->info();
+
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Text as.."),
+		tr("%1.html").arg(tr(CZ_NAME_SHORT)), tr("HTML files (*.html *.htm);;All files (*.*)"));
+
+	if(fileName.isEmpty())
+		return;
+
+	qDebug() << "Export to HTML as" << fileName;
+
 }
