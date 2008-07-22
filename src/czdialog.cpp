@@ -9,6 +9,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include <time.h>
+
 #include "czdialog.h"
 #include "version.h"
 
@@ -522,13 +524,13 @@ void CZDialog::slotExportToText() {
 	for(int i = 0; i < title.size(); i++)
 		out << "=";
 	out << endl;
-	out << tr("Version: %1").arg(CZ_VERSION);
+	out << QString("%1: %2").arg(tr("Version")).arg(CZ_VERSION);
 #ifdef CZ_VER_STATE
-	out << tr(" Built %1 %2 ").arg(CZ_DATE).arg(CZ_TIME);
+	out << QString(" %1 %2 %3 ").arg("Built").arg(CZ_DATE).arg(CZ_TIME);
 #endif//CZ_VER_STATE
 	out << endl;
 	out << CZ_ORG_URL_MAINPAGE << endl;
-	out << tr("OS Version: %1").arg(getOSVersion()) << endl;
+	out << QString("%1: %2").arg(tr("OS Version")).arg(getOSVersion()) << endl;
 	out << endl;
 
 	subtitle = tr("Core Information");
@@ -536,14 +538,14 @@ void CZDialog::slotExportToText() {
 	for(int i = 0; i < subtitle.size(); i++)
 		out << "-";
 	out << endl;
-	out << "\t" << tr("Name: %1").arg(info.deviceName) << endl;
-	out << "\t" << tr("Compute Capability: %1.%2").arg(info.major).arg(info.minor) << endl;
-	out << "\t" << tr("Clock Rate: %1 MHz").arg((double)info.core.clockRate / 1000) << endl;
-	out << "\t" << tr("Wrap Size: %1").arg(info.core.SIMDWidth) << endl;
-	out << "\t" << tr("Regs Per Block: %1").arg(info.core.regsPerBlock) << endl;
-	out << "\t" << tr("Threads Per Block: %1").arg(info.core.maxThreadsPerBlock) << endl;
-	out << "\t" << tr("Threads Dimentions: %1 x %2 x %3").arg(info.core.maxThreadsDim[0]).arg(info.core.maxThreadsDim[1]).arg(info.core.maxThreadsDim[2]) << endl;
-	out << "\t" << tr("Grid Dimentions: %1 x %2 x %3").arg(info.core.maxGridSize[0]).arg(info.core.maxGridSize[1]).arg(info.core.maxGridSize[2]) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Name")).arg(info.deviceName) << endl;
+	out << "\t" << QString("%1: %2.%3").arg(tr("Compute Capability")).arg(info.major).arg(info.minor) << endl;
+	out << "\t" << QString("%1: %2 %3").arg(tr("Clock Rate")).arg((double)info.core.clockRate / 1000).arg(tr("MHz")) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Wrap Size")).arg(info.core.SIMDWidth) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Regs Per Block")).arg(info.core.regsPerBlock) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Threads Per Block")).arg(info.core.maxThreadsPerBlock) << endl;
+	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Threads Dimentions")).arg(info.core.maxThreadsDim[0]).arg(info.core.maxThreadsDim[1]).arg(info.core.maxThreadsDim[2]) << endl;
+	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Grid Dimentions")).arg(info.core.maxGridSize[0]).arg(info.core.maxGridSize[1]).arg(info.core.maxGridSize[2]) << endl;
 	out << endl;
 
 	subtitle = tr("Memory Information");
@@ -551,12 +553,12 @@ void CZDialog::slotExportToText() {
 	for(int i = 0; i < subtitle.size(); i++)
 		out << "-";
 	out << endl;
-	out << "\t" << tr("Total Global: %1 MB").arg((double)info.mem.totalGlobal / (1024 * 1024)) << endl;
-	out << "\t" << tr("Shared Per Block: %1 KB").arg((double)info.mem.sharedPerBlock / 1024) << endl;
-	out << "\t" << tr("Pitch: %1 KB").arg((double)info.mem.maxPitch / 1024) << endl;
-	out << "\t" << tr("Total Constant: %1 KB").arg((double)info.mem.totalConst / 1024) << endl;
-	out << "\t" << tr("Texture Alignment: %1").arg(info.mem.textureAlignment) << endl;
-	out << "\t" << tr("GPU Overlap: %1").arg(info.mem.gpuOverlap? tr("Yes"): tr("No")) << endl;
+	out << "\t" << QString("%1: %2 %3").arg(tr("Total Global")).arg((double)info.mem.totalGlobal / (1024 * 1024)).arg(tr("MB")) << endl;
+	out << "\t" << QString("%1: %2 %3").arg(tr("Shared Per Block")).arg((double)info.mem.sharedPerBlock / 1024).arg(tr("KB")) << endl;
+	out << "\t" << QString("%1: %2 %3").arg(tr("Pitch")).arg((double)info.mem.maxPitch / 1024).arg(tr("KB")) << endl;
+	out << "\t" << QString("%1: %2 %3").arg(tr("Total Constant")).arg((double)info.mem.totalConst / 1024).arg(tr("KB")) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Texture Alignment")).arg(info.mem.textureAlignment) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("GPU Overlap")).arg(info.mem.gpuOverlap? tr("Yes"): tr("No")) << endl;
 	out << endl;
 
 	subtitle = tr("Performance Information");
@@ -565,49 +567,53 @@ void CZDialog::slotExportToText() {
 		out << "-";
 	out << endl;
 	out << tr("Memory Copy") << endl;
-	out << "\t" << tr("Host Pinned to Device: ");
+	out << "\t" << tr("Host Pinned to Device") << ": ";
 	if(info.band.copyHDPin == 0)
 		out << "--" << endl;
 	else
-		out << tr("%1 MB/s").arg((double)info.band.copyHDPin / 1024) << endl;
-	out << "\t" << tr("Host Pageable to Device: ");
+		out << QString("%1 %2").arg((double)info.band.copyHDPin / 1024).arg(tr("MB/s")) << endl;
+	out << "\t" << tr("Host Pageable to Device") << ": ";
 	if(info.band.copyHDPage == 0)
 		out << "--" << endl;
 	else
-		out << tr("%1 MB/s").arg((double)info.band.copyHDPage / 1024) << endl;
+		out << QString("%1 %2").arg((double)info.band.copyHDPage / 1024).arg(tr("MB/s")) << endl;
 
-	out << "\t" << tr("Device to Host Pinned: ");
+	out << "\t" << tr("Device to Host Pinned") << ": ";
 	if(info.band.copyDHPin == 0)
 		out << "--" << endl;
 	else
-		out << tr("%1 MB/s").arg((double)info.band.copyDHPin / 1024) << endl;
-	out << "\t" << tr("Device to Host Pageable: ");
+		out << QString("%1 %2").arg((double)info.band.copyDHPin / 1024).arg(tr("MB/s")) << endl;
+	out << "\t" << tr("Device to Host Pageable") << ": ";
 	if(info.band.copyDHPage == 0)
 		out << "--" << endl;
 	else
-		out << tr("%1 MB/s").arg((double)info.band.copyDHPage / 1024) << endl;
-	out << "\t" << tr("Device to Device: ");
+		out << QString("%1 %2").arg((double)info.band.copyDHPage / 1024).arg(tr("MB/s")) << endl;
+	out << "\t" << tr("Device to Device") << ": ";
 	if(info.band.copyDD == 0)
 		out << "--" << endl;
 	else
-		out << tr("%1 MB/s").arg((double)info.band.copyDD / 1024) << endl;
+		out << QString("%1 %2").arg((double)info.band.copyDD / 1024).arg(tr("MB/s")) << endl;
 	out << tr("GPU Core Performance") << endl;
-	out << "\t" << tr("Float Point: ");
+	out << "\t" << tr("Float Point") << ": ";
 	if(info.perf.calcFloat == 0)
 		out << "--" << endl;
 	else
-		out << tr("%1 Mflop/s").arg((double)info.perf.calcFloat / 1000) << endl;
-	out << "\t" << tr("32-bit Integer: ");
+		out << QString("%1 %2").arg((double)info.perf.calcFloat / 1000).arg(tr("Mflop/s")) << endl;
+	out << "\t" << tr("32-bit Integer") << ": ";
 	if(info.perf.calcInteger32 == 0)
 		out << "--" << endl;
 	else
-		out << tr("%1 Miop/s").arg((double)info.perf.calcInteger32 / 1000) << endl;
-	out << "\t" << tr("24-bit Integer: ");
+		out << QString("%1 %2").arg((double)info.perf.calcInteger32 / 1000).arg(tr("Miop/s")) << endl;
+	out << "\t" << tr("24-bit Integer") << ": ";
 	if(info.perf.calcInteger24 == 0)
 		out << "--" << endl;
 	else
-		out << tr("%1 Miop/s").arg((double)info.perf.calcInteger24 / 1000) << endl;
+		out << QString("%1 %2").arg((double)info.perf.calcInteger24 / 1000).arg(tr("Miop/s")) << endl;
 	out << endl;
+
+	time_t t;
+	time(&t);
+	out << QString("%1: %2").arg(tr("Generated")).arg(ctime(&t)) << endl;
 }
 
 void CZDialog::slotExportToHTML() {
@@ -621,5 +627,132 @@ void CZDialog::slotExportToHTML() {
 		return;
 
 	qDebug() << "Export to HTML as" << fileName;
+
+	QFile file(fileName);
+	if(!file.open(QFile::WriteOnly | QFile::Text)) {
+		QMessageBox::warning(this, tr(CZ_NAME_SHORT),
+			tr("Cannot write file %1:\n%2.").arg(fileName).arg(file.errorString()));
+		return;
+	}
+
+	QTextStream out(&file);
+	QString title = tr("%1 Report").arg(tr(CZ_NAME_SHORT));
+
+	out << 	"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n"
+		"<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"mul\" lang=\"mul\" dir=\"ltr\">\n"
+		"<head>\n"
+		"<title>" << title << "</title>\n"
+		"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n"
+		"<style type=\"text/css\">\n"
+
+		"@charset \"utf-8\";\n"
+		"body { font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: normal; font-style: normal; }\n"
+		"h1 { font-size: 15px; color: #690; }\n"
+		"h2 { font-size: 13px; color: #690; }\n"
+		"table { border-collapse: collapse; border: 1px solid #000; width: 500px; }\n"
+		"th { background-color: #deb; text-align: left; }\n"
+		"td { width: 50%; }\n"
+		"a:link { color: #9c3; text-decoration: none; }\n"
+		"a:visited { color: #690; text-decoration: none; }\n"
+		"a:hover { color: #9c3; text-decoration: underline; }\n"
+		"a:active { color: #9c3; text-decoration: underline; }\n"
+
+		"</style>\n"
+		"</head>\n"
+		"<body style=\"background: #fff;\">\n";
+
+	out << "<h1>" << title << "</h1>\n";
+	out << "<p><small>";
+	out << tr("<b>Version:</b> %1").arg(CZ_VERSION);
+#ifdef CZ_VER_STATE
+	out << tr(" <b>Built</b> %1 %2 ").arg(CZ_DATE).arg(CZ_TIME);
+#endif//CZ_VER_STATE
+	out << QString("<a href=\"%1\">%1</a><br/>\n").arg(CZ_ORG_URL_MAINPAGE);
+	out << tr("<b>OS Version:</b> %1<br/>").arg(getOSVersion());
+	out << "</small></p>\n";
+
+	out << 	"<h2>" << tr("Core Information") << "</h2>\n"
+		"<table border=\"1\">\n"
+		"<tr><th>" << tr("Name") << "</th><td>" << info.deviceName << "</td></tr>\n"
+		"<tr><th>" << tr("Compute Capability") << "</th><td>" << info.major << "." << info.minor << "</td></tr>\n"
+		"<tr><th>" << tr("Clock Rate") << "</th><td>" << (double)info.core.clockRate / 1000 << " " << tr("MHz") << "</td></tr>\n"
+		"<tr><th>" << tr("Wrap Size") << "</th><td>" << info.core.SIMDWidth << "</td></tr>\n"
+		"<tr><th>" << tr("Regs Per Block") << "</th><td>" << info.core.regsPerBlock << "</td></tr>\n"
+		"<tr><th>" << tr("Threads Per Block") << "</th><td>" << info.core.maxThreadsPerBlock << "</td></tr>\n"
+		"<tr><th>" << tr("Threads Dimentions") << "</th><td>" << info.core.maxThreadsDim[0] << " x " << info.core.maxThreadsDim[1] << " x " << info.core.maxThreadsDim[2] << "</td></tr>\n"
+		"<tr><th>" << tr("Grid Dimentions") << "</th><td>" << info.core.maxGridSize[0] << " x " << info.core.maxGridSize[1] << " x " << info.core.maxGridSize[2] << "</td></tr>\n"
+		"</table>\n";
+
+	out << 	"<h2>" << tr("Memory Information") << "</h2>\n"
+		"<table border=\"1\">\n"
+		"<tr><th>" << tr("Total Global") << "</th><td>" << (double)info.mem.totalGlobal / (1024 * 1024) << " " << tr("MB") << "</td></tr>\n"
+		"<tr><th>" << tr("Shared Per Block") << "</th><td>" << (double)info.mem.sharedPerBlock / 1024 << " " << tr("KB") << "</td></tr>\n"
+		"<tr><th>" << tr("Pitch") << "</th><td>" << (double)info.mem.maxPitch / 1024 << " " << tr("KB") << "</td></tr>\n"
+		"<tr><th>" << tr("Total Constant") << "</th><td>" << (double)info.mem.totalConst / 1024 << " " << tr("KB") << "</td></tr>\n"
+		"<tr><th>" << tr("Texture Alignment") << "</th><td>" << info.mem.textureAlignment << "</td></tr>\n"
+		"<tr><th>" << tr("GPU Overlap") << "</th><td>" << (info.mem.gpuOverlap? tr("Yes"): tr("No")) << "</td></tr>\n"
+		"</table>\n";
+
+	out << 	"<h2>" << tr("Performance Information") << "</h2>\n"
+		"<table border=\"1\">\n"
+		"<tr><th colspan=\"2\">" << tr("Memory Copy") << "</th></tr>\n"
+		"<tr><th>" << tr("Host Pinned to Device") << "</th><td>";
+		if(info.band.copyHDPin == 0)
+			out << "--";
+		else
+			out << (double)info.band.copyHDPin / 1024 << " " << tr("MB/s");
+		out << "</td></tr>\n"
+		"<tr><th>" << tr("Host Pageable to Device") << "</th><td>";
+		if(info.band.copyHDPage == 0)
+			out << "--";
+		else
+			out << (double)info.band.copyHDPage / 1024 << " " << tr("MB/s");
+		out << "</td></tr>\n"
+		"<tr><th>" << tr("Device to Host Pinned") << "</th><td>";
+		if(info.band.copyDHPin == 0)
+			out << "--";
+		else
+			out << (double)info.band.copyDHPin / 1024 << " " << tr("MB/s");
+		out << "</td></tr>\n"
+		"<tr><th>" << tr("Device to Host Pageable") << "</th><td>";
+		if(info.band.copyDHPage == 0)
+			out << "--";
+		else
+			out << (double)info.band.copyDHPage / 1024 << " " << tr("MB/s");
+		out << "</td></tr>\n"
+		"<tr><th>" << tr("Device to Device") << "</th><td>";
+		if(info.band.copyDD == 0)
+			out << "--";
+		else
+			out << (double)info.band.copyDD / 1024 << " " << tr("MB/s");
+		out << "</td></tr>\n"
+		"<tr><th colspan=\"2\">" << tr("GPU Core Performance") << "</th></tr>\n"
+		"<tr><th>" << tr("Float Point") << "</th><td>";
+		if(info.perf.calcFloat == 0)
+			out << "--";
+		else
+			out << (double)info.perf.calcFloat / 1000 << " " << tr("Mflop/s");
+		out << "</td></tr>\n"
+		"<tr><th>" << tr("32-bit Integer") << "</th><td>";
+		if(info.perf.calcInteger32 == 0)
+			out << "--";
+		else
+			out << (double)info.perf.calcInteger32 / 1000 << " " << tr("Miop/s");
+		out << "</td></tr>\n"
+		"<tr><th>" << tr("24-bit Integer") << "</th><td>";
+		if(info.perf.calcInteger24 == 0)
+			out << "--";
+		else
+			out << (double)info.perf.calcInteger24 / 1000 << " " << tr("Miop/s");
+		out << "</td></tr>\n"
+		"</table>\n";
+
+	time_t t;
+	time(&t);
+	out <<	"<p><small><b>" << tr("Generated") << ":</b> " << ctime(&t) << "</small></p>\n";
+
+	out <<	"</body>\n"
+		"</html>\n";
 
 }
