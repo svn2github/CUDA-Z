@@ -681,403 +681,62 @@ static int CZCudaCalcDevicePerformanceReset(
 }
 
 /*!
+	\brief 16 MAD instructions for float point test.
+*/
+#define CZ_CALC_FMAD_16(a, b) \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+
+/*!
 	\brief 128 MAD instructions for float point test.
 */
 #define CZ_CALC_FMAD_128(a, b) \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
+	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
+	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
+	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
+	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
+
+/*!
+	\brief 16 MAD instructions for 32-bit integer test.
+*/
+#define CZ_CALC_IMAD32_16(a, b) \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
 
 /*!
 	\brief 128 MAD instructions for 32-bit integer test.
 */
 #define CZ_CALC_IMAD32_128(a, b) \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
-	a = b * a + b; \
-	b = a * b + a; \
+	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
+	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
+	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
+	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
+
+/*!
+	\brief 16 MAD instructions for 24-bit integer test.
+*/
+#define CZ_CALC_IMAD24_16(a, b) \
+	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
+	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
 
 /*!
 	\brief 128 MAD instructions for 24-bit integer test.
 */
 #define CZ_CALC_IMAD24_128(a, b) \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; \
-	b = __umul24(a, b) + a; \
+	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
+	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
+	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
+	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
 
 #define CZ_CALC_MODE_FLOAT	0	/*!< Float point test mode. */
 #define CZ_CALC_MODE_INTEGER32	1	/*!< 32-bit integer test mode. */
@@ -1253,12 +912,11 @@ static float CZCudaCalcDevicePerformanceTest(
 	printf("Test complete in %f ms.\n", timeMs);
 
 	performanceKOPs = (
-		(float)CZ_CALC_THREADS_NUM * (
-			(float)CZ_CALC_LOOPS_NUM * 
-			(float)CZ_CALC_OPS_NUM *
-			(float)CZ_CALC_BLOCK_SIZE *
-			(float)CZ_CALC_BLOCK_NUM + 1
-		)
+		(float)CZ_CALC_THREADS_NUM * 
+		(float)CZ_CALC_LOOPS_NUM * 
+		(float)CZ_CALC_OPS_NUM *
+		(float)CZ_CALC_BLOCK_SIZE *
+		(float)CZ_CALC_BLOCK_NUM
 	) / (float)timeMs;
 
 	cudaEventDestroy(start);
