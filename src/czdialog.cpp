@@ -356,7 +356,7 @@ void CZDialog::setupCoreTab(
 
 	labelNameText->setText(deviceName);
 	labelCapabilityText->setText(QString("%1.%2").arg(info.major).arg(info.minor));
-	labelClockText->setText(tr("%1 MHz").arg((double)info.core.clockRate / 1000));
+	labelClockText->setText(QString("%1 %2").arg((double)info.core.clockRate / 1000).arg(tr("MHz")));
 	labelWrapText->setNum(info.core.SIMDWidth);
 	labelRegsText->setNum(info.core.regsPerBlock);
 	labelThreadsText->setNum(info.core.maxThreadsPerBlock);
@@ -385,10 +385,14 @@ void CZDialog::setupCoreTab(
 void CZDialog::setupMemoryTab(
 	struct CZDeviceInfo &info	/*!< Information about CUDA-device. */
 ) {
-	labelTotalGlobalText->setText(tr("%1 MB").arg((double)info.mem.totalGlobal / (1024 * 1024)));
-	labelSharedText->setText(tr("%1 KB").arg((double)info.mem.sharedPerBlock / 1024));
-	labelPitchText->setText(tr("%1 KB").arg((double)info.mem.maxPitch / 1024));
-	labelTotalConstText->setText(tr("%1 KB").arg((double)info.mem.totalConst / 1024));
+	labelTotalGlobalText->setText(QString("%1 %2")
+		.arg((double)info.mem.totalGlobal / (1024 * 1024)).arg(tr("MB")));
+	labelSharedText->setText(QString("%1 %2")
+		.arg((double)info.mem.sharedPerBlock / 1024).arg(tr("KB")));
+	labelPitchText->setText(QString("%1 %2")
+		.arg((double)info.mem.maxPitch / 1024).arg(tr("KB")));
+	labelTotalConstText->setText(QString("%1 %2")
+		.arg((double)info.mem.totalConst / 1024).arg(tr("KB")));
 	labelTextureAlignmentText->setNum(info.mem.textureAlignment);
 	labelGpuOverlapText->setText(info.mem.gpuOverlap? tr("Yes"): tr("No"));
 }
@@ -413,42 +417,50 @@ void CZDialog::setupPerformanceTab(
 	if(info.band.copyHDPin == 0)
 		labelHDRatePinText->setText("--");
 	else
-		labelHDRatePinText->setText(tr("%1 MB/s").arg((double)info.band.copyHDPin / 1024));
+		labelHDRatePinText->setText(QString("%1 %2")
+			.arg((double)info.band.copyHDPin / 1024).arg(tr("MB/s")));
 
 	if(info.band.copyHDPage == 0)
 		labelHDRatePageText->setText("--");
 	else
-		labelHDRatePageText->setText(tr("%1 MB/s").arg((double)info.band.copyHDPage / 1024));
+		labelHDRatePageText->setText(QString("%1 %2")
+			.arg((double)info.band.copyHDPage / 1024).arg(tr("MB/s")));
 
 	if(info.band.copyDHPin == 0)
 		labelDHRatePinText->setText("--");
 	else
-		labelDHRatePinText->setText(tr("%1 MB/s").arg((double)info.band.copyDHPin / 1024));
+		labelDHRatePinText->setText(QString("%1 %2")
+			.arg((double)info.band.copyDHPin / 1024).arg(tr("MB/s")));
 
 	if(info.band.copyDHPage == 0)
 		labelDHRatePageText->setText("--");
 	else
-		labelDHRatePageText->setText(tr("%1 MB/s").arg((double)info.band.copyDHPage / 1024));
+		labelDHRatePageText->setText(QString("%1 %2")
+			.arg((double)info.band.copyDHPage / 1024).arg(tr("MB/s")));
 
 	if(info.band.copyDD == 0)
 		labelDDRateText->setText("--");
 	else
-		labelDDRateText->setText(tr("%1 MB/s").arg((double)info.band.copyDD / 1024));
+		labelDDRateText->setText(QString("%1 %2")
+			.arg((double)info.band.copyDD / 1024).arg(tr("MB/s")));
 
 	if(info.perf.calcFloat == 0)
 		labelFloatRateText->setText("--");
 	else
-		labelFloatRateText->setText(tr("%1 Mflop/s").arg((double)info.perf.calcFloat / 1000));
+		labelFloatRateText->setText(QString("%1 %2")
+			.arg((double)info.perf.calcFloat / 1000).arg(tr("Mflop/s")));
 
 	if(info.perf.calcInteger32 == 0)
 		labelInt32RateText->setText("--");
 	else
-		labelInt32RateText->setText(tr("%1 Miop/s").arg((double)info.perf.calcInteger32 / 1000));
+		labelInt32RateText->setText(QString("%1 %2")
+			.arg((double)info.perf.calcInteger32 / 1000).arg(tr("Miop/s")));
 
 	if(info.perf.calcInteger24 == 0)
 		labelInt24RateText->setText("--");
 	else
-		labelInt24RateText->setText(tr("%1 Miop/s").arg((double)info.perf.calcInteger24 / 1000));
+		labelInt24RateText->setText(QString("%1 %2")
+			.arg((double)info.perf.calcInteger24 / 1000).arg(tr("Miop/s")));
 }
 
 /*!
@@ -456,15 +468,18 @@ void CZDialog::setupPerformanceTab(
 */
 void CZDialog::setupAboutTab() {
 //	labelAppLogo->setPixmap(QPixmap(":/img/icon.png"));
-	labelAppName->setText(QString("<b><i><font size=\"+2\">%1</font></i></b><br>%2").arg(CZ_NAME_SHORT).arg(CZ_NAME_LONG));
+	labelAppName->setText(QString("<b><i><font size=\"+2\">%1</font></i></b><br>%2")
+		.arg(CZ_NAME_SHORT).arg(CZ_NAME_LONG));
 
-	QString version = tr("<b>Version</b> %1").arg(CZ_VERSION);
+	QString version = tr("<b>%1</b> %2").arg(tr("Version")).arg(CZ_VERSION);
 #ifdef CZ_VER_STATE
-	version += QString(tr("<br><b>Built</b> %1 %2").arg(CZ_DATE).arg(CZ_TIME));
+	version += QString(tr("<br><b>%1</b> %2 %3").arg(tr("Built")).arg(CZ_DATE).arg(CZ_TIME));
 #endif//CZ_VER_STATE
 	labelAppVersion->setText(version);
-	labelAppURL->setText(tr("<b>Main page</b> <a href=\"%1\">%1</a><br><b>Project</b> <a href=\"%2\">%2</a>").arg(CZ_ORG_URL_MAINPAGE).arg(CZ_ORG_URL_PROJECT));
-	labelAppAuthor->setText(tr("<b>Author</b> %1").arg(CZ_ORG_NAME));
+	labelAppURL->setText(tr("<b>%1</b> <a href=\"%2\">%2</a><br><b>%3</b> <a href=\"%4\">%4</a>")
+		.arg(tr("Main page")).arg(CZ_ORG_URL_MAINPAGE)
+		.arg(tr("Project")).arg(CZ_ORG_URL_PROJECT));
+	labelAppAuthor->setText(tr("<b>%1</b> %2").arg(tr("Author")).arg(CZ_ORG_NAME));
 	labelAppCopy->setText(CZ_COPY_INFO);
 }
 
@@ -501,7 +516,7 @@ void CZDialog::slotExportToText() {
 
 	struct CZDeviceInfo info = deviceList[comboDevice->currentIndex()]->info();
 
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Text as.."),
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Text as..."),
 		tr("%1.txt").arg(tr(CZ_NAME_SHORT)), tr("Text files (*.txt);;All files (*.*)"));
 
 	if(fileName.isEmpty())
@@ -620,7 +635,7 @@ void CZDialog::slotExportToHTML() {
 
 	struct CZDeviceInfo info = deviceList[comboDevice->currentIndex()]->info();
 
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Text as.."),
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Text as..."),
 		tr("%1.html").arg(tr(CZ_NAME_SHORT)), tr("HTML files (*.html *.htm);;All files (*.*)"));
 
 	if(fileName.isEmpty())
