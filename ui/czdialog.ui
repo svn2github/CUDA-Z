@@ -960,6 +960,19 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QLabel" name="labelAppUpdate" >
+             <property name="text" >
+              <string>&lt;update></string>
+             </property>
+             <property name="wordWrap" >
+              <bool>true</bool>
+             </property>
+             <property name="openExternalLinks" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
         </layout>

@@ -1,5 +1,5 @@
 TEMPLATE = app
-QT = gui core
+QT = gui core network
 CONFIG += qt warn_on
 CONFIG += release
 #CONFIG += debug

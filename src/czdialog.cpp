@@ -205,6 +205,8 @@ CZDialog::CZDialog(
 	Qt::WFlags f		/*!< Window flags. */
 )	: QDialog(parent, f /*| Qt::MSWindowsFixedSizeDialogHint*/ | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint) {
 
+	http = NULL;
+
 	setupUi(this);
 	this->setWindowTitle(QString("%1 %2").arg(CZ_NAME_SHORT).arg(CZ_VERSION));
 	connect(comboDevice, SIGNAL(activated(int)), SLOT(slotShowDevice(int)));
@@ -223,6 +225,9 @@ CZDialog::CZDialog(
 	updateTimer = new QTimer(this);
 	connect(updateTimer, SIGNAL(timeout()), SLOT(slotUpdateTimer()));
 	updateTimer->start(CZ_TIMER_REFRESH);
+
+	labelAppUpdate->setText("");
+	startGetHistoryHttp();
 }
 
 /*
@@ -483,9 +488,9 @@ void CZDialog::setupAboutTab() {
 	labelAppCopy->setText(CZ_COPY_INFO);
 }
 
-#if defined(Q_WS_WIN)
+#ifdef Q_OS_WIN
 #include <windows.h>
-static QString getOSVersion() {
+QString CZDialog::getOSVersion() {
 	QString OSVersion = "Windows";
 
 	SYSTEM_INFO systemInfo;
@@ -769,5 +774,136 @@ void CZDialog::slotExportToHTML() {
 
 	out <<	"</body>\n"
 		"</html>\n";
+}
 
+void CZDialog::startGetHistoryHttp() {
+
+	if(http == NULL) {
+		http = new QHttp(this);
+		http->setHost(CZ_ORG_DOMAIN);
+		http->get("/history.txt");
+
+		connect(http, SIGNAL(done(bool)), this, SLOT(slotGetHistoryDone(bool)));
+	}
+
+}
+
+void CZDialog::cleanGetHistoryHttp() {
+
+	if(http != NULL) {
+		disconnect(http, SIGNAL(done(bool)), this, SLOT(slotGetHistoryDone(bool)));
+
+		delete http;
+		http = NULL;
+	}
+}
+
+void CZDialog::slotGetHistoryDone(
+	bool error
+) {
+	if(error) {
+		qDebug() << "Get version request done with error" << http->error() << http->errorString();
+		labelAppUpdate->setText(tr("Can't check version"));
+	} else {
+		qDebug() << "Get version request done successfully";
+	}
+
+	QString history(http->readAll().data());
+	history.remove('\r');
+	QStringList historyStrings(history.split("\n"));
+
+	for(int i = 0; i < historyStrings.size(); i++) {
+		qDebug() << i << historyStrings[i];
+	}
+
+	QString lastVersion;
+	QString downloadUrl;
+	QString releaseNotes;
+
+	bool validVersion = false;
+	QString version;
+	QString notes;
+	QString url;
+
+	QString downloadID = QString("download-") + CZ_OS_PLATFORM_STR;
+
+	for(int i = 0; i < historyStrings.size(); i++) {
+
+		if(historyStrings[i].left(8) == "version ") {
+
+			if(validVersion) {
+				downloadUrl = url;
+				releaseNotes = notes;
+				lastVersion = version;
+			}
+
+			version = historyStrings[i];
+			version.remove(0, 8);
+			qDebug() << "Version found:" << version;
+			notes = "";
+			url = "";
+			validVersion = false;
+		}
+		if(historyStrings[i].left(14) == "release-notes ") {
+			notes = historyStrings[i];
+			notes.remove(0, 14);
+			qDebug() << "Notes found:" << notes;
+		}
+		if(historyStrings[i].left(downloadID.size() + 1) == (downloadID + " ")) {
+			url = historyStrings[i];
+			url.remove(0, downloadID.size() + 1);
+			qDebug() << "Valid URL found:" << url;
+			validVersion = true;
+		}
+	}
+
+	if(validVersion) {
+		downloadUrl = url;
+		releaseNotes = notes;
+		lastVersion = version;
+	}
+
+	qDebug() << "Last valid version:" << lastVersion << releaseNotes << downloadUrl;
+
+	bool haveNewer = false;
+
+	if(!lastVersion.isEmpty()) {
+
+		QStringList versionNumbers = lastVersion.split('.');
+		if(versionNumbers[0].toInt() < CZ_VER_MAJOR) {
+			haveNewer = false;
+		} else if((versionNumbers[0].toInt() == CZ_VER_MAJOR) && (versionNumbers[1].toInt() < CZ_VER_MINOR)) {
+			haveNewer = false;
+#ifdef CZ_VER_BUILD
+		} else if((versionNumbers[0].toInt() == CZ_VER_MAJOR) && (versionNumbers[1].toInt() == CZ_VER_MINOR) && (versionNumbers.size() > 2) && (versionNumbers[2].toInt() == CZ_VER_BUILD)) {
+			haveNewer = false;
+#endif//CZ_VER_BUILD
+		} else {
+			haveNewer = true;
+		}
+	}
+
+	if(haveNewer) {
+		QString updateString = QString("%1 <b>%2</b>.")
+			.arg(tr("New version is available")).arg(lastVersion);
+		if(!downloadUrl.isEmpty()) {
+			updateString += QString("<br><a href=\"%1\">%2</a>")
+				.arg(downloadUrl)
+				.arg(tr("Download"));
+		} else {
+			updateString += QString("<br><a href=\"%1\">%2</a>")
+				.arg(CZ_ORG_URL_MAINPAGE)
+				.arg(tr("Main page"));
+		}
+		if(!releaseNotes.isEmpty()) {
+			updateString += QString(" <a href=\"%1\">%2</a>")
+				.arg(releaseNotes)
+				.arg(tr("Release notes"));
+		}
+		labelAppUpdate->setText(updateString);
+	} else {
+		labelAppUpdate->setText(tr("No new version found."));
+	}
+
+	cleanGetHistoryHttp();
 }

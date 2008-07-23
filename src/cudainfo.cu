@@ -55,7 +55,7 @@ static cuDeviceGetAttribute_t p_cuDeviceGetAttribute = NULL;
 */
 static cuInit_t p_cuInit = NULL;
 
-#if defined(Q_WS_WIN)
+#ifdef Q_OS_WIN
 #include <windows.h>
 /*!
 	\brief Check if CUDA fully initialized.
@@ -87,9 +87,9 @@ static bool CZCudaIsInit(void) {
 
 	return true;
 }
-#else//!Q_WS_WIN
+#else//!Q_OS_WIN
 #error Function CZCudaIsInit() is not implemented for your platform!
-#endif//Q_WS_WIN
+#endif//Q_OS_WIN
 
 
 /*!

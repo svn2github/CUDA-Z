@@ -47,14 +47,25 @@
 #define CZ_TIME			__TIME__	/*!< Application compile time. */
 
 #define CZ_ORG_NAME		"AG"		/*!< Organization name. */
-#define CZ_ORG_DOMAIN		"cuda-z.sf.net"	/*!< Organization domain name. */
-#define CZ_ORG_URL_MAINPAGE	"http://cuda-z.sourceforge.net/"
+#define CZ_ORG_DOMAIN		"cuda-z.sourceforge.net"
+						/*!< Organization domain name. */
+#define CZ_ORG_URL_MAINPAGE	"http://" CZ_ORG_DOMAIN "/"
 						/*!< URL of main web site. */
 #define CZ_ORG_URL_PROJECT	"http://sourceforge.net/projects/cuda-z/"
 						/*!< URL of project page. */
 
 #define CZ_COPY_INFO		"This software is distributed under the terms of the GNU General Public License Version 2."
 						/*!< Program's copyright information. */
+/*
+	\def CZ_OS_PLATFORM_STR Platform ID string.
+*/
+#if defined(Q_OS_WIN)
+#define CZ_OS_PLATFORM_STR	"win32"
+#elif defined(Q_OS_MAC)
+#define CZ_OS_PLATFORM_STR	"macosx"
+#elif defined(Q_OS_LINUX)
+#define CZ_OS_PLATFORM_STR	"linux"
+#endif
 /*@}*/
 
 #endif//CZ_VERSION_H
