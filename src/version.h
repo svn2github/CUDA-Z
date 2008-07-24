@@ -56,18 +56,6 @@
 
 #define CZ_COPY_INFO		"This software is distributed under the terms of the GNU General Public License Version 2."
 						/*!< Program's copyright information. */
-/*
-	\def CZ_OS_PLATFORM_STR Platform ID string.
-*/
-#if defined(Q_OS_WIN)
-#define CZ_OS_PLATFORM_STR	"win32"
-#elif defined(Q_OS_MAC)
-#define CZ_OS_PLATFORM_STR	"macosx"
-#elif defined(Q_OS_LINUX)
-#define CZ_OS_PLATFORM_STR	"linux"
-#else
-#error Your platform is not supported by CUDA! Or it does but I know nothing about this...
-#endif
 /*@}*/
 
 #endif//CZ_VERSION_H
