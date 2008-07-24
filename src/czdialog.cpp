@@ -803,7 +803,7 @@ void CZDialog::slotGetHistoryDone(
 ) {
 	if(error) {
 		qDebug() << "Get version request done with error" << http->error() << http->errorString();
-		labelAppUpdate->setText(tr("Can't check version"));
+		labelAppUpdate->setText(tr("Can't check for new version."));
 	} else {
 		qDebug() << "Get version request done successfully";
 	}

@@ -65,6 +65,8 @@
 #define CZ_OS_PLATFORM_STR	"macosx"
 #elif defined(Q_OS_LINUX)
 #define CZ_OS_PLATFORM_STR	"linux"
+#else
+#error Your platform is not supported by CUDA! Or it does but I know nothing about this...
 #endif
 /*@}*/
 
