@@ -35,171 +35,6 @@
 QSplashScreen *splash;
 
 /*!
-	\class CZCudaDeviceInfo
-	\brief This class implements a container for CUDA-device information.
-*/
-
-/*!
-	\brief Creates CUDA-device information container.
-*/
-CZCudaDeviceInfo::CZCudaDeviceInfo(
-	int devNum,
-	QObject *parent
-) 	: QObject(parent) {
-	memset(&_info, 0, sizeof(_info));
-	_info.num = devNum;
-	readInfo();
-	_thread = new CZUpdateThread(this, this);
-	_thread->start();
-}
-
-/*!
-	\brief Destroys cuda information container.
-*/
-CZCudaDeviceInfo::~CZCudaDeviceInfo() {
-	delete _thread;
-}
-
-/*!
-	\brief This function reads CUDA-device basic information.
-	\return \a 0 in case of success, \a -1 in case of error.
-*/
-int CZCudaDeviceInfo::readInfo() {
-	return CZCudaReadDeviceInfo(&_info, _info.num);
-}
-
-/*!
-	\brief This function prepare some buffers for budwidth tests.
-	\return \a 0 in case of success, \a -1 in case of error.
-*/
-int CZCudaDeviceInfo::prepareDevice() {
-	return CZCudaPrepareDevice(&_info);
-}
-
-/*!
-	\brief This function updates CUDA-device performance information.
-	\return \a 0 in case of success, \a -1 in case of error.
-*/
-int CZCudaDeviceInfo::updateInfo() {
-	int r;
-	r = CZCudaCalcDeviceBandwidth(&_info);
-	if(r == -1)
-		return r;
-	return CZCudaCalcDevicePerformance(&_info);
-}
-
-/*!
-	\brief This function cleans buffers used for bandwidth tests.
-	\return \a 0 in case of success, \a -1 in case of error.
-*/
-int CZCudaDeviceInfo::cleanDevice() {
-	return CZCudaCleanDevice(&_info);
-}
-
-/*!
-	\brief Returns pointer to inforation structure.
-*/
-struct CZDeviceInfo &CZCudaDeviceInfo::info() {
-	return _info;
-}
-
-/*!
-	\brief Returns pointer to update thread.
-*/
-CZUpdateThread *CZCudaDeviceInfo::thread() {
-	return _thread;
-}
-
-/*!
-	\class CZUpdateThread
-	\brief This class implements performance data update procedure.
-*/
-
-/*!
-	\brief Creates the performance data update thread.
-*/
-CZUpdateThread::CZUpdateThread(
-	CZCudaDeviceInfo *info,
-	QObject *parent			/*!< Parent of the thread. */
-)	: QThread(parent) {
-
-	abort = false;
-	this->info = info;
-	index = -1;
-
-	qDebug() << "Thread created";
-}
-
-/*!
-	\brief Terminates the performance data update thread.
-	This function waits util performance test will be over.
-*/
-CZUpdateThread::~CZUpdateThread() {
-
-	mutex.lock();
-	abort = true;
-	condition.wakeOne();
-	mutex.unlock();
-
-	wait();
-
-	qDebug() << "Thread is done";
-}
-
-/*!
-	\brief Push performance test in thread.
-*/
-void CZUpdateThread::testPerformance(
-	int index			/*!< Index of device in list. */
-) {
-	QMutexLocker locker(&mutex);
-
-	this->index = index;
-
-	qDebug() << "Rising update action for device" << index;
-
-	if (!isRunning()) {
-		start();
-	} else {
-		condition.wakeOne();
-	}
-}
-
-/*!
-	\brief Main work function of the thread.
-*/
-void CZUpdateThread::run() {
-
-	qDebug() << "Thread started";
-
-	info->prepareDevice();
-
-	forever {
-
-		mutex.lock();
-		condition.wait(&mutex);
-		index = this->index;
-		mutex.unlock();
-
-		qDebug() << "Thread loop started";
-
-		if(abort) {
-			info->cleanDevice();
-			return;
-		}
-
-		info->updateInfo();
-		if(index != -1)
-			emit testedPerformance(index);
-
-		if(abort) {
-			info->cleanDevice();
-			return;
-		}
-	}
-}
-
-/*!
 	\class CZDialog
 	\brief This class implements main window of the application.
 */
@@ -239,7 +74,7 @@ CZDialog::CZDialog(
 	connect(updateTimer, SIGNAL(timeout()), SLOT(slotUpdateTimer()));
 	updateTimer->start(CZ_TIMER_REFRESH);
 
-	labelAppUpdate->setText("");
+	labelAppUpdate->setText(tr("Looking for new version..."));
 	startGetHistoryHttp();
 }
 
@@ -259,7 +94,7 @@ CZDialog::~CZDialog() {
 	- Initialize CUDA-data structure.
 	- Reads CUDA-information about device.
 	- Shows progress message in splash screen.
-	- Starts Performance calculation thread.
+	- Starts Performance calculation procedure.
 	- Appends entry in to device-list.
 */
 void CZDialog::readCudaDevices() {
@@ -276,8 +111,9 @@ void CZDialog::readCudaDevices() {
 			qApp->processEvents();
 
 //			wait(10000000);
+			info->waitPerformance();
 			
-			connect(info->thread(), SIGNAL(testedPerformance(int)), SLOT(slotUpdatePerformance(int)));
+			connect(info, SIGNAL(testedPerformance(int)), SLOT(slotUpdatePerformance(int)));
 			deviceList.append(info);
 		}
 	}
@@ -323,7 +159,7 @@ void CZDialog::slotShowDevice(
 	setupDeviceInfo(index);
 	if(checkUpdateResults->checkState() == Qt::Checked) {
 		qDebug() << "Switch device -> update performance for device" << index;
-		deviceList[index]->thread()->testPerformance(index);
+		deviceList[index]->testPerformance(index);
 	}
 }
 
@@ -347,7 +183,7 @@ void CZDialog::slotUpdateTimer() {
 	int index = comboDevice->currentIndex();
 	if(checkUpdateResults->checkState() == Qt::Checked) {
 		qDebug() << "Timer shot -> update performance for device" << index;
-		deviceList[index]->thread()->testPerformance(index);
+		deviceList[index]->testPerformance(index);
 	} else {
 		qDebug() << "Timer shot -> update ignored";
 	}
