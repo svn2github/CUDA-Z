@@ -674,11 +674,13 @@ void CZDialog::slotGetHistoryDone(
 	QString notes;
 	QString url;
 
-	QString downloadID = QString("download-") + CZ_OS_PLATFORM_STR;
+	QString nameVersion("version ");
+	QString nameNotes("release-notes ");
+	QString nameDownload = QString("download-") + CZ_OS_PLATFORM_STR + " ";
 
 	for(int i = 0; i < historyStrings.size(); i++) {
 
-		if(historyStrings[i].left(8) == "version ") {
+		if(historyStrings[i].left(nameVersion.size()) == nameVersion) {
 
 			if(validVersion) {
 				downloadUrl = url;
@@ -687,20 +689,20 @@ void CZDialog::slotGetHistoryDone(
 			}
 
 			version = historyStrings[i];
-			version.remove(0, 8);
+			version.remove(0, nameVersion.size());
 			qDebug() << "Version found:" << version;
 			notes = "";
 			url = "";
 			validVersion = false;
 		}
-		if(historyStrings[i].left(14) == "release-notes ") {
+		if(historyStrings[i].left(nameNotes.size()) == nameNotes) {
 			notes = historyStrings[i];
-			notes.remove(0, 14);
+			notes.remove(0, nameNotes.size());
 			qDebug() << "Notes found:" << notes;
 		}
-		if(historyStrings[i].left(downloadID.size() + 1) == (downloadID + " ")) {
+		if(historyStrings[i].left(nameDownload.size()) == nameDownload) {
 			url = historyStrings[i];
-			url.remove(0, downloadID.size() + 1);
+			url.remove(0, nameDownload.size());
 			qDebug() << "Valid URL found:" << url;
 			validVersion = true;
 		}
