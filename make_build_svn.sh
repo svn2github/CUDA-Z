@@ -7,7 +7,7 @@
 #set -x
 
 get_build() {
-	SVN_REV_LIST=`svn info -R . | grep Revision | sed -e "s/Revision: //"`
+	SVN_REV_LIST=`svn info -R . | grep "Last Changed Rev" | sed -e "s/Last Changed Rev: //"`
 
 	if test -z "$SVN_REV_LIST"
 	then
