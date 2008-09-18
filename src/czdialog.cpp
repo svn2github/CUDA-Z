@@ -337,6 +337,11 @@ void CZDialog::setupAboutTab() {
 	labelAppCopy->setText(CZ_COPY_INFO);
 }
 
+/*!
+	\fn CZDialog::getOSVersion
+	\brief Get OS version string.
+	\return string that describes version of OS we running at.
+*/
 #ifdef Q_OS_WIN
 #include <windows.h>
 QString CZDialog::getOSVersion() {
@@ -366,6 +371,9 @@ QString CZDialog::getOSVersion() {
 #error Function getOSVersion() is not implemented for your platform!
 #endif//Q_WS_WIN
 
+/*!
+	\brief Export information to plane text file.
+*/
 void CZDialog::slotExportToText() {
 
 	struct CZDeviceInfo info = deviceList[comboDevice->currentIndex()]->info();
@@ -485,6 +493,9 @@ void CZDialog::slotExportToText() {
 	out << QString("%1: %2").arg(tr("Generated")).arg(ctime(&t)) << endl;
 }
 
+/*!
+	\brief Export information to HTML file.
+*/
 void CZDialog::slotExportToHTML() {
 
 	struct CZDeviceInfo info = deviceList[comboDevice->currentIndex()]->info();
@@ -625,136 +636,160 @@ void CZDialog::slotExportToHTML() {
 		"</html>\n";
 }
 
+/*!
+	\brief Start version reading procedure.
+*/
 void CZDialog::startGetHistoryHttp() {
 
 	if(http == NULL) {
 		http = new QHttp(this);
-		http->setHost(CZ_ORG_DOMAIN);
-		http->get("/history.txt");
 
 		connect(http, SIGNAL(done(bool)), this, SLOT(slotGetHistoryDone(bool)));
+		connect(http, SIGNAL(stateChanged(int)), this, SLOT(slotGetHistoryStateChanged(int)));
+
+		http->setHost(CZ_ORG_DOMAIN);
+		http->get("/history.txt");
 	}
 
 }
 
+/*!
+	\brief Clean up after version reading procedure.
+*/
 void CZDialog::cleanGetHistoryHttp() {
 
 	if(http != NULL) {
 		disconnect(http, SIGNAL(done(bool)), this, SLOT(slotGetHistoryDone(bool)));
+		disconnect(http, SIGNAL(stateChanged(int)), this, SLOT(slotGetHistoryStateChanged(int)));
 
 		delete http;
 		http = NULL;
 	}
 }
 
+/*!
+	\brief HTTP operation result slot.
+*/
 void CZDialog::slotGetHistoryDone(
-	bool error
+	bool error			/*!< HTTP operation error state. */
 ) {
 	if(error) {
 		qDebug() << "Get version request done with error" << http->error() << http->errorString();
-		labelAppUpdate->setText(tr("Can't check for new version."));
+
+		labelAppUpdate->setText(tr("Can't load version information.\n") + http->errorString());
 	} else {
 		qDebug() << "Get version request done successfully";
-	}
 
-	QString history(http->readAll().data());
-	history.remove('\r');
-	QStringList historyStrings(history.split("\n"));
+		QString history(http->readAll().data());
+		history.remove('\r');
+		QStringList historyStrings(history.split("\n"));
 
-	for(int i = 0; i < historyStrings.size(); i++) {
-		qDebug() << i << historyStrings[i];
-	}
+		for(int i = 0; i < historyStrings.size(); i++) {
+			qDebug() << i << historyStrings[i];
+		}
 
-	QString lastVersion;
-	QString downloadUrl;
-	QString releaseNotes;
+		QString lastVersion;
+		QString downloadUrl;
+		QString releaseNotes;
 
-	bool validVersion = false;
-	QString version;
-	QString notes;
-	QString url;
+		bool validVersion = false;
+		QString version;
+		QString notes;
+		QString url;
 
-	QString nameVersion("version ");
-	QString nameNotes("release-notes ");
-	QString nameDownload = QString("download-") + CZ_OS_PLATFORM_STR + " ";
+		QString nameVersion("version ");
+		QString nameNotes("release-notes ");
+		QString nameDownload = QString("download-") + CZ_OS_PLATFORM_STR + " ";
 
-	for(int i = 0; i < historyStrings.size(); i++) {
+		for(int i = 0; i < historyStrings.size(); i++) {
 
-		if(historyStrings[i].left(nameVersion.size()) == nameVersion) {
+			if(historyStrings[i].left(nameVersion.size()) == nameVersion) {
 
-			if(validVersion) {
-				downloadUrl = url;
-				releaseNotes = notes;
-				lastVersion = version;
+				if(validVersion) {
+					downloadUrl = url;
+					releaseNotes = notes;
+					lastVersion = version;
+				}
+
+				version = historyStrings[i];
+				version.remove(0, nameVersion.size());
+				qDebug() << "Version found:" << version;
+				notes = "";
+				url = "";
+				validVersion = false;
 			}
-
-			version = historyStrings[i];
-			version.remove(0, nameVersion.size());
-			qDebug() << "Version found:" << version;
-			notes = "";
-			url = "";
-			validVersion = false;
+			if(historyStrings[i].left(nameNotes.size()) == nameNotes) {
+				notes = historyStrings[i];
+				notes.remove(0, nameNotes.size());
+				qDebug() << "Notes found:" << notes;
+			}
+			if(historyStrings[i].left(nameDownload.size()) == nameDownload) {
+				url = historyStrings[i];
+				url.remove(0, nameDownload.size());
+				qDebug() << "Valid URL found:" << url;
+				validVersion = true;
+			}
 		}
-		if(historyStrings[i].left(nameNotes.size()) == nameNotes) {
-			notes = historyStrings[i];
-			notes.remove(0, nameNotes.size());
-			qDebug() << "Notes found:" << notes;
+
+		if(validVersion) {
+			downloadUrl = url;
+			releaseNotes = notes;
+			lastVersion = version;
 		}
-		if(historyStrings[i].left(nameDownload.size()) == nameDownload) {
-			url = historyStrings[i];
-			url.remove(0, nameDownload.size());
-			qDebug() << "Valid URL found:" << url;
-			validVersion = true;
-		}
-	}
 
-	if(validVersion) {
-		downloadUrl = url;
-		releaseNotes = notes;
-		lastVersion = version;
-	}
+		qDebug() << "Last valid version:" << lastVersion << releaseNotes << downloadUrl;
 
-	qDebug() << "Last valid version:" << lastVersion << releaseNotes << downloadUrl;
+		bool haveNewer = false;
 
-	bool haveNewer = false;
+		if(!lastVersion.isEmpty()) {
 
-	if(!lastVersion.isEmpty()) {
-
-		QStringList versionNumbers = lastVersion.split('.');
-		if(versionNumbers[0].toInt() < CZ_VER_MAJOR) {
-			haveNewer = false;
-		} else if((versionNumbers[0].toInt() == CZ_VER_MAJOR) && (versionNumbers[1].toInt() < CZ_VER_MINOR)) {
-			haveNewer = false;
+			QStringList versionNumbers = lastVersion.split('.');
+			if(versionNumbers[0].toInt() < CZ_VER_MAJOR) {
+				haveNewer = false;
+			} else if((versionNumbers[0].toInt() == CZ_VER_MAJOR) && (versionNumbers[1].toInt() < CZ_VER_MINOR)) {
+				haveNewer = false;
 #ifdef CZ_VER_BUILD
-		} else if((versionNumbers[0].toInt() == CZ_VER_MAJOR) && (versionNumbers[1].toInt() == CZ_VER_MINOR) && (versionNumbers.size() > 2) && (versionNumbers[2].toInt() == CZ_VER_BUILD)) {
-			haveNewer = false;
+			} else if((versionNumbers[0].toInt() == CZ_VER_MAJOR) && (versionNumbers[1].toInt() == CZ_VER_MINOR) && (versionNumbers.size() > 2) && (versionNumbers[2].toInt() == CZ_VER_BUILD)) {
+				haveNewer = false;
 #endif//CZ_VER_BUILD
+			} else {
+				haveNewer = true;
+			}
+		}
+
+		if(haveNewer) {
+			QString updateString = QString("%1 <b>%2</b>.")
+				.arg(tr("New version is available")).arg(lastVersion);
+			if(!downloadUrl.isEmpty()) {
+				updateString += QString("<br><a href=\"%1\">%2</a>")
+					.arg(downloadUrl)
+					.arg(tr("Download"));
+			} else {
+				updateString += QString("<br><a href=\"%1\">%2</a>")
+					.arg(CZ_ORG_URL_MAINPAGE)
+					.arg(tr("Main page"));
+			}
+			if(!releaseNotes.isEmpty()) {
+				updateString += QString(" <a href=\"%1\">%2</a>")
+					.arg(releaseNotes)
+					.arg(tr("Release notes"));
+			}
+			labelAppUpdate->setText(updateString);
 		} else {
-			haveNewer = true;
+			labelAppUpdate->setText(tr("No new version found."));
 		}
 	}
+}
 
-	if(haveNewer) {
-		QString updateString = QString("%1 <b>%2</b>.")
-			.arg(tr("New version is available")).arg(lastVersion);
-		if(!downloadUrl.isEmpty()) {
-			updateString += QString("<br><a href=\"%1\">%2</a>")
-				.arg(downloadUrl)
-				.arg(tr("Download"));
-		} else {
-			updateString += QString("<br><a href=\"%1\">%2</a>")
-				.arg(CZ_ORG_URL_MAINPAGE)
-				.arg(tr("Main page"));
-		}
-		if(!releaseNotes.isEmpty()) {
-			updateString += QString(" <a href=\"%1\">%2</a>")
-				.arg(releaseNotes)
-				.arg(tr("Release notes"));
-		}
-		labelAppUpdate->setText(updateString);
-	} else {
-		labelAppUpdate->setText(tr("No new version found."));
+/*!
+	\brief HTTP connection state change slot.
+*/
+void CZDialog::slotGetHistoryStateChanged(
+	int state			/*!< Current state of HTTP link. */
+) {
+	qDebug() << "Get version connection state changed to" << state;
+
+	if(state == QHttp::Unconnected) {
+		cleanGetHistoryHttp();
 	}
-
-	cleanGetHistoryHttp();
 }

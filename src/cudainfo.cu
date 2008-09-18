@@ -45,13 +45,13 @@ typedef CUresult (CUDAAPI *cuInit_t)(unsigned int Flags);
 
 /*!
 	\brief Pointer to function \a cuDeviceGetAttribute().
-	This parameter is initializaed by #CZCudaIsInit().
+	This parameter is initializaed by CZCudaIsInit().
 */
 static cuDeviceGetAttribute_t p_cuDeviceGetAttribute = NULL;
 
 /*!
 	\brief Pointer to function \a cuInit().
-	This parameter is initializaed by #CZCudaIsInit().
+	This parameter is initializaed by CZCudaIsInit().
 */
 static cuInit_t p_cuInit = NULL;
 

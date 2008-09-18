@@ -55,6 +55,7 @@ private slots:
 	void slotExportToText();
 	void slotExportToHTML();
 	void slotGetHistoryDone(bool error);
+	void slotGetHistoryStateChanged(int state);
 };
 
 #endif//CZ_DIALOG_H
