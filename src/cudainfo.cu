@@ -8,7 +8,9 @@
 #include <cuda_runtime.h>
 #include <string.h>
 
-#include <QDebug>
+//#include <QDebug>
+#include <qglobal.h>
+#define printf(fmt, ...)
 
 #include "cudainfo.h"
 
@@ -69,7 +71,7 @@ static bool CZCudaIsInit(void) {
 
 	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
 
-		hDll = LoadLibrary(L"nvcuda.dll");
+		hDll = LoadLibraryA("nvcuda.dll");
 		if(hDll == NULL) {
 			return false;
 		}
