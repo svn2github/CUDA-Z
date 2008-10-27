@@ -368,8 +368,14 @@ QString CZDialog::getOSVersion() {
 	return OSVersion;
 }
 #elif defined (Q_OS_LINUX)
+#include <QProcess>
 QString CZDialog::getOSVersion() {
-	QString OSVersion = "Linux";
+	QProcess uname; 
+
+	uname.start("uname", QStringList() << "-srvm");
+	if(!uname.waitForFinished())
+		return QString("Linux (unknown)");
+	QString OSVersion = uname.readLine();
 
 	return OSVersion;
 }
