@@ -367,6 +367,12 @@ QString CZDialog::getOSVersion() {
 
 	return OSVersion;
 }
+#elif defined (Q_OS_LINUX)
+QString CZDialog::getOSVersion() {
+	QString OSVersion = "Linux";
+
+	return OSVersion;
+}
 #else//!Q_WS_WIN
 #error Function getOSVersion() is not implemented for your platform!
 #endif//Q_WS_WIN

@@ -89,6 +89,37 @@ static bool CZCudaIsInit(void) {
 
 	return true;
 }
+#elif defined(Q_OS_LINUX)
+#include <dlfcn.h>
+/*!
+	\brief Check if CUDA fully initialized.
+	This function loads libcuda.so and finds functions \a cuInit()
+	and \a cuDeviceGetAttribute().
+	\return \a true in case of success, \a false in case of error.
+*/
+static bool CZCudaIsInit(void) {
+
+	void *hDll;
+
+	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
+
+		hDll = dlopen("/usr/lib/libcuda.so", RTLD_LAZY);
+		if(hDll == NULL) {
+			return false;
+		}
+
+		p_cuDeviceGetAttribute = (cuDeviceGetAttribute_t)dlsym(hDll, "cuDeviceGetAttribute");
+		if(p_cuDeviceGetAttribute == NULL) {
+			return false;
+		}
+
+		p_cuInit = (cuInit_t)dlsym(hDll, "cuInit");
+		if(p_cuInit == NULL) {
+			return false;
+		}
+	}
+	return true;
+}
 #else//!Q_OS_WIN
 #error Function CZCudaIsInit() is not implemented for your platform!
 #endif//Q_OS_WIN

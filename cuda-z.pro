@@ -19,7 +19,7 @@ RESOURCES = res/cuda-z.qrc
 win32:RC_FILE += res/cuda-z.rc
 CUSOURCES = src/cudainfo.cu
 
-unix:LIBS += -lcuda
+unix:LIBS += -lcudart
 win32:LIBS += \
 	$(CUDA_LIB_PATH)\cuda.lib \
 	$(CUDA_LIB_PATH)\cudart.lib
@@ -61,7 +61,8 @@ RCC_DIR = bld/rcc
 # Cuda extra-compiler for handling files specified in the CUSOURCES variable
 #
 
-QMAKE_CUC = $(CUDA_BIN_PATH)/nvcc.exe
+win32:QMAKE_CUC = $(CUDA_BIN_PATH)/nvcc.exe
+unix:QMAKE_CUC = nvcc
 
 {
 	cu.name = Cuda ${QMAKE_FILE_IN}
@@ -77,7 +78,9 @@ QMAKE_CUC = $(CUDA_BIN_PATH)/nvcc.exe
 	isEmpty(QMAKE_CPP_MOD_CU):QMAKE_CPP_MOD_CU = 
 	isEmpty(QMAKE_EXT_CPP_CU):QMAKE_EXT_CPP_CU = .cu
 
-	INCLUDEPATH += $(CUDA_INC_PATH)
+	win32:INCLUDEPATH += $(CUDA_INC_PATH)
+	unix:INCLUDEPATH += /usr/local/cuda/include
+	unix:LIBPATH += /usr/local/cuda/lib
 
 	QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS
 	CONFIG(debug, debug|release) {
