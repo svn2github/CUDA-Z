@@ -7,6 +7,7 @@
 #set -x
 
 get_build() {
+	LANG=C
 	SVN_REV_LIST=`svn info -R . | grep "Last Changed Rev" | sed -e "s/Last Changed Rev: //"`
 
 	if test -z "$SVN_REV_LIST"
@@ -52,7 +53,9 @@ cat <<-EOF
 
 EOF
 
-if test $BUILD == "none"
+#BUILD=none
+
+if test x"$BUILD" = x"none"
 then
 	echo "/* WARNING! Cannot detect SVN revision number. */"
 else
