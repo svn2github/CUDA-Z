@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>324</width>
-    <height>302</height>
+    <height>317</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -23,14 +23,6 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tabCore" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>300</width>
-        <height>224</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Core</string>
       </attribute>
@@ -61,7 +53,7 @@
          </property>
         </widget>
        </item>
-       <item rowspan="6" row="0" column="2" >
+       <item rowspan="7" row="0" column="2" >
         <layout class="QVBoxLayout" name="verticalLayout_2" >
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_2" >
@@ -167,6 +159,29 @@
         </widget>
        </item>
        <item row="3" column="0" >
+        <widget class="QLabel" name="labelMultiProc" >
+         <property name="text" >
+          <string>Multiprocessors</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" >
+        <widget class="QLabel" name="labelMultiProcText" >
+         <property name="frameShape" >
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow" >
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="text" >
+          <string>&lt;procs></string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" >
         <widget class="QLabel" name="labelWrap" >
          <property name="text" >
           <string>Wrap Size</string>
@@ -176,7 +191,7 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="1" >
+       <item row="4" column="1" >
         <widget class="QLabel" name="labelWrapText" >
          <property name="frameShape" >
           <enum>QFrame::Panel</enum>
@@ -189,7 +204,7 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0" >
+       <item row="5" column="0" >
         <widget class="QLabel" name="labelRegs" >
          <property name="text" >
           <string>Regs Per Block</string>
@@ -199,7 +214,7 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="1" >
+       <item row="5" column="1" >
         <widget class="QLabel" name="labelRegsText" >
          <property name="frameShape" >
           <enum>QFrame::Panel</enum>
@@ -212,7 +227,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0" >
+       <item row="6" column="0" >
         <widget class="QLabel" name="labelThreads" >
          <property name="text" >
           <string>Threads Per Block</string>
@@ -222,7 +237,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1" >
+       <item row="6" column="1" >
         <widget class="QLabel" name="labelThreadsText" >
          <property name="frameShape" >
           <enum>QFrame::Panel</enum>
@@ -235,7 +250,17 @@
          </property>
         </widget>
        </item>
-       <item rowspan="3" row="6" column="1" colspan="2" >
+       <item row="7" column="0" >
+        <widget class="QLabel" name="labelThreadsDim" >
+         <property name="text" >
+          <string>Threads Dimentions</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item rowspan="2" row="7" column="1" colspan="2" >
         <layout class="QGridLayout" name="gridLayout" >
          <item row="1" column="0" >
           <widget class="QLabel" name="labelThreadsDimTextX" >
@@ -370,27 +395,9 @@
          </property>
         </spacer>
        </item>
-       <item row="7" column="0" >
-        <widget class="QLabel" name="labelThreadsDim" >
-         <property name="text" >
-          <string>Threads Dimentions</string>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tabMemory" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>300</width>
-        <height>224</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Memory</string>
       </attribute>
@@ -567,14 +574,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tabPerformance" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>300</width>
-        <height>224</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Performance</string>
       </attribute>
@@ -860,14 +859,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tabAbout" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>300</width>
-        <height>224</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>About</string>
       </attribute>
@@ -1041,6 +1032,8 @@
   <tabstop>pushOk</tabstop>
  </tabstops>
  <resources>
+  <include location="../res/cuda-z.qrc" />
+  <include location="../res/cuda-z.qrc" />
   <include location="../res/cuda-z.qrc" />
  </resources>
  <connections>

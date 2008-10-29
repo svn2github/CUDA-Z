@@ -21,6 +21,7 @@ struct CZDeviceInfoCore {
 	int		maxThreadsDim[3];	/*!< Maximum sizes of each dimension of a block. */
 	int		maxGridSize[3];		/*!< Maximum sizes of each dimension of a grid. */
 	int		clockRate;		/*!< Clock frequency in kilohertz. */
+	int		muliProcCount;		/*!< Number of mutiprocessors in GPU. */
 };
 
 /*!

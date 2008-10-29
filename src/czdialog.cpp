@@ -211,6 +211,10 @@ void CZDialog::setupCoreTab(
 	labelNameText->setText(deviceName);
 	labelCapabilityText->setText(QString("%1.%2").arg(info.major).arg(info.minor));
 	labelClockText->setText(QString("%1 %2").arg((double)info.core.clockRate / 1000).arg(tr("MHz")));
+	if(info.core.muliProcCount == -1)
+		labelMultiProcText->setText("?");
+	else
+		labelMultiProcText->setNum(info.core.muliProcCount);
 	labelWrapText->setNum(info.core.SIMDWidth);
 	labelRegsText->setNum(info.core.regsPerBlock);
 	labelThreadsText->setNum(info.core.maxThreadsPerBlock);

@@ -177,9 +177,6 @@ int CZCudaReadDeviceInfo(
 	CZ_CUDA_CALL(cudaGetDeviceProperties(&prop, num),
 		return -1);
 
-	if(p_cuDeviceGetAttribute(&overlap, CU_DEVICE_ATTRIBUTE_GPU_OVERLAP, num) != CUDA_SUCCESS)
-		return -1;
-
 	info->num = num;
 	strcpy(info->deviceName, prop.name);
 	info->major = prop.major;
@@ -201,7 +198,16 @@ int CZCudaReadDeviceInfo(
 	info->mem.maxPitch = prop.memPitch;
 	info->mem.totalConst = prop.totalConstMem;
 	info->mem.textureAlignment = prop.textureAlignment;
+
+#if CUDA_VERSION >= 2000 // CUDA 2.0+
+	info->mem.gpuOverlap = prop.deviceOverlap;
+	info->core.muliProcCount = prop.multiProcessorCount;
+#else // CUDA 1.1
+	if(p_cuDeviceGetAttribute(&overlap, CU_DEVICE_ATTRIBUTE_GPU_OVERLAP, num) != CUDA_SUCCESS)
+		return -1;
 	info->mem.gpuOverlap = overlap;
+	info->core.muliProcCount = -1;
+#endif //CUDA_VERSION
 
 	return 0;
 }
