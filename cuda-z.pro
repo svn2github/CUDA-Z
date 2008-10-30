@@ -2,9 +2,11 @@ TEMPLATE = app
 QT = gui core network
 CONFIG += qt warn_on
 CONFIG += release
-CONFIG += debug
+#CONFIG += debug
 #CONFIG += console
 CONFIG += static
+
+#message(CONFIG: $$CONFIG)
 
 FORMS = ui/czdialog.ui
 HEADERS = \
@@ -85,12 +87,10 @@ unix:QMAKE_CUC = nvcc
 	unix:LIBPATH += /usr/local/cuda/lib
 
 	QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS
-	CONFIG(debug, debug|release) {
-		QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS_DEBUG
-	} else {
-		QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS_RELEASE
-	}
+	DebugBuild:QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS_DEBUG
+	ReleaseBuild:QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS_RELEASE
 	QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS_RTTI_ON $$QMAKE_CXXFLAGS_WARN_ON $$QMAKE_CXXFLAGS_STL_ON
+#	message(QMAKE_CUFLAGS: $$QMAKE_CUFLAGS)
 
 	QMAKE_CUEXTRAFLAGS += -Xcompiler $$join(QMAKE_CUFLAGS, ",")
 	QMAKE_CUEXTRAFLAGS += $(DEFINES) $(INCPATH) $$join(QMAKE_COMPILER_DEFINES, " -D", -D)
