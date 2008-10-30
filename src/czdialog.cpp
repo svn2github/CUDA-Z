@@ -216,7 +216,7 @@ void CZDialog::setupCoreTab(
 		labelMultiProcText->setText(tr("Unknown"));
 	else
 		labelMultiProcText->setNum(info.core.muliProcCount);
-	labelWrapText->setNum(info.core.SIMDWidth);
+	labelWarpText->setNum(info.core.SIMDWidth);
 	labelRegsText->setNum(info.core.regsPerBlock);
 	labelThreadsText->setNum(info.core.maxThreadsPerBlock);
 	labelThreadsDimTextX->setNum(info.core.maxThreadsDim[0]);
@@ -440,7 +440,7 @@ void CZDialog::slotExportToText() {
 		out << tr("Unknown") << endl;
 	else
 		out << info.core.muliProcCount << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Wrap Size")).arg(info.core.SIMDWidth) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Warp Size")).arg(info.core.SIMDWidth) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Regs Per Block")).arg(info.core.regsPerBlock) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Threads Per Block")).arg(info.core.maxThreadsPerBlock) << endl;
 	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Threads Dimentions")).arg(info.core.maxThreadsDim[0]).arg(info.core.maxThreadsDim[1]).arg(info.core.maxThreadsDim[2]) << endl;
@@ -585,7 +585,7 @@ void CZDialog::slotExportToHTML() {
 	else
 		out << info.core.muliProcCount;
 	out << "</td></tr>\n";
-	out <<	"<tr><th>" << tr("Wrap Size") << "</th><td>" << info.core.SIMDWidth << "</td></tr>\n"
+	out <<	"<tr><th>" << tr("Warp Size") << "</th><td>" << info.core.SIMDWidth << "</td></tr>\n"
 		"<tr><th>" << tr("Regs Per Block") << "</th><td>" << info.core.regsPerBlock << "</td></tr>\n"
 		"<tr><th>" << tr("Threads Per Block") << "</th><td>" << info.core.maxThreadsPerBlock << "</td></tr>\n"
 		"<tr><th>" << tr("Threads Dimentions") << "</th><td>" << info.core.maxThreadsDim[0] << " x " << info.core.maxThreadsDim[1] << " x " << info.core.maxThreadsDim[2] << "</td></tr>\n"
