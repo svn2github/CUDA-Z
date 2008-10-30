@@ -2,7 +2,7 @@ TEMPLATE = app
 QT = gui core network
 CONFIG += qt warn_on
 CONFIG += release
-#CONFIG += debug
+CONFIG += debug
 #CONFIG += console
 CONFIG += static
 
@@ -96,8 +96,9 @@ unix:QMAKE_CUC = nvcc
 	QMAKE_CUEXTRAFLAGS += $(DEFINES) $(INCPATH) $$join(QMAKE_COMPILER_DEFINES, " -D", -D)
 	QMAKE_CUEXTRAFLAGS += -c
 #	QMAKE_CUEXTRAFLAGS += --keep
+	QMAKE_EXTRA_VARIABLES += QMAKE_CUEXTRAFLAGS
 
-	cu.commands = $$QMAKE_CUC $$QMAKE_CUEXTRAFLAGS -o $$OBJECTS_DIR/$${QMAKE_CPP_MOD_CU}${QMAKE_FILE_BASE}$${QMAKE_EXT_OBJ} ${QMAKE_FILE_NAME}$$escape_expand(\n\t)
+	cu.commands = $$QMAKE_CUC $(EXPORT_QMAKE_CUEXTRAFLAGS) -o $$OBJECTS_DIR/$${QMAKE_CPP_MOD_CU}${QMAKE_FILE_BASE}$${QMAKE_EXT_OBJ} ${QMAKE_FILE_NAME}$$escape_expand(\n\t)
 	cu.output = $$OBJECTS_DIR/$${QMAKE_CPP_MOD_CU}${QMAKE_FILE_BASE}$${QMAKE_EXT_OBJ}
 	silent:cu.commands = @echo nvcc ${QMAKE_FILE_IN} && $$cu.commands
 	QMAKE_EXTRA_COMPILERS += cu
