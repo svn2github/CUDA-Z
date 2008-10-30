@@ -67,7 +67,7 @@ In Windows you need:
                    -no-phonon -no-webkit -no-style-plastique
                    -no-style-cleanlooks -no-style-motif -no-style-cde
 3. CUDA driver and CUDA toolkit installed on your computer.
-   http://www.nvidia.com/object/cuda_get.html
+   http://www.nvidia.com/object/cuda_get.html (1.1 or 2.0)
    After generation of EXE file, it still needs cudart.dll... :-(
 
 Now you have enough tools for building CUDA-Z. I would recommend you to add

@@ -206,7 +206,7 @@ int CZCudaReadDeviceInfo(
 	if(p_cuDeviceGetAttribute(&overlap, CU_DEVICE_ATTRIBUTE_GPU_OVERLAP, num) != CUDA_SUCCESS)
 		return -1;
 	info->mem.gpuOverlap = overlap;
-	info->core.muliProcCount = -1;
+	info->core.muliProcCount = 0;
 #endif //CUDA_VERSION
 
 	return 0;

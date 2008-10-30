@@ -36,6 +36,8 @@ QCLEANFILES = \
 	Makefile \
 	Makefile.Debug \
 	Makefile.Release \
+	vc80.pdb \
+	cuda-z.ncb \
 	version.nsi \
 	build.nsi
 win32:QCLEANFILES += bin\cuda-z.exe

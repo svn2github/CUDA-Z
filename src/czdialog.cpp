@@ -211,8 +211,8 @@ void CZDialog::setupCoreTab(
 	labelNameText->setText(deviceName);
 	labelCapabilityText->setText(QString("%1.%2").arg(info.major).arg(info.minor));
 	labelClockText->setText(QString("%1 %2").arg((double)info.core.clockRate / 1000).arg(tr("MHz")));
-	if(info.core.muliProcCount == -1)
-		labelMultiProcText->setText("?");
+	if(info.core.muliProcCount == 0)
+		labelMultiProcText->setText(tr("Unknown"));
 	else
 		labelMultiProcText->setNum(info.core.muliProcCount);
 	labelWrapText->setNum(info.core.SIMDWidth);
@@ -434,6 +434,11 @@ void CZDialog::slotExportToText() {
 	out << "\t" << QString("%1: %2").arg(tr("Name")).arg(info.deviceName) << endl;
 	out << "\t" << QString("%1: %2.%3").arg(tr("Compute Capability")).arg(info.major).arg(info.minor) << endl;
 	out << "\t" << QString("%1: %2 %3").arg(tr("Clock Rate")).arg((double)info.core.clockRate / 1000).arg(tr("MHz")) << endl;
+	out << "\t" << tr("Multiprocessors") << ": ";
+	if(info.core.muliProcCount == 0)
+		out << tr("Unknown") << endl;
+	else
+		out << info.core.muliProcCount << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Wrap Size")).arg(info.core.SIMDWidth) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Regs Per Block")).arg(info.core.regsPerBlock) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Threads Per Block")).arg(info.core.maxThreadsPerBlock) << endl;
@@ -572,8 +577,14 @@ void CZDialog::slotExportToHTML() {
 		"<table border=\"1\">\n"
 		"<tr><th>" << tr("Name") << "</th><td>" << info.deviceName << "</td></tr>\n"
 		"<tr><th>" << tr("Compute Capability") << "</th><td>" << info.major << "." << info.minor << "</td></tr>\n"
-		"<tr><th>" << tr("Clock Rate") << "</th><td>" << (double)info.core.clockRate / 1000 << " " << tr("MHz") << "</td></tr>\n"
-		"<tr><th>" << tr("Wrap Size") << "</th><td>" << info.core.SIMDWidth << "</td></tr>\n"
+		"<tr><th>" << tr("Clock Rate") << "</th><td>" << (double)info.core.clockRate / 1000 << " " << tr("MHz") << "</td></tr>\n";
+	out << "<tr><th>" << tr("Multiprocessors") << "</th><td>";
+	if(info.core.muliProcCount == 0)
+		out << tr("Unknown");
+	else
+		out << info.core.muliProcCount;
+	out << "</td></tr>\n";
+	out <<	"<tr><th>" << tr("Wrap Size") << "</th><td>" << info.core.SIMDWidth << "</td></tr>\n"
 		"<tr><th>" << tr("Regs Per Block") << "</th><td>" << info.core.regsPerBlock << "</td></tr>\n"
 		"<tr><th>" << tr("Threads Per Block") << "</th><td>" << info.core.maxThreadsPerBlock << "</td></tr>\n"
 		"<tr><th>" << tr("Threads Dimentions") << "</th><td>" << info.core.maxThreadsDim[0] << " x " << info.core.maxThreadsDim[1] << " x " << info.core.maxThreadsDim[2] << "</td></tr>\n"
