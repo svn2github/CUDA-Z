@@ -86,6 +86,7 @@ CZDialog::~CZDialog() {
 	updateTimer->stop();
 	delete updateTimer;
 	freeCudaDevices();
+	cleanGetHistoryHttp();
 }
 
 /*!
@@ -817,6 +818,6 @@ void CZDialog::slotGetHistoryStateChanged(
 	qDebug() << "Get version connection state changed to" << state;
 
 	if(state == QHttp::Unconnected) {
-		cleanGetHistoryHttp();
+		qDebug() << "Disconnected!";
 	}
 }

@@ -119,6 +119,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\cuda-z.pro"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
