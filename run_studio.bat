@@ -1,4 +1,4 @@
-@rem	\file vcproj.bat
+@rem	\file run_studio.bat
 @rem	\brief Runs qmake and starts Visual Studio.
 @rem	\author AG
 

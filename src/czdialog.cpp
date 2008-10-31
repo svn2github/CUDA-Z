@@ -16,7 +16,7 @@
 
 #define CZ_TIMER_REFRESH	2000	/*!< Test results update timer period (ms). */
 
-/*
+/*!
 	\def CZ_OS_PLATFORM_STR Platform ID string.
 */
 #if defined(Q_OS_WIN)
@@ -78,7 +78,7 @@ CZDialog::CZDialog(
 	startGetHistoryHttp();
 }
 
-/*
+/*!
 	\brief Class destructor.
 	This function makes class data cleanup actions.
 */
@@ -120,7 +120,7 @@ void CZDialog::readCudaDevices() {
 	}
 }
 
-/*
+/*!
 	\brief Cleanup after bandwidth tests.
 */
 void CZDialog::freeCudaDevices() {
