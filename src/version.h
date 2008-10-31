@@ -31,7 +31,8 @@
 #endif//CZ_VER_BUILD
 
 /*!
-	\def CZ_VERSION Application version final string.
+	\def CZ_VERSION
+	\brief Application version final string.
 */
 #ifdef CZ_VER_STATE
 #define CZ_VERSION		CZ_VER_STRING_BUILD " " CZ_VER_STATE
