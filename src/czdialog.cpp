@@ -270,6 +270,7 @@ void CZDialog::setupPerformanceTab(
 	qDebug() << "copyDHPage:" << info.band.copyDHPage;
 	qDebug() << "copyDD:" << info.band.copyDD;
 	qDebug() << "calcFloat:" << info.perf.calcFloat;
+	qDebug() << "calcDouble:" << info.perf.calcDouble;
 	qDebug() << "calcInteger32:" << info.perf.calcInteger32;
 	qDebug() << "calcInteger24:" << info.perf.calcInteger24;*/
 
@@ -308,6 +309,12 @@ void CZDialog::setupPerformanceTab(
 	else
 		labelFloatRateText->setText(QString("%1 %2")
 			.arg((double)info.perf.calcFloat / 1000).arg(tr("Mflop/s")));
+
+	if(info.perf.calcDouble == 0)
+		labelDoubleRateText->setText("--");
+	else
+		labelDoubleRateText->setText(QString("%1 %2")
+			.arg((double)info.perf.calcDouble / 1000).arg(tr("Mflop/s")));
 
 	if(info.perf.calcInteger32 == 0)
 		labelInt32RateText->setText("--");
@@ -493,11 +500,16 @@ void CZDialog::slotExportToText() {
 	else
 		out << QString("%1 %2").arg((double)info.band.copyDD / 1024).arg(tr("MB/s")) << endl;
 	out << tr("GPU Core Performance") << endl;
-	out << "\t" << tr("Float Point") << ": ";
+	out << "\t" << tr("Single-precision Float") << ": ";
 	if(info.perf.calcFloat == 0)
 		out << "--" << endl;
 	else
 		out << QString("%1 %2").arg((double)info.perf.calcFloat / 1000).arg(tr("Mflop/s")) << endl;
+	out << "\t" << tr("Double-precision Float") << ": ";
+	if(info.perf.calcDouble == 0)
+		out << "--" << endl;
+	else
+		out << QString("%1 %2").arg((double)info.perf.calcDouble / 1000).arg(tr("Mflop/s")) << endl;
 	out << "\t" << tr("32-bit Integer") << ": ";
 	if(info.perf.calcInteger32 == 0)
 		out << "--" << endl;
@@ -636,11 +648,17 @@ void CZDialog::slotExportToHTML() {
 			out << (double)info.band.copyDD / 1024 << " " << tr("MB/s");
 		out << "</td></tr>\n"
 		"<tr><th colspan=\"2\">" << tr("GPU Core Performance") << "</th></tr>\n"
-		"<tr><th>" << tr("Float Point") << "</th><td>";
+		"<tr><th>" << tr("Single-precision Float") << "</th><td>";
 		if(info.perf.calcFloat == 0)
 			out << "--";
 		else
 			out << (double)info.perf.calcFloat / 1000 << " " << tr("Mflop/s");
+		out << "</td></tr>\n"
+		"<tr><th>" << tr("Double-precision Float") << "</th><td>";
+		if(info.perf.calcDouble == 0)
+			out << "--";
+		else
+			out << (double)info.perf.calcDouble / 1000 << " " << tr("Mflop/s");
 		out << "</td></tr>\n"
 		"<tr><th>" << tr("32-bit Integer") << "</th><td>";
 		if(info.perf.calcInteger32 == 0)

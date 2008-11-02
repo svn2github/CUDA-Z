@@ -17,10 +17,10 @@
 #define CZ_COPY_BUF_SIZE	(16 * (1 << 20))	/*!< Transfer buffer size. */
 #define CZ_COPY_LOOPS_NUM	8			/*!< Number of loops to run transfer test to. */
 
-#define CZ_CALC_LOOPS_NUM	8			/*!< Number of loops to run calculation loop. */
+#define CZ_CALC_LOOPS_NUM	16			/*!< Number of loops to run calculation loop. */
 #define CZ_CALC_THREADS_NUM	65536			/*!< Number of threads to run calculation loop. */
 #define CZ_CALC_BLOCK_SIZE	128			/*!< Size of instruction block. */
-#define CZ_CALC_BLOCK_NUM	16			/*!< Number of instruction blocks in loop. */
+#define CZ_CALC_BLOCK_NUM	8			/*!< Number of instruction blocks in loop. */
 #define CZ_CALC_OPS_NUM		2			/*!< Number of operations per one loop. */
 
 /*!
@@ -713,6 +713,7 @@ static int CZCudaCalcDevicePerformanceReset(
 		return -1;
 
 	info->perf.calcFloat = 0;
+	info->perf.calcDouble = 0;
 	info->perf.calcInteger32 = 0;
 	info->perf.calcInteger24 = 0;
 
@@ -736,6 +737,29 @@ static int CZCudaCalcDevicePerformanceReset(
 	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
 	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
 	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
+
+/*!
+	\brief 16 DMAD instructions for double-precision test.
+*/
+#define CZ_CALC_DFMAD_16(a, b) \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+
+/*	a = fma(b, a, b); b = fma(a, b, a); a = fma(b, a, b); b = fma(a, b, a); \
+	a = fma(b, a, b); b = fma(a, b, a); a = fma(b, a, b); b = fma(a, b, a); \
+	a = fma(b, a, b); b = fma(a, b, a); a = fma(b, a, b); b = fma(a, b, a); \
+	a = fma(b, a, b); b = fma(a, b, a); a = fma(b, a, b); b = fma(a, b, a); \*/
+
+/*!
+	\brief 128 MAD instructions for float point test.
+*/
+#define CZ_CALC_DFMAD_128(a, b) \
+	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
+	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
+	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
+	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
 
 /*!
 	\brief 16 MAD instructions for 32-bit integer test.
@@ -777,9 +801,10 @@ static int CZCudaCalcDevicePerformanceReset(
 	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
 	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
 
-#define CZ_CALC_MODE_FLOAT	0	/*!< Float point test mode. */
-#define CZ_CALC_MODE_INTEGER32	1	/*!< 32-bit integer test mode. */
-#define CZ_CALC_MODE_INTEGER24	2	/*!< 24-bit integer test mode. */
+#define CZ_CALC_MODE_FLOAT	0	/*!< Single-precision float point test mode. */
+#define CZ_CALC_MODE_DOUBLE	1	/*!< Double-precision float point test mode. */
+#define CZ_CALC_MODE_INTEGER32	2	/*!< 32-bit integer test mode. */
+#define CZ_CALC_MODE_INTEGER24	3	/*!< 24-bit integer test mode. */
 
 /*!
 	\brief GPU code for float point test.
@@ -800,14 +825,30 @@ static __global__ void CZCudaCalcKernelFloat(void *buf) {
 		CZ_CALC_FMAD_128(val1, val2);
 		CZ_CALC_FMAD_128(val1, val2);
 		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
+	}
+
+	arr[index] = val1 + val2;
+}
+
+/*!
+	\brief GPU code for double-precision test.
+*/
+static __global__ void CZCudaCalcKernelDouble(double *buf) {
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
+	double *arr = (double*)buf;
+	double val1 = index;
+	double val2 = arr[index];
+	int i;
+
+	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
+		CZ_CALC_DFMAD_128(val1, val2);
+		CZ_CALC_DFMAD_128(val1, val2);
+		CZ_CALC_DFMAD_128(val1, val2);
+		CZ_CALC_DFMAD_128(val1, val2);
+		CZ_CALC_DFMAD_128(val1, val2);
+		CZ_CALC_DFMAD_128(val1, val2);
+		CZ_CALC_DFMAD_128(val1, val2);
+		CZ_CALC_DFMAD_128(val1, val2);
 	}
 
 	arr[index] = val1 + val2;
@@ -832,14 +873,6 @@ static __global__ void CZCudaCalcKernelInteger32(void *buf) {
 		CZ_CALC_IMAD32_128(val1, val2);
 		CZ_CALC_IMAD32_128(val1, val2);
 		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
 	}
 
 	arr[index] = val1 + val2;
@@ -856,14 +889,6 @@ static __global__ void CZCudaCalcKernelInteger24(void *buf) {
 	int i;
 
 	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
 		CZ_CALC_IMAD24_128(val1, val2);
 		CZ_CALC_IMAD24_128(val1, val2);
 		CZ_CALC_IMAD24_128(val1, val2);
@@ -909,7 +934,8 @@ static float CZCudaCalcDevicePerformanceTest(
 	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
 
 	printf("Starting %s test on %s.\n",
-		(mode == CZ_CALC_MODE_FLOAT)? "float point":
+		(mode == CZ_CALC_MODE_FLOAT)? "single-precision float":
+		(mode == CZ_CALC_MODE_DOUBLE)? "double-precision float":
 		(mode == CZ_CALC_MODE_INTEGER32)? "32-bit integer":
 		(mode == CZ_CALC_MODE_INTEGER24)? "24-bit integer": "unknown",
 		info->deviceName);
@@ -922,6 +948,10 @@ static float CZCudaCalcDevicePerformanceTest(
 	switch(mode) {
 	case CZ_CALC_MODE_FLOAT:
 		CZCudaCalcKernelFloat<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>(lData->memDevice1);
+		break;
+
+	case CZ_CALC_MODE_DOUBLE:
+		CZCudaCalcKernelDouble<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>((double*)lData->memDevice1);
 		break;
 
 	case CZ_CALC_MODE_INTEGER32:
@@ -984,6 +1014,9 @@ int CZCudaCalcDevicePerformance(
 		return -1;
 
 	info->perf.calcFloat = CZCudaCalcDevicePerformanceTest(info, CZ_CALC_MODE_FLOAT);
+	if(((info->major > 1)) ||
+		((info->major == 1) && (info->minor >= 3)))
+		info->perf.calcDouble = CZCudaCalcDevicePerformanceTest(info, CZ_CALC_MODE_DOUBLE);
 	info->perf.calcInteger32 = CZCudaCalcDevicePerformanceTest(info, CZ_CALC_MODE_INTEGER32);
 	info->perf.calcInteger24 = CZCudaCalcDevicePerformanceTest(info, CZ_CALC_MODE_INTEGER24);
 

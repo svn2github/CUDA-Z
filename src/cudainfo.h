@@ -53,7 +53,8 @@ struct CZDeviceInfoBand {
 	\brief Information about CUDA-device performance.
 */
 struct CZDeviceInfoPerf {
-	float		calcFloat;		/*!< Float point calculations performance in KFOPS. */
+	float		calcFloat;		/*!< Single-precision float point calculations performance in KFOPS. */
+	float		calcDouble;		/*!< Double-precision float point calculations performance in KFOPS. */
 	float		calcInteger32;		/*!< 32-bit integer calculations performance in KOPS. */
 	float		calcInteger24;		/*!< 24-bit integer calculations performance in KOPS. */
 };
