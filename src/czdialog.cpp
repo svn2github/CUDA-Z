@@ -213,7 +213,7 @@ void CZDialog::setupCoreTab(
 	labelCapabilityText->setText(QString("%1.%2").arg(info.major).arg(info.minor));
 	labelClockText->setText(QString("%1 %2").arg((double)info.core.clockRate / 1000).arg(tr("MHz")));
 	if(info.core.muliProcCount == 0)
-		labelMultiProcText->setText(tr("Unknown"));
+		labelMultiProcText->setText("<i>" + tr("Unknown") + "</i>");
 	else
 		labelMultiProcText->setNum(info.core.muliProcCount);
 	labelWarpText->setNum(info.core.SIMDWidth);
@@ -310,11 +310,16 @@ void CZDialog::setupPerformanceTab(
 		labelFloatRateText->setText(QString("%1 %2")
 			.arg((double)info.perf.calcFloat / 1000).arg(tr("Mflop/s")));
 
-	if(info.perf.calcDouble == 0)
-		labelDoubleRateText->setText("--");
-	else
-		labelDoubleRateText->setText(QString("%1 %2")
-			.arg((double)info.perf.calcDouble / 1000).arg(tr("Mflop/s")));
+	if(((info.major > 1)) ||
+		((info.major == 1) && (info.minor >= 3))) {
+		if(info.perf.calcDouble == 0)
+			labelDoubleRateText->setText("--");
+		else
+			labelDoubleRateText->setText(QString("%1 %2")
+				.arg((double)info.perf.calcDouble / 1000).arg(tr("Mflop/s")));
+	} else {
+		labelDoubleRateText->setText("<i>" + tr("Not Supported") + "</i>");
+	}
 
 	if(info.perf.calcInteger32 == 0)
 		labelInt32RateText->setText("--");
@@ -506,10 +511,15 @@ void CZDialog::slotExportToText() {
 	else
 		out << QString("%1 %2").arg((double)info.perf.calcFloat / 1000).arg(tr("Mflop/s")) << endl;
 	out << "\t" << tr("Double-precision Float") << ": ";
-	if(info.perf.calcDouble == 0)
-		out << "--" << endl;
-	else
-		out << QString("%1 %2").arg((double)info.perf.calcDouble / 1000).arg(tr("Mflop/s")) << endl;
+	if(((info.major > 1)) ||
+		((info.major == 1) && (info.minor >= 3))) {
+		if(info.perf.calcDouble == 0)
+			out << "--" << endl;
+		else
+			out << QString("%1 %2").arg((double)info.perf.calcDouble / 1000).arg(tr("Mflop/s")) << endl;
+	} else {
+		out << tr("Not Supported") << endl;
+	}
 	out << "\t" << tr("32-bit Integer") << ": ";
 	if(info.perf.calcInteger32 == 0)
 		out << "--" << endl;
@@ -593,7 +603,7 @@ void CZDialog::slotExportToHTML() {
 		"<tr><th>" << tr("Clock Rate") << "</th><td>" << (double)info.core.clockRate / 1000 << " " << tr("MHz") << "</td></tr>\n";
 	out << "<tr><th>" << tr("Multiprocessors") << "</th><td>";
 	if(info.core.muliProcCount == 0)
-		out << tr("Unknown");
+		out << "<i>" << tr("Unknown") << "</i>";
 	else
 		out << info.core.muliProcCount;
 	out << "</td></tr>\n";
@@ -655,10 +665,15 @@ void CZDialog::slotExportToHTML() {
 			out << (double)info.perf.calcFloat / 1000 << " " << tr("Mflop/s");
 		out << "</td></tr>\n"
 		"<tr><th>" << tr("Double-precision Float") << "</th><td>";
-		if(info.perf.calcDouble == 0)
-			out << "--";
-		else
-			out << (double)info.perf.calcDouble / 1000 << " " << tr("Mflop/s");
+		if(((info.major > 1)) ||
+			((info.major == 1) && (info.minor >= 3))) {
+			if(info.perf.calcDouble == 0)
+				out << "--";
+			else
+				out << (double)info.perf.calcDouble / 1000 << " " << tr("Mflop/s");
+		} else {
+			out << "<i>" << tr("Not Supported") << "</i>";
+		}
 		out << "</td></tr>\n"
 		"<tr><th>" << tr("32-bit Integer") << "</th><td>";
 		if(info.perf.calcInteger32 == 0)
