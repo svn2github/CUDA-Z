@@ -58,7 +58,21 @@ static cuDeviceGetAttribute_t p_cuDeviceGetAttribute = NULL;
 static cuInit_t p_cuInit = NULL;
 
 #ifdef Q_OS_WIN
-#include <windows.h>
+//#include <windows.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+#define WINAPI __stdcall
+typedef void *HINSTANCE;
+typedef HINSTANCE HMODULE;
+typedef const char *LPCSTR;
+typedef int (WINAPI *FARPROC)();
+__out_opt HMODULE WINAPI LoadLibraryA(__in LPCSTR lpLibFileName);
+FARPROC WINAPI GetProcAddress(__in HMODULE hModule, __in LPCSTR lpProcName);
+#ifdef __cplusplus
+}
+#endif
+
 /*!
 	\brief Check if CUDA fully initialized.
 	This function loads nvcuda.dll and finds functions \a cuInit()
