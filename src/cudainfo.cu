@@ -8,6 +8,10 @@
 #include <cuda_runtime.h>
 #include <string.h>
 
+#if CUDA_VERSION < 2000
+#error CUDA 1.1 is not supported any more! Please use CUDA Toolkit 2.0+ instead.
+#endif
+
 //#include <QDebug>
 #include <qglobal.h>
 #define printf(fmt, ...)
@@ -17,11 +21,14 @@
 #define CZ_COPY_BUF_SIZE	(16 * (1 << 20))	/*!< Transfer buffer size. */
 #define CZ_COPY_LOOPS_NUM	8			/*!< Number of loops to run transfer test to. */
 
-#define CZ_CALC_LOOPS_NUM	16			/*!< Number of loops to run calculation loop. */
-#define CZ_CALC_THREADS_NUM	65536			/*!< Number of threads to run calculation loop. */
-#define CZ_CALC_BLOCK_SIZE	128			/*!< Size of instruction block. */
-#define CZ_CALC_BLOCK_NUM	8			/*!< Number of instruction blocks in loop. */
+#define CZ_CALC_BLOCK_LOOPS	16			/*!< Number of loops to run calculation loop. */
+#define CZ_CALC_BLOCK_SIZE	256			/*!< Size of instruction block. */
+#define CZ_CALC_BLOCK_NUM	16			/*!< Number of instruction blocks in loop. */
 #define CZ_CALC_OPS_NUM		2			/*!< Number of operations per one loop. */
+#define CZ_CALC_LOOPS_NUM	8			/*!< Number of loops to run performance test to. */
+
+#define CZ_DEF_WARP_SIZE	32			/*!< Default warp size value. */
+#define CZ_DEF_THREADS_MAX	512			/*!< Default max threads value value. */
 
 /*!
 	\brief Error handling of CUDA RT calls.
@@ -377,12 +384,17 @@ static int CZCudaCalcDeviceBandwidthReset(
 	return 0;
 }
 
+#define CZ_COPY_MODE_H2D	0	/*!< Host to device data copy mode. */
+#define CZ_COPY_MODE_D2H	1	/*!< Device to host data copy mode. */
+#define CZ_COPY_MODE_D2D	2	/*!< Device to device data copy mode. */
+
 /*!
-	\brief Run host to device data transfer bandwidth tests.
+	\brief Run data transfer bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
-static float CZCudaCalcDeviceBandwidthTestHD (
+static float CZCudaCalcDeviceBandwidthTestCommon (
 	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
+	int mode,			/*!< Run bandwidth test in one of modes. */
 	int pinned			/*!< Use pinned \a (=1) memory buffer instead of pagable \a (=0). */
 ) {
 	CZDeviceInfoBandLocalData *lData;
@@ -391,176 +403,6 @@ static float CZCudaCalcDeviceBandwidthTestHD (
 	cudaEvent_t start;
 	cudaEvent_t stop;
 	void *memHost;
-	void *memDevice;
-	int i;
-
-	if(info == NULL)
-		return 0;
-
-	printf("Selecting %s.\n", info->deviceName);
-
-	CZ_CUDA_CALL(cudaSetDevice(info->num),
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventCreate(&start),
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventCreate(&stop),
-		cudaEventDestroy(start);
-		return 0);
-
-	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
-
-	memHost = pinned? lData->memHostPin: lData->memHostPage;
-	memDevice = lData->memDevice1;
-
-	printf("Starting H(0x%08X)->D(0x%08X) test (%s) on %s.\n",
-		memHost, memDevice,
-		pinned? "pinned": "pageable",
-		info->deviceName);
-
-	CZ_CUDA_CALL(cudaEventRecord(start, 0),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	for(i = 0; i < CZ_COPY_LOOPS_NUM; i++) {
-		CZ_CUDA_CALL(cudaMemcpy(memDevice, memHost, CZ_COPY_BUF_SIZE, cudaMemcpyHostToDevice),
-			cudaEventDestroy(start);
-			cudaEventDestroy(stop);
-			return 0);
-	}
-
-	CZ_CUDA_CALL(cudaEventRecord(stop, 0),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventSynchronize(stop),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventElapsedTime(&timeMs, start, stop),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	printf("Test complete in %f ms.\n", timeMs);
-
-	bandwidthKBs = (
-		1000 *
-		(float)CZ_COPY_BUF_SIZE *
-		(float)CZ_COPY_LOOPS_NUM
-	) / (
-		timeMs *
-		(float)(1 << 10)
-	);
-
-	cudaEventDestroy(start);
-	cudaEventDestroy(stop);
-
-	return (int)bandwidthKBs;
-}
-
-/*!
-	\brief Run device to host data transfer bandwidth tests.
-	\return \a 0 in case of success, \a -1 in case of error.
-*/
-static float CZCudaCalcDeviceBandwidthTestDH (
-	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
-	int pinned			/*!< Use pinned \a (=1) memory buffer instead of pagable \a (=0). */
-) {
-	CZDeviceInfoBandLocalData *lData;
-	float timeMs = 0.0;
-	float bandwidthKBs = 0.0;
-	cudaEvent_t start;
-	cudaEvent_t stop;
-	void *memHost;
-	void *memDevice;
-	int i;
-
-	if(info == NULL)
-		return 0;
-
-	printf("Selecting %s.\n", info->deviceName);
-
-	CZ_CUDA_CALL(cudaSetDevice(info->num),
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventCreate(&start),
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventCreate(&stop),
-		cudaEventDestroy(start);
-		return 0);
-
-	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
-
-	memHost = pinned? lData->memHostPin: lData->memHostPage;
-	memDevice = lData->memDevice2;
-
-	printf("Starting D(0x%08X)->H(0x%08X) test (%s) on %s.\n",
-		memDevice, memHost,
-		pinned? "pinned": "pageable",
-		info->deviceName);
-
-	CZ_CUDA_CALL(cudaEventRecord(start, 0),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	for(i = 0; i < CZ_COPY_LOOPS_NUM; i++) {
-		CZ_CUDA_CALL(cudaMemcpy(memDevice, memHost, CZ_COPY_BUF_SIZE, cudaMemcpyHostToDevice),
-			cudaEventDestroy(start);
-			cudaEventDestroy(stop);
-			return 0);
-	}
-
-	CZ_CUDA_CALL(cudaEventRecord(stop, 0),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventSynchronize(stop),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventElapsedTime(&timeMs, start, stop),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	printf("Test complete in %f ms.\n", timeMs);
-
-	bandwidthKBs = (
-		1000 *
-		(float)CZ_COPY_BUF_SIZE *
-		(float)CZ_COPY_LOOPS_NUM
-	) / (
-		timeMs *
-		(float)(1 << 10)
-	);
-
-	cudaEventDestroy(start);
-	cudaEventDestroy(stop);
-
-	return (int)bandwidthKBs;
-}
-
-/*!
-	\brief Run device to device data transfer bandwidth tests.
-	\return \a 0 in case of success, \a -1 in case of error.
-*/
-static float CZCudaCalcDeviceBandwidthTestDD (
-	struct CZDeviceInfo *info	/*!< CUDA-device information. */
-) {
-	CZDeviceInfoBandLocalData *lData;
-	float timeMs = 0.0;
-	float bandwidthKBs = 0.0;
-	cudaEvent_t start;
-	cudaEvent_t stop;
 	void *memDevice1;
 	void *memDevice2;
 	int i;
@@ -582,39 +424,71 @@ static float CZCudaCalcDeviceBandwidthTestDD (
 
 	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
 
+	memHost = pinned? lData->memHostPin: lData->memHostPage;
 	memDevice1 = lData->memDevice1;
 	memDevice2 = lData->memDevice2;
 
-	printf("Starting D(0x%08X)->D(0x%08X) test on %s.\n",
-		memDevice1, memDevice2,
+	printf("Starting %s test (%s) on %s.\n",
+		(mode == CZ_COPY_MODE_H2D)? "host to device":
+		(mode == CZ_COPY_MODE_D2H)? "device to host":
+		(mode == CZ_COPY_MODE_D2D)? "device to device": "unknown",
+		pinned? "pinned": "pageable",
 		info->deviceName);
 
-	CZ_CUDA_CALL(cudaEventRecord(start, 0),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
 	for(i = 0; i < CZ_COPY_LOOPS_NUM; i++) {
-		CZ_CUDA_CALL(cudaMemcpy(memDevice2, memDevice1, CZ_COPY_BUF_SIZE, cudaMemcpyDeviceToDevice),
+
+		float loopMs = 0.0;
+
+		CZ_CUDA_CALL(cudaEventRecord(start, 0),
 			cudaEventDestroy(start);
 			cudaEventDestroy(stop);
 			return 0);
+
+		switch(mode) {
+		case CZ_COPY_MODE_H2D:
+			CZ_CUDA_CALL(cudaMemcpy(memDevice1, memHost, CZ_COPY_BUF_SIZE, cudaMemcpyHostToDevice),
+				cudaEventDestroy(start);
+				cudaEventDestroy(stop);
+				return 0);
+			break;
+
+		case CZ_COPY_MODE_D2H:
+			CZ_CUDA_CALL(cudaMemcpy(memDevice2, memHost, CZ_COPY_BUF_SIZE, cudaMemcpyHostToDevice),
+				cudaEventDestroy(start);
+				cudaEventDestroy(stop);
+				return 0);
+			break;
+
+		case CZ_COPY_MODE_D2D:
+			CZ_CUDA_CALL(cudaMemcpy(memDevice2, memDevice1, CZ_COPY_BUF_SIZE, cudaMemcpyDeviceToDevice),
+				cudaEventDestroy(start);
+				cudaEventDestroy(stop);
+				return 0);
+			break;
+
+		default: // WTF!
+			cudaEventDestroy(start);
+			cudaEventDestroy(stop);
+			return 0;
+		}
+
+		CZ_CUDA_CALL(cudaEventRecord(stop, 0),
+			cudaEventDestroy(start);
+			cudaEventDestroy(stop);
+			return 0);
+
+		CZ_CUDA_CALL(cudaEventSynchronize(stop),
+			cudaEventDestroy(start);
+			cudaEventDestroy(stop);
+			return 0);
+
+		CZ_CUDA_CALL(cudaEventElapsedTime(&loopMs, start, stop),
+			cudaEventDestroy(start);
+			cudaEventDestroy(stop);
+			return 0);
+
+		timeMs += loopMs;
 	}
-
-	CZ_CUDA_CALL(cudaEventRecord(stop, 0),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventSynchronize(stop),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventElapsedTime(&timeMs, start, stop),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
 
 	printf("Test complete in %f ms.\n", timeMs);
 
@@ -641,11 +515,11 @@ static int CZCudaCalcDeviceBandwidthTest(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 
-	info->band.copyHDPage = CZCudaCalcDeviceBandwidthTestHD(info, 0);
-	info->band.copyHDPin = CZCudaCalcDeviceBandwidthTestHD(info, 1);
-	info->band.copyDHPage = CZCudaCalcDeviceBandwidthTestDH(info, 0);
-	info->band.copyDHPin = CZCudaCalcDeviceBandwidthTestDH(info, 1);
-	info->band.copyDD = CZCudaCalcDeviceBandwidthTestDD(info);
+	info->band.copyHDPage = CZCudaCalcDeviceBandwidthTestCommon(info, CZ_COPY_MODE_H2D, 0);
+	info->band.copyHDPin = CZCudaCalcDeviceBandwidthTestCommon(info, CZ_COPY_MODE_H2D, 1);
+	info->band.copyDHPage = CZCudaCalcDeviceBandwidthTestCommon(info, CZ_COPY_MODE_D2H, 0);
+	info->band.copyDHPin = CZCudaCalcDeviceBandwidthTestCommon(info, CZ_COPY_MODE_D2H, 1);
+	info->band.copyDD = CZCudaCalcDeviceBandwidthTestCommon(info, CZ_COPY_MODE_D2D, 0);
 
 	return 0;
 }
@@ -744,9 +618,13 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
 
 /*!
-	\brief 128 MAD instructions for float point test.
+	\brief 256 MAD instructions for float point test.
 */
-#define CZ_CALC_FMAD_128(a, b) \
+#define CZ_CALC_FMAD_256(a, b) \
+	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
+	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
+	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
+	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
 	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
 	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
 	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
@@ -767,9 +645,13 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = fma(b, a, b); b = fma(a, b, a); a = fma(b, a, b); b = fma(a, b, a); \*/
 
 /*!
-	\brief 128 MAD instructions for float point test.
+	\brief 256 MAD instructions for float point test.
 */
-#define CZ_CALC_DFMAD_128(a, b) \
+#define CZ_CALC_DFMAD_256(a, b) \
+	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
+	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
+	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
+	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
 	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
 	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
 	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
@@ -785,9 +667,13 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
 
 /*!
-	\brief 128 MAD instructions for 32-bit integer test.
+	\brief 256 MAD instructions for 32-bit integer test.
 */
-#define CZ_CALC_IMAD32_128(a, b) \
+#define CZ_CALC_IMAD32_256(a, b) \
+	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
+	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
+	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
+	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
 	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
 	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
 	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
@@ -807,9 +693,13 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
 
 /*!
-	\brief 128 MAD instructions for 24-bit integer test.
+	\brief 256 MAD instructions for 24-bit integer test.
 */
-#define CZ_CALC_IMAD24_128(a, b) \
+#define CZ_CALC_IMAD24_256(a, b) \
+	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
+	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
+	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
+	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
 	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
 	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
 	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
@@ -830,15 +720,23 @@ static __global__ void CZCudaCalcKernelFloat(void *buf) {
 	float val2 = arr[index];
 	int i;
 
-	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
-		CZ_CALC_FMAD_128(val1, val2);
+	for(i = 0; i < CZ_CALC_BLOCK_LOOPS; i++) {
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
+		CZ_CALC_FMAD_256(val1, val2);
 	}
 
 	arr[index] = val1 + val2;
@@ -854,15 +752,23 @@ static __global__ void CZCudaCalcKernelDouble(double *buf) {
 	double val2 = arr[index];
 	int i;
 
-	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
-		CZ_CALC_DFMAD_128(val1, val2);
-		CZ_CALC_DFMAD_128(val1, val2);
-		CZ_CALC_DFMAD_128(val1, val2);
-		CZ_CALC_DFMAD_128(val1, val2);
-		CZ_CALC_DFMAD_128(val1, val2);
-		CZ_CALC_DFMAD_128(val1, val2);
-		CZ_CALC_DFMAD_128(val1, val2);
-		CZ_CALC_DFMAD_128(val1, val2);
+	for(i = 0; i < CZ_CALC_BLOCK_LOOPS; i++) {
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
+		CZ_CALC_DFMAD_256(val1, val2);
 	}
 
 	arr[index] = val1 + val2;
@@ -878,15 +784,23 @@ static __global__ void CZCudaCalcKernelInteger32(void *buf) {
 	int val2 = arr[index];
 	int i;
 
-	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
-		CZ_CALC_IMAD32_128(val1, val2);
+	for(i = 0; i < CZ_CALC_BLOCK_LOOPS; i++) {
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
+		CZ_CALC_IMAD32_256(val1, val2);
 	}
 
 	arr[index] = val1 + val2;
@@ -902,15 +816,23 @@ static __global__ void CZCudaCalcKernelInteger24(void *buf) {
 	int val2 = arr[index];
 	int i;
 
-	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
-		CZ_CALC_IMAD24_128(val1, val2);
+	for(i = 0; i < CZ_CALC_BLOCK_LOOPS; i++) {
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
+		CZ_CALC_IMAD24_256(val1, val2);
 	}
 
 	arr[index] = val1 + val2;
@@ -929,6 +851,7 @@ static float CZCudaCalcDevicePerformanceTest(
 	float performanceKOPs = 0.0;
 	cudaEvent_t start;
 	cudaEvent_t stop;
+	int i;
 
 	if(info == NULL)
 		return 0;
@@ -947,56 +870,86 @@ static float CZCudaCalcDevicePerformanceTest(
 
 	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
 
-	printf("Starting %s test on %s.\n",
+	int threadsNum = info->core.maxThreadsPerBlock;
+	if(threadsNum == 0) {
+		int warpSize = info->core.SIMDWidth;
+		if(warpSize == 0)
+			warpSize = CZ_DEF_WARP_SIZE;
+		threadsNum = warpSize * 2;
+		if(threadsNum > CZ_DEF_THREADS_MAX)
+			threadsNum = CZ_DEF_THREADS_MAX;
+	}
+
+	printf("Starting %s test on %s (%d loops).\n",
 		(mode == CZ_CALC_MODE_FLOAT)? "single-precision float":
 		(mode == CZ_CALC_MODE_DOUBLE)? "double-precision float":
 		(mode == CZ_CALC_MODE_INTEGER32)? "32-bit integer":
 		(mode == CZ_CALC_MODE_INTEGER24)? "24-bit integer": "unknown",
-		info->deviceName);
+		info->deviceName,
+		threadsNum);
 
-	CZ_CUDA_CALL(cudaEventRecord(start, 0),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
+	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
 
-	switch(mode) {
-	case CZ_CALC_MODE_FLOAT:
-		CZCudaCalcKernelFloat<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>(lData->memDevice1);
-		break;
+		float loopMs = 0.0;
 
-	case CZ_CALC_MODE_DOUBLE:
-		CZCudaCalcKernelDouble<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>((double*)lData->memDevice1);
-		break;
+		CZ_CUDA_CALL(cudaEventRecord(start, 0),
+			cudaEventDestroy(start);
+			cudaEventDestroy(stop);
+			return 0);
 
-	case CZ_CALC_MODE_INTEGER32:
-		CZCudaCalcKernelInteger32<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>(lData->memDevice1);
-		break;
+		switch(mode) {
+		case CZ_CALC_MODE_FLOAT:
+			CZCudaCalcKernelFloat<<<1, threadsNum>>>(lData->memDevice1);
+			break;
 
-	case CZ_CALC_MODE_INTEGER24:
-		CZCudaCalcKernelInteger24<<<CZ_CALC_THREADS_NUM / info->core.maxThreadsPerBlock, info->core.maxThreadsPerBlock>>>(lData->memDevice1);
-		break;
+		case CZ_CALC_MODE_DOUBLE:
+			CZCudaCalcKernelDouble<<<1, threadsNum>>>((double*)lData->memDevice1);
+			break;
+
+		case CZ_CALC_MODE_INTEGER32:
+			CZCudaCalcKernelInteger32<<<1, threadsNum>>>(lData->memDevice1);
+			break;
+
+		case CZ_CALC_MODE_INTEGER24:
+			CZCudaCalcKernelInteger24<<<1, threadsNum>>>(lData->memDevice1);
+			break;
+
+		default: // WTF!
+			cudaEventDestroy(start);
+			cudaEventDestroy(stop);
+			return 0;
+		}
+
+		CZ_CUDA_CALL(cudaGetLastError(),
+			cudaEventDestroy(start);
+			cudaEventDestroy(stop);
+			return 0);
+
+		CZ_CUDA_CALL(cudaEventRecord(stop, 0),
+			cudaEventDestroy(start);
+			cudaEventDestroy(stop);
+			return 0);
+
+		CZ_CUDA_CALL(cudaEventSynchronize(stop),
+			cudaEventDestroy(start);
+			cudaEventDestroy(stop);
+			return 0);
+
+		CZ_CUDA_CALL(cudaEventElapsedTime(&loopMs, start, stop),
+			cudaEventDestroy(start);
+			cudaEventDestroy(stop);
+			return 0);
+
+		timeMs += loopMs;
 	}
-
-	CZ_CUDA_CALL(cudaEventRecord(stop, 0),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventSynchronize(stop),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
-
-	CZ_CUDA_CALL(cudaEventElapsedTime(&timeMs, start, stop),
-		cudaEventDestroy(start);
-		cudaEventDestroy(stop);
-		return 0);
 
 	printf("Test complete in %f ms.\n", timeMs);
 
 	performanceKOPs = (
-		(float)CZ_CALC_THREADS_NUM * 
-		(float)CZ_CALC_LOOPS_NUM * 
+		(float)info->core.muliProcCount *
+		(float)CZ_CALC_LOOPS_NUM *
+		(float)threadsNum *
+		(float)CZ_CALC_BLOCK_LOOPS *
 		(float)CZ_CALC_OPS_NUM *
 		(float)CZ_CALC_BLOCK_SIZE *
 		(float)CZ_CALC_BLOCK_NUM
