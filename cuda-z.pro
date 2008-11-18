@@ -21,6 +21,8 @@ RESOURCES = res/cuda-z.qrc
 win32:RC_FILE += res/cuda-z.rc
 CUSOURCES = src/cudainfo.cu
 
+CUFLAGS = -arch compute_10 -code compute_10,sm_10,sm_11,sm_13
+
 unix:LIBS += -lcudart
 win32:LIBS += \
 	$(CUDA_LIB_PATH)\cuda.lib \
@@ -92,7 +94,7 @@ unix:QMAKE_CUC = nvcc
 	QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS_RTTI_ON $$QMAKE_CXXFLAGS_WARN_ON $$QMAKE_CXXFLAGS_STL_ON
 #	message(QMAKE_CUFLAGS: $$QMAKE_CUFLAGS)
 
-	QMAKE_CUEXTRAFLAGS += -Xcompiler $$join(QMAKE_CUFLAGS, ",")
+	QMAKE_CUEXTRAFLAGS += -Xcompiler $$join(QMAKE_CUFLAGS, ",") $$CUFLAGS
 	QMAKE_CUEXTRAFLAGS += $(DEFINES) $(INCPATH) $$join(QMAKE_COMPILER_DEFINES, " -D", -D)
 	QMAKE_CUEXTRAFLAGS += -c
 #	QMAKE_CUEXTRAFLAGS += --keep
