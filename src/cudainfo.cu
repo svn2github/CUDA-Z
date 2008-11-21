@@ -120,11 +120,26 @@ static bool CZCudaIsInit(void) {
 */
 static bool CZCudaIsInit(void) {
 
-	void *hDll;
+	void *hDll = NULL;
 
 	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
 
-		hDll = dlopen("/usr/lib/libcuda.so", RTLD_LAZY);
+		if(hDll == NULL) {
+			hDll = dlopen("/usr/lib/libcuda.so", RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
+			hDll = dlopen("/usr/lib32/libcuda.so", RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
+			hDll = dlopen("/usr/lib64/libcuda.so", RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
+			hDll = dlopen("/usr/lib128/libcuda.so", RTLD_LAZY);
+		}
+
 		if(hDll == NULL) {
 			return false;
 		}
