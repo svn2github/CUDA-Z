@@ -394,7 +394,7 @@ QString CZDialog::getOSVersion() {
 		return QString("Linux (unknown)");
 	QString OSVersion = uname.readLine();
 
-	return OSVersion;
+	return OSVersion.remove('\n');
 }
 #else//!Q_WS_WIN
 #error Function getOSVersion() is not implemented for your platform!

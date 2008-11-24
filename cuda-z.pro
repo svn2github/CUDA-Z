@@ -45,6 +45,7 @@ QCLEANFILES = \
 	version.nsi \
 	build.nsi
 win32:QCLEANFILES += bin\cuda-z.exe
+unix:QCLEANFILES += bin/cuda-z
 QMAKE_EXTRA_VARIABLES += QCLEANFILES
 
 qclean.target = qclean
@@ -56,6 +57,11 @@ pkg-win32.target = pkg-win32
 pkg-win32.commands = makensis.exe cuda-z.nsi
 pkg-win32.depends = release
 QMAKE_EXTRA_TARGETS += pkg-win32
+
+pkg-linux.target = pkg-linux
+pkg-linux.commands = sh pkg-linux.sh
+pkg-linux.depends = all
+QMAKE_EXTRA_TARGETS += pkg-linux
 
 DESTDIR = bin
 OBJECTS_DIR = bld/o
