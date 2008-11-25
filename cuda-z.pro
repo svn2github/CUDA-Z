@@ -21,7 +21,7 @@ RESOURCES = res/cuda-z.qrc
 win32:RC_FILE += res/cuda-z.rc
 CUSOURCES = src/cudainfo.cu
 
-CUFLAGS = -arch compute_10 -code compute_10,sm_10,sm_11,sm_13
+CUFLAGS = -arch compute_10 -code compute_10,compute_13,sm_10,sm_11,sm_13
 
 unix:LIBS += -lcudart
 win32:LIBS += \
@@ -53,15 +53,19 @@ qclean.commands = -$(DEL_FILE) $(EXPORT_QCLEANFILES) #$(EXPORT_BUILD_H)
 qclean.depends = clean
 QMAKE_EXTRA_TARGETS += qclean
 
-pkg-win32.target = pkg-win32
-pkg-win32.commands = makensis.exe cuda-z.nsi
-pkg-win32.depends = release
-QMAKE_EXTRA_TARGETS += pkg-win32
+win32: {
+	pkg-win32.target = pkg-win32
+	pkg-win32.commands = makensis.exe pkg-win32.nsi
+	pkg-win32.depends = release
+	QMAKE_EXTRA_TARGETS += pkg-win32
+}
 
-pkg-linux.target = pkg-linux
-pkg-linux.commands = sh pkg-linux.sh
-pkg-linux.depends = all
-QMAKE_EXTRA_TARGETS += pkg-linux
+unix: {
+	pkg-linux.target = pkg-linux
+	pkg-linux.commands = sh pkg-linux.sh
+	pkg-linux.depends = all
+	QMAKE_EXTRA_TARGETS += pkg-linux
+}
 
 DESTDIR = bin
 OBJECTS_DIR = bld/o
