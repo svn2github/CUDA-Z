@@ -18,18 +18,18 @@ CUDA is a NVIDIA's Compute Unified Device Architecture. You can get more
 information about it from page CUDA ZONE at NVIDIA's website
 http://www.nvidia.com/object/cuda_home.html
 
-What is CUDA-device?
+What is CUDA-enabled device?
 --------------------
 
 It is simple... It is a device that supports CUDA. NVIDIA call it 
 "CUDA-enabled products".
 http://www.nvidia.com/object/cuda_learn_products.html
 
-What I need for running CUDA-Z utility?
----------------------------------------
+What I need to run CUDA-Z utility?
+----------------------------------
 
-You need CUDA-device and CUDA driver for your OS.
-Download CUDA-Z binary package from http://sourceforge.net/projects/cuda-z/ ,
+You need CUDA-enabled device and CUDA driver for your OS.
+Download CUDA-Z binary package from http://cuda-z.sourceforge.net/,
 run it and have fun!
 
 What I need for building CUDA-Z from sources?
@@ -37,8 +37,8 @@ What I need for building CUDA-Z from sources?
 
 In Windows you need:
 1. Microsoft Visual C++ 2005 (not 2008!). Having Express edition is enough.
-   Unfortunately you can't program CUDA with MinGW32 or Cygwin because NVIDIA
-   doesn't support this compilers in Windows environment.
+   Unfortunately you can't code CUDA with MinGW32 or Cygwin because NVIDIA
+   doesn't support these compilers in Windows environment.
    Install also last Windows Platform SDK.
    http://www.microsoft.com/express/2005/
 2. Qt 4.4.0 (OpenSource) or close to it. You should build Qt with
@@ -56,9 +56,9 @@ In Windows you need:
    QMAKE_CFLAGS_RELEASE	= -O2 -MT
    QMAKE_CFLAGS_DEBUG	= -Zi -MTd
    QMAKE_LFLAGS_WINDOWS	= /SUBSYSTEM:WINDOWS
-   Build Qt with new configuration file again
+   Build Qt with new configuration file again...
    IMPORTANT: CUDA-Z package release must be linked with static Qt!
-   My smallest version of Qt configured with commandline:
+   My smallest version of Qt configured with command line:
    # configure.exe -release -static -no-exceptions -no-accessibility
                    -no-stl -no-sql-sqlite -no-qt3support -no-opengl
                    -platform win32-msvc2005 -no-gif -no-libmng -no-libtiff
@@ -67,17 +67,17 @@ In Windows you need:
                    -no-phonon -no-webkit -no-style-plastique
                    -no-style-cleanlooks -no-style-motif -no-style-cde
 3. CUDA driver and CUDA toolkit installed on your computer.
-   http://www.nvidia.com/object/cuda_get.html (1.1 or 2.0)
+   http://www.nvidia.com/object/cuda_get.html (v. 2.0+)
    After generation of EXE file, it still needs cudart.dll... :-(
 
 Now you have enough tools for building CUDA-Z. I would recommend you to add
 all binary folders of installed tools to system PATH variable or tovsvars32.bat
-that lives in your "X:\Programme\Microsoft Visual Studio 8\Common7\Tools\" .
+located in your "X:\Programme\Microsoft Visual Studio 8\Common7\Tools\".
 Now open Visual Studio 2005 Command Prompt, go to folder where you have placed
-source of CUDA-Z and type:
+source code of CUDA-Z and type:
    > qmake
    > nmake
-If no error occurs you will found cuda-z.exe in ./bin folder.
+If no error occurs you will find cuda-z.exe in ./bin folder.
 
 To make binary release package for windows you should additionally install
 NSIS 2.37 (or higher) and add it's folder in system PATH variable.
@@ -86,11 +86,23 @@ bin folder. Than you can generate package by calling in
 Visual Studio 2005 Command Prompt:
    > nmake pkg-win32
 
-I didn't try to build CUDA-Z in Linux and MacOS X, but it should be even
-easier comparing to Windows. You can get gcc and g++ from your OS distributer
-(XCode tools in case of MacOS X). You still have to download or build Qt and
-CUDA driver and tools packages from NVIDIA website. Have fun! :-)
-Give me your feedback will it work out?
+Notes for Linux users:
+You need coplete C++ build environment (including g++, binutils, make),
+Qt development package or source code, NVIDIA driver and toolkit (v. 2.0+)
+for your linux architecture. Then download a source code from our website,
+unpack and type following in source code directory:
+   # qmake && make
+If no error occurs you will find cuda-z binary file in ./bin folder.
+
+In case if you want to build redistributable package with CUDA-Z type
+additionally:
+   # make pkg-linux
+
+I didn't have try to build CUDA-Z in MacOS X, but it's should be not very
+complicated. You can get gcc and g++ from OS distributer (XCode tools in
+case of MacOS X). You still have to download or build Qt and CUDA toolkit
+package from NVIDIA website. Have fun! :-)
+Give me your feedback will it work there?
 
 --
 AG
