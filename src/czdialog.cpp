@@ -361,16 +361,28 @@ void CZDialog::setupAboutTab() {
 */
 #ifdef Q_OS_WIN
 #include <windows.h>
+typedef BOOL (WINAPI *IsWow64Process_t)(HANDLE, PBOOL);
+
 QString CZDialog::getOSVersion() {
 	QString OSVersion = "Windows";
 
-	SYSTEM_INFO systemInfo;
-	GetSystemInfo(&systemInfo);
+	BOOL is_os64bit = FALSE;
+	IsWow64Process_t p_IsWow64Process = (IsWow64Process_t)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+	if(p_IsWow64Process != NULL) {
+		if(!p_IsWow64Process(GetCurrentProcess(), &is_os64bit)) {
+			is_os64bit = FALSE;
+	        }
+	}
+
+	OSVersion += QString(" %1").arg(
+		(is_os64bit == TRUE)? "AMD64": "x86");
+
+/*	GetSystemInfo(&systemInfo);
 	OSVersion += QString(" %1").arg(
 		(systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)? "AMD64":
 		(systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)? "IA64":
 		(systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)? "x86":
-		"Unknown architecture");
+		"Unknown architecture");*/
 
 	OSVERSIONINFO versionInfo;
 	ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
