@@ -1,5 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 	<qresource>
+		<file>img/icon.png</file>
 		<file>img/logo.png</file>
 		<file>img/splash.png</file>
 		<file>img/logo-geforce.png</file>
