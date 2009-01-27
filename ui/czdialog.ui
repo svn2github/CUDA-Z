@@ -5,23 +5,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>324</width>
-    <height>322</height>
+    <width>342</width>
+    <height>323</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string/>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../res/cuda-z.qrc" >
-    <normaloff>:/img/icon.png</normaloff>:/img/icon.png</iconset>
+   <iconset>
+    <normaloff>:/img/icon.ico</normaloff>:/img/icon.ico</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" >
    <item>
     <widget class="QTabWidget" name="tabInfo" >
-     <property name="locale" >
-      <locale country="UnitedStates" language="English" />
-     </property>
      <property name="currentIndex" >
       <number>0</number>
      </property>
@@ -32,9 +29,6 @@
       <layout class="QGridLayout" name="gridLayout_2" >
        <item row="0" column="0" >
         <widget class="QLabel" name="labelName" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="text" >
           <string>Name</string>
          </property>
@@ -45,9 +39,6 @@
        </item>
        <item row="0" column="1" >
         <widget class="QLabel" name="labelNameText" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="frameShape" >
           <enum>QFrame::Panel</enum>
          </property>
@@ -68,9 +59,6 @@
           <layout class="QHBoxLayout" name="horizontalLayout_2" >
            <item>
             <spacer name="horizontalSpacer_2" >
-             <property name="locale" >
-              <locale country="UnitedStates" language="English" />
-             </property>
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
              </property>
@@ -89,9 +77,6 @@
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
-             </property>
-             <property name="locale" >
-              <locale country="UnitedStates" language="English" />
              </property>
              <property name="frameShape" >
               <enum>QFrame::Panel</enum>
@@ -114,9 +99,6 @@
          </item>
          <item>
           <spacer name="verticalSpacer" >
-           <property name="locale" >
-            <locale country="UnitedStates" language="English" />
-           </property>
            <property name="orientation" >
             <enum>Qt::Vertical</enum>
            </property>
@@ -132,9 +114,6 @@
        </item>
        <item row="1" column="0" >
         <widget class="QLabel" name="labelCapability" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="text" >
           <string>Compute Capability</string>
          </property>
@@ -145,9 +124,6 @@
        </item>
        <item row="1" column="1" >
         <widget class="QLabel" name="labelCapabilityText" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="frameShape" >
           <enum>QFrame::Panel</enum>
          </property>
@@ -161,9 +137,6 @@
        </item>
        <item row="2" column="0" >
         <widget class="QLabel" name="labelClock" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="text" >
           <string>Clock Rate</string>
          </property>
@@ -174,9 +147,6 @@
        </item>
        <item row="2" column="1" >
         <widget class="QLabel" name="labelClockText" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="frameShape" >
           <enum>QFrame::Panel</enum>
          </property>
@@ -190,9 +160,6 @@
        </item>
        <item row="3" column="0" >
         <widget class="QLabel" name="labelMultiProc" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="text" >
           <string>Multiprocessors</string>
          </property>
@@ -203,9 +170,6 @@
        </item>
        <item row="3" column="1" >
         <widget class="QLabel" name="labelMultiProcText" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="frameShape" >
           <enum>QFrame::Panel</enum>
          </property>
@@ -219,9 +183,6 @@
        </item>
        <item row="4" column="0" >
         <widget class="QLabel" name="labelWarp" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="text" >
           <string>Warp Size</string>
          </property>
@@ -232,9 +193,6 @@
        </item>
        <item row="4" column="1" >
         <widget class="QLabel" name="labelWarpText" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="frameShape" >
           <enum>QFrame::Panel</enum>
          </property>
@@ -248,9 +206,6 @@
        </item>
        <item row="5" column="0" >
         <widget class="QLabel" name="labelRegs" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="text" >
           <string>Regs Per Block</string>
          </property>
@@ -261,9 +216,6 @@
        </item>
        <item row="5" column="1" >
         <widget class="QLabel" name="labelRegsText" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="frameShape" >
           <enum>QFrame::Panel</enum>
          </property>
@@ -277,9 +229,6 @@
        </item>
        <item row="6" column="0" >
         <widget class="QLabel" name="labelThreads" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="text" >
           <string>Threads Per Block</string>
          </property>
@@ -290,9 +239,6 @@
        </item>
        <item row="6" column="1" >
         <widget class="QLabel" name="labelThreadsText" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="frameShape" >
           <enum>QFrame::Panel</enum>
          </property>
@@ -308,9 +254,6 @@
         <layout class="QGridLayout" name="gridLayout" >
          <item row="1" column="0" >
           <widget class="QLabel" name="labelThreadsDimTextX" >
-           <property name="locale" >
-            <locale country="UnitedStates" language="English" />
-           </property>
            <property name="frameShape" >
             <enum>QFrame::Panel</enum>
            </property>
@@ -324,9 +267,6 @@
          </item>
          <item row="1" column="1" >
           <widget class="QLabel" name="labelThreadsDimTextY" >
-           <property name="locale" >
-            <locale country="UnitedStates" language="English" />
-           </property>
            <property name="frameShape" >
             <enum>QFrame::Panel</enum>
            </property>
@@ -340,9 +280,6 @@
          </item>
          <item row="1" column="2" >
           <widget class="QLabel" name="labelThreadsDimTextZ" >
-           <property name="locale" >
-            <locale country="UnitedStates" language="English" />
-           </property>
            <property name="frameShape" >
             <enum>QFrame::Panel</enum>
            </property>
@@ -356,9 +293,6 @@
          </item>
          <item row="2" column="0" >
           <widget class="QLabel" name="labelGridDimTextX" >
-           <property name="locale" >
-            <locale country="UnitedStates" language="English" />
-           </property>
            <property name="frameShape" >
             <enum>QFrame::Panel</enum>
            </property>
@@ -372,9 +306,6 @@
          </item>
          <item row="2" column="1" >
           <widget class="QLabel" name="labelGridDimTextY" >
-           <property name="locale" >
-            <locale country="UnitedStates" language="English" />
-           </property>
            <property name="frameShape" >
             <enum>QFrame::Panel</enum>
            </property>
@@ -388,9 +319,6 @@
          </item>
          <item row="2" column="2" >
           <widget class="QLabel" name="labelGridDimTextZ" >
-           <property name="locale" >
-            <locale country="UnitedStates" language="English" />
-           </property>
            <property name="frameShape" >
             <enum>QFrame::Panel</enum>
            </property>
@@ -404,9 +332,6 @@
          </item>
          <item row="0" column="0" >
           <widget class="QLabel" name="labelDimX" >
-           <property name="locale" >
-            <locale country="UnitedStates" language="English" />
-           </property>
            <property name="text" >
             <string>X</string>
            </property>
@@ -417,9 +342,6 @@
          </item>
          <item row="0" column="1" >
           <widget class="QLabel" name="labelDimY" >
-           <property name="locale" >
-            <locale country="UnitedStates" language="English" />
-           </property>
            <property name="text" >
             <string>Y</string>
            </property>
@@ -430,9 +352,6 @@
          </item>
          <item row="0" column="2" >
           <widget class="QLabel" name="labelDimZ" >
-           <property name="locale" >
-            <locale country="UnitedStates" language="English" />
-           </property>
            <property name="text" >
             <string>Z</string>
            </property>
@@ -445,9 +364,6 @@
        </item>
        <item row="9" column="0" >
         <widget class="QLabel" name="labelGridDim" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="text" >
           <string>Grid Dimentions</string>
          </property>
@@ -458,9 +374,6 @@
        </item>
        <item row="10" column="0" colspan="3" >
         <spacer name="verticalSpacer_2" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
@@ -474,9 +387,6 @@
        </item>
        <item row="8" column="0" >
         <widget class="QLabel" name="labelThreadsDim" >
-         <property name="locale" >
-          <locale country="UnitedStates" language="English" />
-         </property>
          <property name="text" >
           <string>Threads Dimentions</string>
          </property>
@@ -1089,141 +999,91 @@
       <attribute name="title" >
        <string>About</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_5" >
+      <layout class="QVBoxLayout" name="verticalLayout_3" >
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3" >
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_4" >
-           <item>
-            <widget class="QLabel" name="labelAppLogo" >
-             <property name="locale" >
-              <locale country="UnitedStates" language="English" />
-             </property>
-             <property name="frameShape" >
-              <enum>QFrame::Panel</enum>
-             </property>
-             <property name="frameShadow" >
-              <enum>QFrame::Sunken</enum>
-             </property>
-             <property name="text" >
-              <string/>
-             </property>
-             <property name="pixmap" >
-              <pixmap resource="../res/cuda-z.qrc" >:/img/icon.png</pixmap>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_5" >
-             <property name="locale" >
-              <locale country="UnitedStates" language="English" />
-             </property>
-             <property name="orientation" >
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0" >
-              <size>
-               <width>20</width>
-               <height>18</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_3" >
-           <property name="locale" >
-            <locale country="UnitedStates" language="English" />
-           </property>
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0" >
-            <size>
-             <width>18</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_3" >
-           <item>
-            <widget class="QLabel" name="labelAppName" >
-             <property name="locale" >
-              <locale country="UnitedStates" language="English" />
-             </property>
-             <property name="text" >
-              <string>&lt;name></string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelAppVersion" >
-             <property name="locale" >
-              <locale country="UnitedStates" language="English" />
-             </property>
-             <property name="text" >
-              <string>&lt;version></string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelAppURL" >
-             <property name="locale" >
-              <locale country="UnitedStates" language="English" />
-             </property>
-             <property name="text" >
-              <string>&lt;url></string>
-             </property>
-             <property name="openExternalLinks" >
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelAppAuthor" >
-             <property name="locale" >
-              <locale country="UnitedStates" language="English" />
-             </property>
-             <property name="text" >
-              <string>&lt;author></string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelAppCopy" >
-             <property name="locale" >
-              <locale country="UnitedStates" language="English" />
-             </property>
-             <property name="text" >
-              <string>&lt;copyrights></string>
-             </property>
-             <property name="wordWrap" >
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelAppUpdate" >
-             <property name="locale" >
-              <locale country="UnitedStates" language="English" />
-             </property>
-             <property name="text" >
-              <string>&lt;update></string>
-             </property>
-             <property name="wordWrap" >
-              <bool>true</bool>
-             </property>
-             <property name="openExternalLinks" >
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
+        <widget class="QLabel" name="labelAppLogo" >
+         <property name="locale" >
+          <locale country="UnitedStates" language="English" />
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="pixmap" >
+          <pixmap resource="../res/cuda-z.qrc" >:/img/logo.png</pixmap>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelAppName" >
+         <property name="locale" >
+          <locale country="UnitedStates" language="English" />
+         </property>
+         <property name="text" >
+          <string>&lt;name></string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelAppVersion" >
+         <property name="locale" >
+          <locale country="UnitedStates" language="English" />
+         </property>
+         <property name="text" >
+          <string>&lt;version></string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelAppURL" >
+         <property name="locale" >
+          <locale country="UnitedStates" language="English" />
+         </property>
+         <property name="text" >
+          <string>&lt;urls></string>
+         </property>
+         <property name="openExternalLinks" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelAppAuthor" >
+         <property name="locale" >
+          <locale country="UnitedStates" language="English" />
+         </property>
+         <property name="text" >
+          <string>&lt;author></string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelAppCopy" >
+         <property name="locale" >
+          <locale country="UnitedStates" language="English" />
+         </property>
+         <property name="text" >
+          <string>&lt;copyrights></string>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelAppUpdate" >
+         <property name="locale" >
+          <locale country="UnitedStates" language="English" />
+         </property>
+         <property name="text" >
+          <string>&lt;update></string>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+         <property name="openExternalLinks" >
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <spacer name="verticalSpacer_4" >
@@ -1255,16 +1115,10 @@
          <height>0</height>
         </size>
        </property>
-       <property name="locale" >
-        <locale country="UnitedStates" language="English" />
-       </property>
       </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer" >
-       <property name="locale" >
-        <locale country="UnitedStates" language="English" />
-       </property>
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
@@ -1278,9 +1132,6 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushOk" >
-       <property name="locale" >
-        <locale country="UnitedStates" language="English" />
-       </property>
        <property name="text" >
         <string>&amp;OK</string>
        </property>
@@ -1298,6 +1149,7 @@
   <tabstop>pushOk</tabstop>
  </tabstops>
  <resources>
+  <include location="../res/cuda-z.qrc" />
   <include location="../res/cuda-z.qrc" />
   <include location="../res/cuda-z.qrc" />
   <include location="../res/cuda-z.qrc" />

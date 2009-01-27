@@ -338,19 +338,19 @@ void CZDialog::setupPerformanceTab(
 	\brief Fill tab "About" with information about this program.
 */
 void CZDialog::setupAboutTab() {
-//	labelAppLogo->setPixmap(QPixmap(":/img/icon.png"));
-	labelAppName->setText(QString("<b><i><font size=\"+2\">%1</font></i></b><br>%2")
-		.arg(CZ_NAME_SHORT).arg(CZ_NAME_LONG));
+//	labelAppLogo->setPixmap(QPixmap(":/img/logo.png"));
+	labelAppName->setText(QString("<b><font size=\"+2\">%1</font></b>")
+		.arg(CZ_NAME_LONG));
 
-	QString version = tr("<b>%1</b> %2").arg(tr("Version")).arg(CZ_VERSION);
+	QString version = QString("<b>%1</b> %2").arg(tr("Version")).arg(CZ_VERSION);
 #ifdef CZ_VER_STATE
-	version += QString(tr("<br><b>%1</b> %2 %3").arg(tr("Built")).arg(CZ_DATE).arg(CZ_TIME));
+	version += QString("<br /><b>%1</b> %2 %3").arg(tr("Built")).arg(CZ_DATE).arg(CZ_TIME);
 #endif//CZ_VER_STATE
 	labelAppVersion->setText(version);
-	labelAppURL->setText(tr("<b>%1</b> <a href=\"%2\">%2</a><br><b>%3</b> <a href=\"%4\">%4</a>")
+	labelAppURL->setText(QString("<b>%1</b> <a href=\"%2\">%2</a><br /><b>%3</b> <a href=\"%4\">%4</a>")
 		.arg(tr("Main page")).arg(CZ_ORG_URL_MAINPAGE)
 		.arg(tr("Project")).arg(CZ_ORG_URL_PROJECT));
-	labelAppAuthor->setText(tr("<b>%1</b> %2").arg(tr("Author")).arg(CZ_ORG_NAME));
+	labelAppAuthor->setText(QString("<b>%1</b> %2").arg(tr("Author")).arg(CZ_ORG_NAME));
 	labelAppCopy->setText(CZ_COPY_INFO);
 }
 
