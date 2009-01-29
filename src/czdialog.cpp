@@ -30,9 +30,127 @@
 #endif
 
 /*!
+	\class CZSplashScreen
+	\brief Splash screen with multiline logging effect.
+*/
+
+/*!
+	\brief Creates a new #CZSplashScreen and initializes internal
+	parameters of the class.
+*/
+CZSplashScreen::CZSplashScreen(
+	const QPixmap &pixmap,	/*!< Picture for window background. */
+	int maxLines,		/*!< Number of lines in boot log. */
+	Qt::WindowFlags f	/*!< Window flags. */
+):	QSplashScreen(pixmap, f),
+	m_maxLines(maxLines) {
+	m_message = QString::null;
+	m_lines = 0;
+	m_alignment = Qt::AlignLeft;
+	m_color = Qt::black;
+}
+
+/*!
+	\brief Creates a new #CZSplashScreen with the given \a parent and
+	initializes internal parameters of the class.
+*/
+CZSplashScreen::CZSplashScreen(
+	QWidget *parent,	/*!< Parent of widget. */
+	const QPixmap &pixmap,	/*!< Picture for window background. */
+	int maxLines,		/*!< Number of lines in boot log. */
+	Qt::WindowFlags f	/*!< Window flags. */
+):	QSplashScreen(parent, pixmap, f),
+	m_maxLines(maxLines) {
+	m_message = QString::null;
+	m_lines = 0;
+	m_alignment = Qt::AlignLeft;
+	m_color = Qt::black;
+}
+
+/*!
+	\brief Class destructor.
+*/
+CZSplashScreen::~CZSplashScreen() {
+}
+
+/*!
+	\brief Sets the maximal number of lines in log.
+*/
+void CZSplashScreen::setMaxLines(
+	int maxLines		/*!< Number of lines in log. */
+) {
+	if(maxLines >= 1) {
+		m_maxLines = maxLines;
+		if(m_lines > m_maxLines) {
+			deleteTop(m_lines - m_maxLines);
+			QSplashScreen::showMessage(m_message, m_alignment, m_color);
+		}
+	}
+}
+
+/*!
+	\brief Returns the maximal number of lines in log.
+	\return number of lines in log.
+*/
+int CZSplashScreen::maxLines() {
+	return m_maxLines;
+}
+
+/*!
+	\brief Adds new message line in log.
+*/
+void CZSplashScreen::showMessage(
+	const QString &message,	/*!< Message text. */
+	int alignment,		/*!< Placement of log in window. */
+	const QColor &color	/*!< Color used for protocol display. */
+) {
+
+	m_alignment = alignment;
+	m_color = color;
+
+	if(m_message.size() != 0) {
+		m_message += '\n' + message;
+	} else {
+		m_message = message;
+	}
+	QStringList linesList = m_message.split('\n');
+	m_lines = linesList.size();
+
+	if(m_lines > m_maxLines) {
+		deleteTop(m_lines - m_maxLines);
+	}
+
+	QSplashScreen::showMessage(m_message, m_alignment, m_color);
+}
+
+/*!
+	\brief Removes all messages being displayed in log.
+*/
+void CZSplashScreen::clearMessage() {
+	m_message = QString::null;
+	m_lines = 0;
+	QSplashScreen::showMessage(m_message, m_alignment, m_color);
+}
+
+/*!
+	\brief Removes first \a lines entries in log.
+*/
+void CZSplashScreen::deleteTop(
+	int lines		/*!< Number of lines to be removed. */
+) {
+	QStringList linesList = m_message.split('\n');
+	for(int i = 0; i < lines; i++) {
+		linesList.removeFirst();
+	}
+
+	m_message = linesList.join(QString('\n'));
+	m_lines -= lines;
+}
+
+/*!
 	\brief Splash screen of application.
 */
-QSplashScreen *splash;
+CZSplashScreen *splash;
 
 /*!
 	\class CZDialog

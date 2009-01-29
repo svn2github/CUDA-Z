@@ -56,7 +56,7 @@ int main(
 	QApplication app(argc, argv);
 
 	QPixmap pixmap(":/img/splash.png");
-	splash = new QSplashScreen(pixmap);
+	splash = new CZSplashScreen(pixmap, 2);
 	splash->show();
 
 	splash->showMessage(QObject::tr("Checking CUDA ..."),

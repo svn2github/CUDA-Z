@@ -16,7 +16,33 @@
 #include "cudainfo.h"
 
 extern void wait(int n); // implemented in main.cpp
-extern QSplashScreen *splash;
+
+class CZSplashScreen: public QSplashScreen {
+	Q_OBJECT
+
+public:
+	explicit CZSplashScreen(const QPixmap &pixmap = QPixmap(), int maxLines = 1, Qt::WindowFlags f = 0);
+	CZSplashScreen(QWidget *parent, const QPixmap &pixmap = QPixmap(), int maxLines = 1, Qt::WindowFlags f = 0);
+	virtual ~CZSplashScreen();
+
+	void setMaxLines(int maxLines);
+	int maxLines();
+
+public slots:
+	void showMessage(const QString &message, int alignment = Qt::AlignLeft, const QColor &color = Qt::black);
+	void clearMessage();
+
+private:
+	QString m_message;
+	int m_maxLines;
+	int m_lines;
+	int m_alignment;
+	QColor m_color;
+
+	void deleteTop(int lines = 1);
+};
+
+extern CZSplashScreen *splash;
 
 class CZDialog: public QDialog, public Ui::CZDialog {
 	Q_OBJECT
