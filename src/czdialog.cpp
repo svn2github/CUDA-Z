@@ -465,9 +465,9 @@ void CZDialog::setupAboutTab() {
 	version += QString("<br /><b>%1</b> %2 %3").arg(tr("Built")).arg(CZ_DATE).arg(CZ_TIME);
 #endif//CZ_VER_STATE
 	labelAppVersion->setText(version);
-	labelAppURL->setText(QString("<b>%1</b> <a href=\"%2\">%2</a><br /><b>%3</b> <a href=\"%4\">%4</a>")
+	labelAppURL->setText(QString("<b>%1:</b> <a href=\"%2\">%2</a><br /><b>%3:</b> <a href=\"%4\">%4</a>")
 		.arg(tr("Main page")).arg(CZ_ORG_URL_MAINPAGE)
-		.arg(tr("Project")).arg(CZ_ORG_URL_PROJECT));
+		.arg(tr("Project page")).arg(CZ_ORG_URL_PROJECT));
 	labelAppAuthor->setText(QString("<b>%1</b> %2").arg(tr("Author")).arg(CZ_ORG_NAME));
 	labelAppCopy->setText(CZ_COPY_INFO);
 }
