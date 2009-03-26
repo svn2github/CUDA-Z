@@ -71,6 +71,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\czdeviceinfo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\czdialog.cpp"
 				>
 			</File>
@@ -90,6 +94,10 @@
 			</File>
 			<File
 				RelativePath=".\src\cudainfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\czdeviceinfo.h"
 				>
 			</File>
 			<File

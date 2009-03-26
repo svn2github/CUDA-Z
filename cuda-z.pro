@@ -21,7 +21,10 @@ RESOURCES = res/cuda-z.qrc
 win32:RC_FILE += res/cuda-z.rc
 CUSOURCES = src/cudainfo.cu
 
-CUFLAGS = -arch compute_10 -code compute_10,compute_13,sm_10,sm_11,sm_13
+CUFLAGS = \
+	-gencode arch=compute_10,code=sm_10 \
+	-gencode arch=compute_11,code=sm_11 \
+	-gencode arch=compute_13,code=sm_13
 
 unix:LIBS += -lcudart
 win32:LIBS += \
