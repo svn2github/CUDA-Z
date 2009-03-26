@@ -22,9 +22,9 @@ win32:RC_FILE += res/cuda-z.rc
 CUSOURCES = src/cudainfo.cu
 
 CUFLAGS = \
-	-gencode arch=compute_10,code=sm_10 \
-	-gencode arch=compute_11,code=sm_11 \
-	-gencode arch=compute_13,code=sm_13
+	-gencode arch=compute_10,code=compute_10 \
+	-gencode arch=compute_11,code=compute_11 \
+	-gencode arch=compute_13,code=compute_13
 
 unix:LIBS += -lcudart
 win32:LIBS += \
@@ -45,6 +45,7 @@ QCLEANFILES = \
 	Makefile.Release \
 	vc80.pdb \
 	cuda-z.ncb \
+	cudainfo.linkinfo \
 	version.nsi \
 	build.nsi
 win32:QCLEANFILES += bin\cuda-z.exe
@@ -110,7 +111,8 @@ unix:QMAKE_CUC = nvcc
 	QMAKE_CUEXTRAFLAGS += -Xcompiler $$join(QMAKE_CUFLAGS, ",") $$CUFLAGS
 	QMAKE_CUEXTRAFLAGS += $(DEFINES) $(INCPATH) $$join(QMAKE_COMPILER_DEFINES, " -D", -D)
 	QMAKE_CUEXTRAFLAGS += -c
-#	QMAKE_CUEXTRAFLAGS += --keep
+#	QMAKE_CUEXTRAFLAGS += -keep
+#	QMAKE_CUEXTRAFLAGS += -clean
 	QMAKE_EXTRA_VARIABLES += QMAKE_CUEXTRAFLAGS
 
 	cu.commands = $$QMAKE_CUC $(EXPORT_QMAKE_CUEXTRAFLAGS) -o $$OBJECTS_DIR/$${QMAKE_CPP_MOD_CU}${QMAKE_FILE_BASE}$${QMAKE_EXT_OBJ} ${QMAKE_FILE_NAME}$$escape_expand(\n\t)
