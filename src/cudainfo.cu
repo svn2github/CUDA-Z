@@ -12,6 +12,7 @@
 #error CUDA 1.1 is not supported any more! Please use CUDA Toolkit 2.0+ instead.
 #endif
 
+//#include <stdio.h>
 //#include <QDebug>
 #include <qglobal.h>
 #define printf(fmt, ...)
@@ -259,6 +260,21 @@ struct CZDeviceInfoBandLocalData {
 };
 
 /*!
+	\brief Set device for current thread.
+*/
+int CZCudaCalcDeviceSelect(
+	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+) {
+
+	printf("Selecting %s.\n", info->deviceName);
+
+	CZ_CUDA_CALL(cudaSetDevice(info->num),
+		return -1);
+
+	return 0;
+}
+
+/*!
 	\brief Allocate buffers for bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
@@ -271,11 +287,6 @@ static int CZCudaCalcDeviceBandwidthAlloc(
 		return -1;
 
 	if(info->band.localData == NULL) {
-
-		printf("Selecting %s.\n", info->deviceName);
-
-		CZ_CUDA_CALL(cudaSetDevice(info->num),
-			return -1);
 
 		printf("Alloc local buffers for %s.\n", info->deviceName);
 
@@ -344,11 +355,6 @@ static int CZCudaCalcDeviceBandwidthFree(
 
 	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
 	if(lData != NULL) {
-
-		printf("Selecting %s.\n", info->deviceName);
-
-		CZ_CUDA_CALL(cudaSetDevice(info->num),
-			return -1);
 
 		printf("Free host pageable for %s.\n", info->deviceName);
 
@@ -424,11 +430,6 @@ static float CZCudaCalcDeviceBandwidthTestCommon (
 
 	if(info == NULL)
 		return 0;
-
-	printf("Selecting %s.\n", info->deviceName);
-
-	CZ_CUDA_CALL(cudaSetDevice(info->num),
-		return 0);
 
 	CZ_CUDA_CALL(cudaEventCreate(&start),
 		return 0);
@@ -870,11 +871,6 @@ static float CZCudaCalcDevicePerformanceTest(
 
 	if(info == NULL)
 		return 0;
-
-	printf("Selecting %s.\n", info->deviceName);
-
-	CZ_CUDA_CALL(cudaSetDevice(info->num),
-		return 0);
 
 	CZ_CUDA_CALL(cudaEventCreate(&start),
 		return 0);

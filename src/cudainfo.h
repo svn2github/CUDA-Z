@@ -76,6 +76,7 @@ struct CZDeviceInfo {
 bool CZCudaCheck(void);
 int CZCudaDeviceFound(void);
 int CZCudaReadDeviceInfo(struct CZDeviceInfo *info, int num);
+int CZCudaCalcDeviceSelect(struct CZDeviceInfo *info);
 int CZCudaPrepareDevice(struct CZDeviceInfo *info);
 int CZCudaCalcDeviceBandwidth(struct CZDeviceInfo *info);
 int CZCudaCalcDevicePerformance(struct CZDeviceInfo *info);

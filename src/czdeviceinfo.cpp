@@ -191,6 +191,8 @@ int CZCudaDeviceInfo::readInfo() {
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::prepareDevice() {
+	if(CZCudaCalcDeviceSelect(&_info) != 0)
+		return 1;
 	return CZCudaPrepareDevice(&_info);
 }
 
