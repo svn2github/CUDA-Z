@@ -79,6 +79,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\log.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\main.cpp"
 				>
 			</File>
@@ -102,6 +106,10 @@
 			</File>
 			<File
 				RelativePath=".\src\czdialog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\log.h"
 				>
 			</File>
 			<File

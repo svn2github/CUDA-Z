@@ -6,14 +6,14 @@
     <x>0</x>
     <y>0</y>
     <width>342</width>
-    <height>323</height>
+    <height>341</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string/>
   </property>
   <property name="windowIcon" >
-   <iconset>
+   <iconset resource="../res/cuda-z.qrc" >
     <normaloff>:/img/icon.png</normaloff>:/img/icon.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" >
@@ -250,8 +250,61 @@
          </property>
         </widget>
        </item>
-       <item rowspan="3" row="7" column="1" colspan="2" >
+       <item row="7" column="0" >
+        <widget class="QLabel" name="labelWatchdog" >
+         <property name="text" >
+          <string>Watchdog Enabled</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1" >
+        <widget class="QLabel" name="labelWatchdogText" >
+         <property name="frameShape" >
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow" >
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="text" >
+          <string>&lt;yes/no></string>
+         </property>
+        </widget>
+       </item>
+       <item rowspan="3" row="8" column="1" colspan="2" >
         <layout class="QGridLayout" name="gridLayout" >
+         <item row="0" column="0" >
+          <widget class="QLabel" name="labelDimX" >
+           <property name="text" >
+            <string>X</string>
+           </property>
+           <property name="alignment" >
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" >
+          <widget class="QLabel" name="labelDimY" >
+           <property name="text" >
+            <string>Y</string>
+           </property>
+           <property name="alignment" >
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2" >
+          <widget class="QLabel" name="labelDimZ" >
+           <property name="text" >
+            <string>Z</string>
+           </property>
+           <property name="alignment" >
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="0" >
           <widget class="QLabel" name="labelThreadsDimTextX" >
            <property name="frameShape" >
@@ -330,39 +383,9 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0" >
-          <widget class="QLabel" name="labelDimX" >
-           <property name="text" >
-            <string>X</string>
-           </property>
-           <property name="alignment" >
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" >
-          <widget class="QLabel" name="labelDimY" >
-           <property name="text" >
-            <string>Y</string>
-           </property>
-           <property name="alignment" >
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2" >
-          <widget class="QLabel" name="labelDimZ" >
-           <property name="text" >
-            <string>Z</string>
-           </property>
-           <property name="alignment" >
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
-       <item row="9" column="0" >
+       <item row="10" column="0" >
         <widget class="QLabel" name="labelGridDim" >
          <property name="text" >
           <string>Grid Dimentions</string>
@@ -372,7 +395,7 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="0" colspan="3" >
+       <item row="11" column="1" >
         <spacer name="verticalSpacer_2" >
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -385,7 +408,7 @@
          </property>
         </spacer>
        </item>
-       <item row="8" column="0" >
+       <item row="9" column="0" >
         <widget class="QLabel" name="labelThreadsDim" >
          <property name="text" >
           <string>Threads Dimentions</string>
@@ -1014,6 +1037,7 @@
   <tabstop>pushOk</tabstop>
  </tabstops>
  <resources>
+  <include location="../res/cuda-z.qrc" />
   <include location="../res/cuda-z.qrc" />
   <include location="../res/cuda-z.qrc" />
   <include location="../res/cuda-z.qrc" />

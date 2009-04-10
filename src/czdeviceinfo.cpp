@@ -4,8 +4,9 @@
 	\author AG
 */
 
-#include <QDebug>
+//#include <QDebug>
 
+#include "log.h"
 #include "czdeviceinfo.h"
 
 /*!
@@ -27,7 +28,7 @@ CZUpdateThread::CZUpdateThread(
 	this->info = info;
 	index = -1;
 
-	qDebug() << "Thread created";
+	CZLog(CZLogLevelLow, "Thread created");
 }
 
 /*!
@@ -49,7 +50,7 @@ CZUpdateThread::~CZUpdateThread() {
 
 	wait();
 
-	qDebug() << "Thread is done";
+	CZLog(CZLogLevelLow, "Thread is done");
 }
 
 /*!
@@ -58,13 +59,13 @@ CZUpdateThread::~CZUpdateThread() {
 void CZUpdateThread::testPerformance(
 	int index			/*!< Index of device in list. */
 ) {
-	qDebug() << "Rising update action for device" << index;
+	CZLog(CZLogLevelMid, "Rising update action for device %d", index);
 
 	mutex.lock();
 	this->index = index;
 	if(!isRunning()) {
 		start();
-		qDebug() << "Waiting for device is ready...";
+		CZLog(CZLogLevelLow, "Waiting for device is ready...");
 	}
 
 	while(!deviceReady)
@@ -81,18 +82,18 @@ void CZUpdateThread::waitPerformance() {
 
 	testPerformance(-1);
 
-	qDebug() << "Waiting for results...";
+	CZLog(CZLogLevelMid, "Waiting for results...");
 
 	mutex.lock();
-	qDebug() << "Waiting for beginnig of test...";
+	CZLog(CZLogLevelLow, "Waiting for beginnig of test...");
 	while(!testRunning)
 		testStart.wait(&mutex);
-	qDebug() << "Waiting for end of test...";
+	CZLog(CZLogLevelLow, "Waiting for end of test...");
 	while(testRunning)
 		testFinish.wait(&mutex);
 	mutex.unlock();
 
-	qDebug() << "Got results!";
+	CZLog(CZLogLevelMid, "Got results!");
 }
 
 /*!
@@ -100,7 +101,7 @@ void CZUpdateThread::waitPerformance() {
 */
 void CZUpdateThread::run() {
 
-	qDebug() << "Thread started";
+	CZLog(CZLogLevelLow, "Thread started");
 
 	info->prepareDevice();
 
@@ -110,12 +111,12 @@ void CZUpdateThread::run() {
 
 	forever {
 
-		qDebug() << "Waiting for new loop...";
+		CZLog(CZLogLevelLow, "Waiting for new loop...");
 		newLoop.wait(&mutex);
 		index = this->index;
 		mutex.unlock();
 
-		qDebug() << "Thread loop started";
+		CZLog(CZLogLevelLow, "Thread loop started");
 
 		if(abort) {
 			mutex.lock();

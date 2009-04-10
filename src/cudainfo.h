@@ -22,6 +22,7 @@ struct CZDeviceInfoCore {
 	int		maxGridSize[3];		/*!< Maximum sizes of each dimension of a grid. */
 	int		clockRate;		/*!< Clock frequency in kilohertz. */
 	int		muliProcCount;		/*!< Number of mutiprocessors in GPU. */
+	int		watchdogEnabled;	/*!< Has run time limit for kernels executed. */
 };
 
 /*!

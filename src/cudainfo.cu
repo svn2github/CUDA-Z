@@ -12,11 +12,8 @@
 #error CUDA 1.1 is not supported any more! Please use CUDA Toolkit 2.0+ instead.
 #endif
 
-//#include <stdio.h>
-//#include <QDebug>
 #include <qglobal.h>
-#define printf(fmt, ...)
-
+#include "log.h"
 #include "cudainfo.h"
 
 #define CZ_COPY_BUF_SIZE	(16 * (1 << 20))	/*!< Transfer buffer size. */
@@ -38,7 +35,7 @@
 	{ \
 		cudaError_t errCode; \
 		if((errCode = (funcCall)) != cudaSuccess) { \
-			printf("CUDA Error: %s\n", cudaGetErrorString(errCode)); \
+			CZLog(CZLogLevelError, "CUDA Error: %s", cudaGetErrorString(errCode)); \
 			errProc; \
 		} \
 	}
@@ -229,22 +226,15 @@ int CZCudaReadDeviceInfo(
 	info->core.maxGridSize[1] = prop.maxGridSize[1];
 	info->core.maxGridSize[2] = prop.maxGridSize[2];
 	info->core.clockRate = prop.clockRate;
+	info->core.muliProcCount = prop.multiProcessorCount;
+	info->core.watchdogEnabled = prop.kernelExecTimeoutEnabled;
 
 	info->mem.totalGlobal = prop.totalGlobalMem;
 	info->mem.sharedPerBlock = prop.sharedMemPerBlock;
 	info->mem.maxPitch = prop.memPitch;
 	info->mem.totalConst = prop.totalConstMem;
 	info->mem.textureAlignment = prop.textureAlignment;
-
-#if CUDA_VERSION >= 2000 // CUDA 2.0+
 	info->mem.gpuOverlap = prop.deviceOverlap;
-	info->core.muliProcCount = prop.multiProcessorCount;
-#else // CUDA 1.1
-	if(p_cuDeviceGetAttribute(&overlap, CU_DEVICE_ATTRIBUTE_GPU_OVERLAP, num) != CUDA_SUCCESS)
-		return -1;
-	info->mem.gpuOverlap = overlap;
-	info->core.muliProcCount = 0;
-#endif //CUDA_VERSION
 
 	return 0;
 }
@@ -266,7 +256,7 @@ int CZCudaCalcDeviceSelect(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 
-	printf("Selecting %s.\n", info->deviceName);
+	CZLog(CZLogLevelLow, "Selecting %s.", info->deviceName);
 
 	CZ_CUDA_CALL(cudaSetDevice(info->num),
 		return -1);
@@ -288,14 +278,14 @@ static int CZCudaCalcDeviceBandwidthAlloc(
 
 	if(info->band.localData == NULL) {
 
-		printf("Alloc local buffers for %s.\n", info->deviceName);
+		CZLog(CZLogLevelLow, "Alloc local buffers for %s.", info->deviceName);
 
 		lData = (CZDeviceInfoBandLocalData*)malloc(sizeof(*lData));
 		if(lData == NULL) {
 			return -1;
 		}
 
-		printf("Alloc host pageable for %s.\n", info->deviceName);
+		CZLog(CZLogLevelLow, "Alloc host pageable for %s.", info->deviceName);
 
 		lData->memHostPage = (void*)malloc(CZ_COPY_BUF_SIZE);
 		if(lData->memHostPage == NULL) {
@@ -303,18 +293,18 @@ static int CZCudaCalcDeviceBandwidthAlloc(
 			return -1;
 		}
 
-		printf("Host pageable is at 0x%08X.\n", lData->memHostPage);
+		CZLog(CZLogLevelLow, "Host pageable is at 0x%08X.", lData->memHostPage);
 
-		printf("Alloc host pinned for %s.\n", info->deviceName);
+		CZLog(CZLogLevelLow, "Alloc host pinned for %s.", info->deviceName);
 
 		CZ_CUDA_CALL(cudaMallocHost((void**)&lData->memHostPin, CZ_COPY_BUF_SIZE),
 			free(lData->memHostPage);
 			free(lData);
 			return -1);
 
-		printf("Host pinned is at 0x%08X.\n", lData->memHostPin);
+		CZLog(CZLogLevelLow, "Host pinned is at 0x%08X.", lData->memHostPin);
 
-		printf("Alloc device buffer 1 for %s.\n", info->deviceName);
+		CZLog(CZLogLevelLow, "Alloc device buffer 1 for %s.", info->deviceName);
 
 		CZ_CUDA_CALL(cudaMalloc((void**)&lData->memDevice1, CZ_COPY_BUF_SIZE),
 			cudaFreeHost(lData->memHostPin);
@@ -322,9 +312,9 @@ static int CZCudaCalcDeviceBandwidthAlloc(
 			free(lData);
 			return -1);
 
-		printf("Device buffer 1 is at 0x%08X.\n", lData->memDevice1);
+		CZLog(CZLogLevelLow, "Device buffer 1 is at 0x%08X.", lData->memDevice1);
 
-		printf("Alloc device buffer 2 for %s.\n", info->deviceName);
+		CZLog(CZLogLevelLow, "Alloc device buffer 2 for %s.", info->deviceName);
 
 		CZ_CUDA_CALL(cudaMalloc((void**)&lData->memDevice2, CZ_COPY_BUF_SIZE),
 			cudaFree(lData->memDevice1);
@@ -333,7 +323,7 @@ static int CZCudaCalcDeviceBandwidthAlloc(
 			free(lData);
 			return -1);
 
-		printf("Device buffer 2 is at 0x%08X.\n", lData->memDevice2);
+		CZLog(CZLogLevelLow, "Device buffer 2 is at 0x%08X.", lData->memDevice2);
 
 		info->band.localData = (void*)lData;
 	}
@@ -356,27 +346,27 @@ static int CZCudaCalcDeviceBandwidthFree(
 	lData = (CZDeviceInfoBandLocalData*)info->band.localData;
 	if(lData != NULL) {
 
-		printf("Free host pageable for %s.\n", info->deviceName);
+		CZLog(CZLogLevelLow, "Free host pageable for %s.", info->deviceName);
 
 		if(lData->memHostPage != NULL)
 			free(lData->memHostPage);
 
-		printf("Free host pinned for %s.\n", info->deviceName);
+		CZLog(CZLogLevelLow, "Free host pinned for %s.", info->deviceName);
 
 		if(lData->memHostPin != NULL)
 			cudaFreeHost(lData->memHostPin);
 
-		printf("Free device buffer 1 for %s.\n", info->deviceName);
+		CZLog(CZLogLevelLow, "Free device buffer 1 for %s.", info->deviceName);
 
 		if(lData->memDevice1 != NULL)
 			cudaFree(lData->memDevice1);
 
-		printf("Free device buffer 2 for %s.\n", info->deviceName);
+		CZLog(CZLogLevelLow, "Free device buffer 2 for %s.", info->deviceName);
 
 		if(lData->memDevice2 != NULL)
 			cudaFree(lData->memDevice2);
 
-		printf("Free local buffers for %s.\n", info->deviceName);
+		CZLog(CZLogLevelLow, "Free local buffers for %s.", info->deviceName);
 
 		free(lData);
 	}
@@ -444,7 +434,7 @@ static float CZCudaCalcDeviceBandwidthTestCommon (
 	memDevice1 = lData->memDevice1;
 	memDevice2 = lData->memDevice2;
 
-	printf("Starting %s test (%s) on %s.\n",
+	CZLog(CZLogLevelLow, "Starting %s test (%s) on %s.",
 		(mode == CZ_COPY_MODE_H2D)? "host to device":
 		(mode == CZ_COPY_MODE_D2H)? "device to host":
 		(mode == CZ_COPY_MODE_D2D)? "device to device": "unknown",
@@ -506,7 +496,7 @@ static float CZCudaCalcDeviceBandwidthTestCommon (
 		timeMs += loopMs;
 	}
 
-	printf("Test complete in %f ms.\n", timeMs);
+	CZLog(CZLogLevelLow, "Test complete in %f ms.", timeMs);
 
 	bandwidthKBs = (
 		1000 *
@@ -891,7 +881,7 @@ static float CZCudaCalcDevicePerformanceTest(
 			threadsNum = CZ_DEF_THREADS_MAX;
 	}
 
-	printf("Starting %s test on %s (%d loops).\n",
+	CZLog(CZLogLevelLow, "Starting %s test on %s (%d loops).",
 		(mode == CZ_CALC_MODE_FLOAT)? "single-precision float":
 		(mode == CZ_CALC_MODE_DOUBLE)? "double-precision float":
 		(mode == CZ_CALC_MODE_INTEGER32)? "32-bit integer":
@@ -954,7 +944,7 @@ static float CZCudaCalcDevicePerformanceTest(
 		timeMs += loopMs;
 	}
 
-	printf("Test complete in %f ms.\n", timeMs);
+	CZLog(CZLogLevelLow, "Test complete in %f ms.", timeMs);
 
 	performanceKOPs = (
 		(float)info->core.muliProcCount *

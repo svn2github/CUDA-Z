@@ -4,13 +4,15 @@
 	\author AG
 */
 
-#include <QDebug>
+//#include <QDebug>
 #include <QMenu>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTextStream>
 
 #include <time.h>
 
+#include "log.h"
 #include "czdialog.h"
 #include "version.h"
 
@@ -183,7 +185,6 @@ CZDialog::CZDialog(
 	pushExport->setMenu(exportMenu);
 	
 	readCudaDevices();
-//	qDebug() << "device list size:" << deviceList.size();
 	setupDeviceList();
 	setupDeviceInfo(comboDevice->currentIndex());
 	setupAboutTab();
@@ -208,7 +209,7 @@ CZDialog::~CZDialog() {
 }
 
 /*!
-	\brief Read CUDA devices information.
+	\brief Reads CUDA devices information.
 	For each of detected CUDA-devices does following:
 	- Initialize CUDA-data structure.
 	- Reads CUDA-information about device.
@@ -239,7 +240,7 @@ void CZDialog::readCudaDevices() {
 }
 
 /*!
-	\brief Cleanup after bandwidth tests.
+	\brief Cleans up after bandwidth tests.
 */
 void CZDialog::freeCudaDevices() {
 
@@ -251,7 +252,7 @@ void CZDialog::freeCudaDevices() {
 }
 
 /*!
-	\brief Get number of CUDA devices.
+	\brief Gets number of CUDA devices.
 	\return number of CUDA-devices in case of success, \a 0 if no CUDA-devies were found.
 */
 int CZDialog::getCudaDeviceNumber() {
@@ -259,7 +260,7 @@ int CZDialog::getCudaDeviceNumber() {
 }
 
 /*!
-	\brief Put devices in combo box.
+	\brief Puts devices in combo box.
 */
 void CZDialog::setupDeviceList() {
 	comboDevice->clear();
@@ -277,7 +278,7 @@ void CZDialog::slotShowDevice(
 ) {
 	setupDeviceInfo(index);
 	if(checkUpdateResults->checkState() == Qt::Checked) {
-		qDebug() << "Switch device -> update performance for device" << index;
+		CZLog(CZLogLevelMid, "Switch device -> update performance for device %d", index);
 		deviceList[index]->testPerformance(index);
 	}
 }
@@ -301,15 +302,15 @@ void CZDialog::slotUpdateTimer() {
 
 	int index = comboDevice->currentIndex();
 	if(checkUpdateResults->checkState() == Qt::Checked) {
-		qDebug() << "Timer shot -> update performance for device" << index;
+		CZLog(CZLogLevelMid, "Timer shot -> update performance for device %d", index);
 		deviceList[index]->testPerformance(index);
 	} else {
-		qDebug() << "Timer shot -> update ignored";
+		CZLog(CZLogLevelMid, "Timer shot -> update ignored");
 	}
 }
 
 /*!
-	\brief Place in dialog's tabs information about given device.
+	\brief Places in dialog's tabs information about given device.
 */
 void CZDialog::setupDeviceInfo(
 	int dev				/*!< Number of CUDA-device. */
@@ -337,6 +338,10 @@ void CZDialog::setupCoreTab(
 	labelWarpText->setNum(info.core.SIMDWidth);
 	labelRegsText->setNum(info.core.regsPerBlock);
 	labelThreadsText->setNum(info.core.maxThreadsPerBlock);
+	if(info.core.watchdogEnabled == -1)
+		labelWatchdogText->setText("<i>" + tr("Unknown") + "</i>");
+	else
+		labelWatchdogText->setText(info.core.watchdogEnabled? tr("Yes"): tr("No"));
 	labelThreadsDimTextX->setNum(info.core.maxThreadsDim[0]);
 	labelThreadsDimTextY->setNum(info.core.maxThreadsDim[1]);
 	labelThreadsDimTextZ->setNum(info.core.maxThreadsDim[2]);
@@ -380,17 +385,6 @@ void CZDialog::setupMemoryTab(
 void CZDialog::setupPerformanceTab(
 	struct CZDeviceInfo &info	/*!< Information about CUDA-device. */
 ) {
-
-/*	qDebug() << "PERFORMANCE:";
-	qDebug() << "copyHDPin:" << info.band.copyHDPin;
-	qDebug() << "copyHDPage:" << info.band.copyHDPage;
-	qDebug() << "copyDHPin:" << info.band.copyDHPin;
-	qDebug() << "copyDHPage:" << info.band.copyDHPage;
-	qDebug() << "copyDD:" << info.band.copyDD;
-	qDebug() << "calcFloat:" << info.perf.calcFloat;
-	qDebug() << "calcDouble:" << info.perf.calcDouble;
-	qDebug() << "calcInteger32:" << info.perf.calcInteger32;
-	qDebug() << "calcInteger24:" << info.perf.calcInteger24;*/
 
 	if(info.band.copyHDPin == 0)
 		labelHDRatePinText->setText("--");
@@ -543,7 +537,7 @@ void CZDialog::slotExportToText() {
 	if(fileName.isEmpty())
 		return;
 
-	qDebug() << "Export to text as" << fileName;
+	CZLog(CZLogLevelMid, "Export to text as %s", fileName);
 
 	QFile file(fileName);
 	if(!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -585,6 +579,7 @@ void CZDialog::slotExportToText() {
 	out << "\t" << QString("%1: %2").arg(tr("Warp Size")).arg(info.core.SIMDWidth) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Regs Per Block")).arg(info.core.regsPerBlock) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Threads Per Block")).arg(info.core.maxThreadsPerBlock) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Watchdog Enabled")).arg(info.core.watchdogEnabled? tr("Yes"): tr("No")) << endl;
 	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Threads Dimentions")).arg(info.core.maxThreadsDim[0]).arg(info.core.maxThreadsDim[1]).arg(info.core.maxThreadsDim[2]) << endl;
 	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Grid Dimentions")).arg(info.core.maxGridSize[0]).arg(info.core.maxGridSize[1]).arg(info.core.maxGridSize[2]) << endl;
 	out << endl;
@@ -680,7 +675,7 @@ void CZDialog::slotExportToHTML() {
 	if(fileName.isEmpty())
 		return;
 
-	qDebug() << "Export to HTML as" << fileName;
+	CZLog(CZLogLevelMid, "Export to HTML as %s", fileName);
 
 	QFile file(fileName);
 	if(!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -739,8 +734,9 @@ void CZDialog::slotExportToHTML() {
 	out << "</td></tr>\n";
 	out <<	"<tr><th>" << tr("Warp Size") << "</th><td>" << info.core.SIMDWidth << "</td></tr>\n"
 		"<tr><th>" << tr("Regs Per Block") << "</th><td>" << info.core.regsPerBlock << "</td></tr>\n"
-		"<tr><th>" << tr("Threads Per Block") << "</th><td>" << info.core.maxThreadsPerBlock << "</td></tr>\n"
-		"<tr><th>" << tr("Threads Dimentions") << "</th><td>" << info.core.maxThreadsDim[0] << " x " << info.core.maxThreadsDim[1] << " x " << info.core.maxThreadsDim[2] << "</td></tr>\n"
+		"<tr><th>" << tr("Threads Per Block") << "</th><td>" << info.core.maxThreadsPerBlock << "</td></tr>\n";
+	out << "<tr><th>" << tr("Watchdog Enabled") << "</th><td>" << (info.core.watchdogEnabled? tr("Yes"): tr("No")) << "</td></tr>\n";
+	out << "<tr><th>" << tr("Threads Dimentions") << "</th><td>" << info.core.maxThreadsDim[0] << " x " << info.core.maxThreadsDim[1] << " x " << info.core.maxThreadsDim[2] << "</td></tr>\n"
 		"<tr><th>" << tr("Grid Dimentions") << "</th><td>" << info.core.maxGridSize[0] << " x " << info.core.maxGridSize[1] << " x " << info.core.maxGridSize[2] << "</td></tr>\n"
 		"</table>\n";
 
@@ -865,18 +861,18 @@ void CZDialog::slotGetHistoryDone(
 	bool error			/*!< HTTP operation error state. */
 ) {
 	if(error) {
-		qDebug() << "Get version request done with error" << http->error() << http->errorString();
+		CZLog(CZLogLevelWarning, "Get version request done with error %d: %s", http->error(), http->errorString());
 
 		labelAppUpdate->setText(tr("Can't load version information.\n") + http->errorString());
 	} else {
-		qDebug() << "Get version request done successfully";
+		CZLog(CZLogLevelMid, "Get version request done successfully");
 
 		QString history(http->readAll().data());
 		history.remove('\r');
 		QStringList historyStrings(history.split("\n"));
 
 		for(int i = 0; i < historyStrings.size(); i++) {
-			qDebug() << i << historyStrings[i];
+			CZLog(CZLogLevelLow, "%3d %s", i, historyStrings[i].toLocal8Bit().data());
 		}
 
 		QString lastVersion;
@@ -904,7 +900,7 @@ void CZDialog::slotGetHistoryDone(
 
 				version = historyStrings[i];
 				version.remove(0, nameVersion.size());
-				qDebug() << "Version found:" << version;
+				CZLog(CZLogLevelLow, "Version found: %s", version.toLocal8Bit().data());
 				notes = "";
 				url = "";
 				validVersion = false;
@@ -912,12 +908,12 @@ void CZDialog::slotGetHistoryDone(
 			if(historyStrings[i].left(nameNotes.size()) == nameNotes) {
 				notes = historyStrings[i];
 				notes.remove(0, nameNotes.size());
-				qDebug() << "Notes found:" << notes;
+				CZLog(CZLogLevelLow, "Notes found: %s", notes.toLocal8Bit().data());
 			}
 			if(historyStrings[i].left(nameDownload.size()) == nameDownload) {
 				url = historyStrings[i];
 				url.remove(0, nameDownload.size());
-				qDebug() << "Valid URL found:" << url;
+				CZLog(CZLogLevelLow, "Valid URL found:", url.toLocal8Bit().data());
 				validVersion = true;
 			}
 		}
@@ -928,27 +924,43 @@ void CZDialog::slotGetHistoryDone(
 			lastVersion = version;
 		}
 
-		qDebug() << "Last valid version:" << lastVersion << releaseNotes << downloadUrl;
+		CZLog(CZLogLevelMid, "Last valid version: %s\n%s\n%s",
+			lastVersion.toLocal8Bit().data(),
+			releaseNotes.toLocal8Bit().data(),
+			downloadUrl.toLocal8Bit().data());
 
-		bool haveNewer = false;
+		bool isNewest = true;
+		bool isNonReleased = false;
 
 		if(!lastVersion.isEmpty()) {
 
 			QStringList versionNumbers = lastVersion.split('.');
-			if(versionNumbers[0].toInt() < CZ_VER_MAJOR) {
-				haveNewer = false;
-			} else if((versionNumbers[0].toInt() == CZ_VER_MAJOR) && (versionNumbers[1].toInt() < CZ_VER_MINOR)) {
-				haveNewer = false;
+
+			#define GEN_VERSION(major, minor) ((major * 10000) + minor)
+			unsigned int myVersion = GEN_VERSION(CZ_VER_MAJOR, CZ_VER_MINOR);
+			unsigned int lastVersion = GEN_VERSION(versionNumbers[0].toInt(), versionNumbers[1].toInt());;
+
+			if(myVersion < lastVersion) {
+				isNewest = false;
+			} else if(myVersion == lastVersion) {
+				isNewest = true;
 #ifdef CZ_VER_BUILD
-			} else if((versionNumbers[0].toInt() == CZ_VER_MAJOR) && (versionNumbers[1].toInt() == CZ_VER_MINOR) && (versionNumbers.size() > 2) && (versionNumbers[2].toInt() == CZ_VER_BUILD)) {
-				haveNewer = false;
+				if(CZ_VER_BUILD < versionNumbers[2].toInt()) {
+					isNewest = false;
+				}
 #endif//CZ_VER_BUILD
-			} else {
-				haveNewer = true;
+			} else { // myVersion > lastVersion
+				isNonReleased = true;
 			}
 		}
 
-		if(haveNewer) {
+		if(isNewest) {
+			if(isNonReleased) {
+				labelAppUpdate->setText(tr("WARNING: You running prerelease version!"));
+			} else {
+				labelAppUpdate->setText(tr("No new version found."));
+			}
+		} else {
 			QString updateString = QString("%1 <b>%2</b>.")
 				.arg(tr("New version is available")).arg(lastVersion);
 			if(!downloadUrl.isEmpty()) {
@@ -966,8 +978,6 @@ void CZDialog::slotGetHistoryDone(
 					.arg(tr("Release notes"));
 			}
 			labelAppUpdate->setText(updateString);
-		} else {
-			labelAppUpdate->setText(tr("No new version found."));
 		}
 	}
 }
@@ -978,9 +988,9 @@ void CZDialog::slotGetHistoryDone(
 void CZDialog::slotGetHistoryStateChanged(
 	int state			/*!< Current state of HTTP link. */
 ) {
-	qDebug() << "Get version connection state changed to" << state;
+	CZLog(CZLogLevelLow, "Get version connection state changed to %d", state);
 
 	if(state == QHttp::Unconnected) {
-		qDebug() << "Disconnected!";
+		CZLog(CZLogLevelLow, "Disconnected!");
 	}
 }

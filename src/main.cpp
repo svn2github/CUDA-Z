@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QDebug>
 
+#include "log.h"
 #include "czdialog.h"
 #include "cudainfo.h"
 #include "version.h"
@@ -17,7 +18,7 @@
 */
 bool testCudaPresent() {
 	bool res = CZCudaCheck();
-	qDebug() << "CUDA Present:" << res;
+	CZLog(CZLogLevelHigh, "CUDA Present: %d", res);
 	return res;
 }
 
@@ -26,7 +27,7 @@ bool testCudaPresent() {
 */
 int getCudaDeviceNum() {
 	int res = CZCudaDeviceFound();
-	qDebug() << "CUDA Devices found:" << res;
+	CZLog(CZLogLevelHigh, "CUDA Devices found: %d", res);
 	return res;
 }
 
@@ -54,6 +55,8 @@ int main(
 ) {
 
 	QApplication app(argc, argv);
+
+	CZLog(CZLogLevelHigh, "CUDA-Z Started!");
 
 	QPixmap pixmap(":/img/splash.png");
 	splash = new CZSplashScreen(pixmap, 2);
@@ -93,4 +96,6 @@ int main(
 
 	delete splash;
 	return app.exec();
+
+	CZLog(CZLogLevelHigh, "CUDA-Z Stopped!");
 }
