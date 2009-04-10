@@ -197,7 +197,6 @@ int CZCudaReadDeviceInfo(
 	int num				/*!< Number (index) of CUDA-device. */
 ) {
 	cudaDeviceProp prop;
-	int overlap;
 
 	if(info == NULL)
 		return -1;
