@@ -557,8 +557,6 @@ int CZCudaCalcDeviceBandwidth(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
 
-//	printf("CZCudaCalcDeviceBandwidth called!\n");
-
 	if(info == NULL)
 		return -1;
 
@@ -968,8 +966,6 @@ static float CZCudaCalcDevicePerformanceTest(
 int CZCudaCalcDevicePerformance(
 	struct CZDeviceInfo *info	/*!< CUDA-device information. */
 ) {
-
-//	printf("CZCudaCalcDevicePerformance called!\n");
 
 	if(info == NULL)
 		return -1;

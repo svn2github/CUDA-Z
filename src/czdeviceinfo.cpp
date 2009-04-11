@@ -203,10 +203,14 @@ int CZCudaDeviceInfo::prepareDevice() {
 */
 int CZCudaDeviceInfo::updateInfo() {
 	int r;
-	r = CZCudaCalcDeviceBandwidth(&_info);
-	if(r == -1)
-		return r;
-	return CZCudaCalcDevicePerformance(&_info);
+	struct CZDeviceInfo info = _info;
+
+	r = CZCudaCalcDeviceBandwidth(&info);
+	if(r != -1)
+		r = CZCudaCalcDevicePerformance(&info);
+
+	_info = info;
+	return r;
 }
 
 /*!
