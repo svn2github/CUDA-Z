@@ -14,8 +14,8 @@
 */
 /*@{*/
 #define CZ_VER_MAJOR		0		/*!< Application major version number. */
-#define CZ_VER_MINOR		5		/*!< Application minor version number. */
-#define CZ_VER_STRING		"0.5"		/*!< Application version string. */
+#define CZ_VER_MINOR		6		/*!< Application minor version number. */
+#define CZ_VER_STRING		"0.6"		/*!< Application version string. */
 
 #define CZ_VER_STATE		"SVN"
 					 	/*!< Application release state. E.g.
