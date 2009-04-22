@@ -8,7 +8,7 @@
 
 czPkgHeader=pkg-linux.dat
 
-# Script $czPkgHeader expacts variables:
+# Script $czPkgHeader expects variables:
 # - czNameShort - short name of cuda-z
 # - czVersion - version of cuda-z
 # - czPackSuffix - packer suffix: "gz"
@@ -18,9 +18,9 @@ czPkgHeader=pkg-linux.dat
 # - czDllName - name of libcudart.so.*
 # - czDllSize - size of packed libcudart.so.*
 # - czDllSum - CRC of libcudart.so.*
-# Order of file in package: 1 - cuda-z.gz, 2 - libcudart.so.*
+# Order of files in package: 1 - cuda-z.gz, 2 - libcudart.so.*
 
-czPackSuffix=gz # Let's assume gzip is more common then bzip2...
+czPackSuffix=gz # Let's assume gzip is more common than bzip2...
 czExeName=cuda-z
 czExeDir=bin
 czDllName=libcudart.so.2 # Warning: check this with ldd!
