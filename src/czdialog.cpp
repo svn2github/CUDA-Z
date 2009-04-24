@@ -302,7 +302,12 @@ void CZDialog::slotUpdateTimer() {
 
 	int index = comboDevice->currentIndex();
 	if(checkUpdateResults->checkState() == Qt::Checked) {
-		CZLog(CZLogLevelMid, "Timer shot -> update performance for device %d", index);
+		if(checkHeavyMode->checkState() == Qt::Checked) {
+			deviceList[index]->info().heavyMode = 1;
+		} else {
+			deviceList[index]->info().heavyMode = 0;
+		}
+		CZLog(CZLogLevelMid, "Timer shot -> update performance for device %d in mode %d", index, deviceList[index]->info().heavyMode);
 		deviceList[index]->testPerformance(index);
 	} else {
 		CZLog(CZLogLevelMid, "Timer shot -> update ignored");
@@ -956,9 +961,9 @@ void CZDialog::slotGetHistoryDone(
 
 		if(isNewest) {
 			if(isNonReleased) {
-				labelAppUpdate->setText(tr("WARNING: You running prerelease version!"));
+				labelAppUpdate->setText(tr("WARNING: You are running prerelease version!"));
 			} else {
-				labelAppUpdate->setText(tr("No new version found."));
+				labelAppUpdate->setText(tr("No new version was found."));
 			}
 		} else {
 			QString updateString = QString("%1 <b>%2</b>.")

@@ -64,7 +64,8 @@ struct CZDeviceInfoPerf {
 	\brief Information about CUDA-device.
 */
 struct CZDeviceInfo {
-	int		num;			/*!< Device index */
+	int		num;			/*!< Device index. */
+	int		heavyMode;		/*!< Heavy test mode flag. */
 	char		deviceName[256];	/*!< ASCII string identifying the device. */
 	int		major;			/*!< Major revision numbers defining the device's compute capability. */
 	int		minor;			/*!< Minor revision numbers defining the device's compute capability. */

@@ -166,6 +166,7 @@ CZCudaDeviceInfo::CZCudaDeviceInfo(
 ) 	: QObject(parent) {
 	memset(&_info, 0, sizeof(_info));
 	_info.num = devNum;
+	_info.heavyMode = 0;
 	readInfo();
 	_thread = new CZUpdateThread(this, this);
 	connect(_thread, SIGNAL(testedPerformance(int)), this, SIGNAL(testedPerformance(int)));

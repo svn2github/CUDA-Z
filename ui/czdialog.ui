@@ -1,68 +1,69 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>CZDialog</class>
- <widget class="QDialog" name="CZDialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="CZDialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>342</width>
-    <height>341</height>
+    <height>356</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string/>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="../res/cuda-z.qrc" >
+  <property name="windowIcon">
+   <iconset resource="../res/cuda-z.qrc">
     <normaloff>:/img/icon.png</normaloff>:/img/icon.png</iconset>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" >
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTabWidget" name="tabInfo" >
-     <property name="currentIndex" >
+    <widget class="QTabWidget" name="tabInfo">
+     <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tabCore" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tabCore">
+      <attribute name="title">
        <string>Core</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="labelName" >
-         <property name="text" >
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelName">
+         <property name="text">
           <string>Name</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <widget class="QLabel" name="labelNameText" >
-         <property name="frameShape" >
+       <item row="0" column="1">
+        <widget class="QLabel" name="labelNameText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;name></string>
+         <property name="text">
+          <string>&lt;name&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item rowspan="7" row="0" column="2" >
-        <layout class="QVBoxLayout" name="verticalLayout_2" >
+       <item row="0" column="2" rowspan="7">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2" >
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
-            <spacer name="horizontalSpacer_2" >
-             <property name="orientation" >
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" stdset="0" >
+             <property name="sizeHint" stdset="0">
               <size>
                <width>40</width>
                <height>20</height>
@@ -71,26 +72,26 @@
             </spacer>
            </item>
            <item>
-            <widget class="QLabel" name="labelDeviceLogo" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <widget class="QLabel" name="labelDeviceLogo">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="frameShape" >
+             <property name="frameShape">
               <enum>QFrame::Panel</enum>
              </property>
-             <property name="frameShadow" >
+             <property name="frameShadow">
               <enum>QFrame::Sunken</enum>
              </property>
-             <property name="text" >
+             <property name="text">
               <string/>
              </property>
-             <property name="pixmap" >
-              <pixmap resource="../res/cuda-z.qrc" >:/img/logo-unknown.png</pixmap>
+             <property name="pixmap">
+              <pixmap resource="../res/cuda-z.qrc">:/img/logo-unknown.png</pixmap>
              </property>
-             <property name="alignment" >
+             <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
@@ -98,11 +99,11 @@
           </layout>
          </item>
          <item>
-          <spacer name="verticalSpacer" >
-           <property name="orientation" >
+          <spacer name="verticalSpacer">
+           <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" stdset="0" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>97</width>
              <height>88</height>
@@ -112,295 +113,295 @@
          </item>
         </layout>
        </item>
-       <item row="1" column="0" >
-        <widget class="QLabel" name="labelCapability" >
-         <property name="text" >
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelCapability">
+         <property name="text">
           <string>Compute Capability</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="1" column="1" >
-        <widget class="QLabel" name="labelCapabilityText" >
-         <property name="frameShape" >
+       <item row="1" column="1">
+        <widget class="QLabel" name="labelCapabilityText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;capability></string>
+         <property name="text">
+          <string>&lt;capability&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="labelClock" >
-         <property name="text" >
+       <item row="2" column="0">
+        <widget class="QLabel" name="labelClock">
+         <property name="text">
           <string>Clock Rate</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="2" column="1" >
-        <widget class="QLabel" name="labelClockText" >
-         <property name="frameShape" >
+       <item row="2" column="1">
+        <widget class="QLabel" name="labelClockText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;clock MHz></string>
+         <property name="text">
+          <string>&lt;clock MHz&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" >
-        <widget class="QLabel" name="labelMultiProc" >
-         <property name="text" >
+       <item row="3" column="0">
+        <widget class="QLabel" name="labelMultiProc">
+         <property name="text">
           <string>Multiprocessors</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="3" column="1" >
-        <widget class="QLabel" name="labelMultiProcText" >
-         <property name="frameShape" >
+       <item row="3" column="1">
+        <widget class="QLabel" name="labelMultiProcText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;procs></string>
+         <property name="text">
+          <string>&lt;procs&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0" >
-        <widget class="QLabel" name="labelWarp" >
-         <property name="text" >
+       <item row="4" column="0">
+        <widget class="QLabel" name="labelWarp">
+         <property name="text">
           <string>Warp Size</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="4" column="1" >
-        <widget class="QLabel" name="labelWarpText" >
-         <property name="frameShape" >
+       <item row="4" column="1">
+        <widget class="QLabel" name="labelWarpText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;size></string>
+         <property name="text">
+          <string>&lt;size&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" >
-        <widget class="QLabel" name="labelRegs" >
-         <property name="text" >
+       <item row="5" column="0">
+        <widget class="QLabel" name="labelRegs">
+         <property name="text">
           <string>Regs Per Block</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="5" column="1" >
-        <widget class="QLabel" name="labelRegsText" >
-         <property name="frameShape" >
+       <item row="5" column="1">
+        <widget class="QLabel" name="labelRegsText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;regs></string>
+         <property name="text">
+          <string>&lt;regs&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="0" >
-        <widget class="QLabel" name="labelThreads" >
-         <property name="text" >
+       <item row="6" column="0">
+        <widget class="QLabel" name="labelThreads">
+         <property name="text">
           <string>Threads Per Block</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="6" column="1" >
-        <widget class="QLabel" name="labelThreadsText" >
-         <property name="frameShape" >
+       <item row="6" column="1">
+        <widget class="QLabel" name="labelThreadsText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;threads></string>
+         <property name="text">
+          <string>&lt;threads&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="0" >
-        <widget class="QLabel" name="labelWatchdog" >
-         <property name="text" >
+       <item row="7" column="0">
+        <widget class="QLabel" name="labelWatchdog">
+         <property name="text">
           <string>Watchdog Enabled</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="7" column="1" >
-        <widget class="QLabel" name="labelWatchdogText" >
-         <property name="frameShape" >
+       <item row="7" column="1">
+        <widget class="QLabel" name="labelWatchdogText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;yes/no></string>
+         <property name="text">
+          <string>&lt;yes/no&gt;</string>
          </property>
         </widget>
        </item>
-       <item rowspan="3" row="8" column="1" colspan="2" >
-        <layout class="QGridLayout" name="gridLayout" >
-         <item row="0" column="0" >
-          <widget class="QLabel" name="labelDimX" >
-           <property name="text" >
+       <item row="8" column="1" rowspan="3" colspan="2">
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="labelDimX">
+           <property name="text">
             <string>X</string>
            </property>
-           <property name="alignment" >
+           <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
-         <item row="0" column="1" >
-          <widget class="QLabel" name="labelDimY" >
-           <property name="text" >
+         <item row="0" column="1">
+          <widget class="QLabel" name="labelDimY">
+           <property name="text">
             <string>Y</string>
            </property>
-           <property name="alignment" >
+           <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
-         <item row="0" column="2" >
-          <widget class="QLabel" name="labelDimZ" >
-           <property name="text" >
+         <item row="0" column="2">
+          <widget class="QLabel" name="labelDimZ">
+           <property name="text">
             <string>Z</string>
            </property>
-           <property name="alignment" >
+           <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
-         <item row="1" column="0" >
-          <widget class="QLabel" name="labelThreadsDimTextX" >
-           <property name="frameShape" >
+         <item row="1" column="0">
+          <widget class="QLabel" name="labelThreadsDimTextX">
+           <property name="frameShape">
             <enum>QFrame::Panel</enum>
            </property>
-           <property name="frameShadow" >
+           <property name="frameShadow">
             <enum>QFrame::Sunken</enum>
            </property>
-           <property name="text" >
-            <string>&lt;X></string>
+           <property name="text">
+            <string>&lt;X&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1" >
-          <widget class="QLabel" name="labelThreadsDimTextY" >
-           <property name="frameShape" >
+         <item row="1" column="1">
+          <widget class="QLabel" name="labelThreadsDimTextY">
+           <property name="frameShape">
             <enum>QFrame::Panel</enum>
            </property>
-           <property name="frameShadow" >
+           <property name="frameShadow">
             <enum>QFrame::Sunken</enum>
            </property>
-           <property name="text" >
-            <string>&lt;Y></string>
+           <property name="text">
+            <string>&lt;Y&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="2" >
-          <widget class="QLabel" name="labelThreadsDimTextZ" >
-           <property name="frameShape" >
+         <item row="1" column="2">
+          <widget class="QLabel" name="labelThreadsDimTextZ">
+           <property name="frameShape">
             <enum>QFrame::Panel</enum>
            </property>
-           <property name="frameShadow" >
+           <property name="frameShadow">
             <enum>QFrame::Sunken</enum>
            </property>
-           <property name="text" >
-            <string>&lt;Z></string>
+           <property name="text">
+            <string>&lt;Z&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0" >
-          <widget class="QLabel" name="labelGridDimTextX" >
-           <property name="frameShape" >
+         <item row="2" column="0">
+          <widget class="QLabel" name="labelGridDimTextX">
+           <property name="frameShape">
             <enum>QFrame::Panel</enum>
            </property>
-           <property name="frameShadow" >
+           <property name="frameShadow">
             <enum>QFrame::Sunken</enum>
            </property>
-           <property name="text" >
-            <string>&lt;X></string>
+           <property name="text">
+            <string>&lt;X&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1" >
-          <widget class="QLabel" name="labelGridDimTextY" >
-           <property name="frameShape" >
+         <item row="2" column="1">
+          <widget class="QLabel" name="labelGridDimTextY">
+           <property name="frameShape">
             <enum>QFrame::Panel</enum>
            </property>
-           <property name="frameShadow" >
+           <property name="frameShadow">
             <enum>QFrame::Sunken</enum>
            </property>
-           <property name="text" >
-            <string>&lt;Y></string>
+           <property name="text">
+            <string>&lt;Y&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="2" >
-          <widget class="QLabel" name="labelGridDimTextZ" >
-           <property name="frameShape" >
+         <item row="2" column="2">
+          <widget class="QLabel" name="labelGridDimTextZ">
+           <property name="frameShape">
             <enum>QFrame::Panel</enum>
            </property>
-           <property name="frameShadow" >
+           <property name="frameShadow">
             <enum>QFrame::Sunken</enum>
            </property>
-           <property name="text" >
-            <string>&lt;Z></string>
+           <property name="text">
+            <string>&lt;Z&gt;</string>
            </property>
           </widget>
          </item>
         </layout>
        </item>
-       <item row="10" column="0" >
-        <widget class="QLabel" name="labelGridDim" >
-         <property name="text" >
+       <item row="10" column="0">
+        <widget class="QLabel" name="labelGridDim">
+         <property name="text">
           <string>Grid Dimentions</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="11" column="1" >
-        <spacer name="verticalSpacer_2" >
-         <property name="orientation" >
+       <item row="11" column="1">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>163</height>
@@ -408,185 +409,185 @@
          </property>
         </spacer>
        </item>
-       <item row="9" column="0" >
-        <widget class="QLabel" name="labelThreadsDim" >
-         <property name="text" >
+       <item row="9" column="0">
+        <widget class="QLabel" name="labelThreadsDim">
+         <property name="text">
           <string>Threads Dimentions</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabMemory" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tabMemory">
+      <attribute name="title">
        <string>Memory</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_3" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="labelTotalGlobal" >
-         <property name="text" >
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelTotalGlobal">
+         <property name="text">
           <string>Total Global</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <widget class="QLabel" name="labelTotalGlobalText" >
-         <property name="frameShape" >
+       <item row="0" column="1">
+        <widget class="QLabel" name="labelTotalGlobalText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;size MB></string>
+         <property name="text">
+          <string>&lt;size MB&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" >
-        <widget class="QLabel" name="labelShared" >
-         <property name="text" >
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelShared">
+         <property name="text">
           <string>Shared Per Block</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="1" column="1" >
-        <widget class="QLabel" name="labelSharedText" >
-         <property name="frameShape" >
+       <item row="1" column="1">
+        <widget class="QLabel" name="labelSharedText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;size KB></string>
+         <property name="text">
+          <string>&lt;size KB&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="labelPitch" >
-         <property name="text" >
+       <item row="2" column="0">
+        <widget class="QLabel" name="labelPitch">
+         <property name="text">
           <string>Pitch</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="2" column="1" >
-        <widget class="QLabel" name="labelPitchText" >
-         <property name="frameShape" >
+       <item row="2" column="1">
+        <widget class="QLabel" name="labelPitchText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;size KB></string>
+         <property name="text">
+          <string>&lt;size KB&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" >
-        <widget class="QLabel" name="labelTotalConst" >
-         <property name="text" >
+       <item row="3" column="0">
+        <widget class="QLabel" name="labelTotalConst">
+         <property name="text">
           <string>Total Constant</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="3" column="1" >
-        <widget class="QLabel" name="labelTotalConstText" >
-         <property name="frameShape" >
+       <item row="3" column="1">
+        <widget class="QLabel" name="labelTotalConstText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;size KB></string>
+         <property name="text">
+          <string>&lt;size KB&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="4" column="0" >
-        <widget class="QLabel" name="labelTextureAlign" >
-         <property name="text" >
+       <item row="4" column="0">
+        <widget class="QLabel" name="labelTextureAlign">
+         <property name="text">
           <string>Texture Alignment</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="4" column="1" >
-        <widget class="QLabel" name="labelTextureAlignmentText" >
-         <property name="frameShape" >
+       <item row="4" column="1">
+        <widget class="QLabel" name="labelTextureAlignmentText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;size></string>
+         <property name="text">
+          <string>&lt;size&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" >
-        <widget class="QLabel" name="labelGpuOverlap" >
-         <property name="text" >
+       <item row="5" column="0">
+        <widget class="QLabel" name="labelGpuOverlap">
+         <property name="text">
           <string>GPU Overlap</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="5" column="1" >
-        <widget class="QLabel" name="labelGpuOverlapText" >
-         <property name="frameShape" >
+       <item row="5" column="1">
+        <widget class="QLabel" name="labelGpuOverlapText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;yes/no></string>
+         <property name="text">
+          <string>&lt;yes/no&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="7" column="0" colspan="2" >
-        <spacer name="verticalSpacer_3" >
-         <property name="orientation" >
+       <item row="7" column="0" colspan="2">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>132</width>
            <height>31</height>
@@ -596,271 +597,271 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabPerformance" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tabPerformance">
+      <attribute name="title">
        <string>Performance</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_4" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="labelMemRate" >
-         <property name="text" >
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelMemRate">
+         <property name="text">
           <string>Memory Copy</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <widget class="QLabel" name="labelRatePin" >
-         <property name="text" >
+       <item row="0" column="1">
+        <widget class="QLabel" name="labelRatePin">
+         <property name="text">
           <string>Pinned</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item row="0" column="2" >
-        <widget class="QLabel" name="labelRatePage" >
-         <property name="text" >
+       <item row="0" column="2">
+        <widget class="QLabel" name="labelRatePage">
+         <property name="text">
           <string>Pageable</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" >
-        <widget class="QLabel" name="labelHDRate" >
-         <property name="text" >
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelHDRate">
+         <property name="text">
           <string>Host to Device</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="1" column="1" >
-        <widget class="QLabel" name="labelHDRatePinText" >
-         <property name="frameShape" >
+       <item row="1" column="1">
+        <widget class="QLabel" name="labelHDRatePinText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;rate MB/s></string>
+         <property name="text">
+          <string>&lt;rate MB/s&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="1" column="2" >
-        <widget class="QLabel" name="labelHDRatePageText" >
-         <property name="frameShape" >
+       <item row="1" column="2">
+        <widget class="QLabel" name="labelHDRatePageText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;rate MB/s></string>
+         <property name="text">
+          <string>&lt;rate MB/s&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="labelDHRate" >
-         <property name="text" >
+       <item row="2" column="0">
+        <widget class="QLabel" name="labelDHRate">
+         <property name="text">
           <string>Device to Host</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="2" column="1" >
-        <widget class="QLabel" name="labelDHRatePinText" >
-         <property name="frameShape" >
+       <item row="2" column="1">
+        <widget class="QLabel" name="labelDHRatePinText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;rate MB/s></string>
+         <property name="text">
+          <string>&lt;rate MB/s&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="2" column="2" >
-        <widget class="QLabel" name="labelDHRatePageText" >
-         <property name="frameShape" >
+       <item row="2" column="2">
+        <widget class="QLabel" name="labelDHRatePageText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;rate MB/s></string>
+         <property name="text">
+          <string>&lt;rate MB/s&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" >
-        <widget class="QLabel" name="labelDDRate" >
-         <property name="text" >
+       <item row="3" column="0">
+        <widget class="QLabel" name="labelDDRate">
+         <property name="text">
           <string>Device to Device</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="3" column="1" colspan="2" >
-        <widget class="QLabel" name="labelDDRateText" >
-         <property name="frameShape" >
+       <item row="3" column="1" colspan="2">
+        <widget class="QLabel" name="labelDDRateText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;rate MB/s></string>
+         <property name="text">
+          <string>&lt;rate MB/s&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="4" column="0" >
-        <widget class="QLabel" name="labelCalcRate" >
-         <property name="text" >
+       <item row="4" column="0">
+        <widget class="QLabel" name="labelCalcRate">
+         <property name="text">
           <string>GPU Core Performance</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" >
-        <widget class="QLabel" name="labelFloatRate" >
-         <property name="text" >
+       <item row="5" column="0">
+        <widget class="QLabel" name="labelFloatRate">
+         <property name="text">
           <string>Single-precision Float</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="5" column="1" colspan="2" >
-        <widget class="QLabel" name="labelFloatRateText" >
-         <property name="frameShape" >
+       <item row="5" column="1" colspan="2">
+        <widget class="QLabel" name="labelFloatRateText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;rate Mflop/s></string>
+         <property name="text">
+          <string>&lt;rate Mflop/s&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="6" column="0" >
-        <widget class="QLabel" name="labelDoubleRate" >
-         <property name="text" >
+       <item row="6" column="0">
+        <widget class="QLabel" name="labelDoubleRate">
+         <property name="text">
           <string>Double-precision Float</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="6" column="1" colspan="2" >
-        <widget class="QLabel" name="labelDoubleRateText" >
-         <property name="frameShape" >
+       <item row="6" column="1" colspan="2">
+        <widget class="QLabel" name="labelDoubleRateText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;rate Mflop/s></string>
+         <property name="text">
+          <string>&lt;rate Mflop/s&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="7" column="0" >
-        <widget class="QLabel" name="labelInt32Rate" >
-         <property name="text" >
+       <item row="7" column="0">
+        <widget class="QLabel" name="labelInt32Rate">
+         <property name="text">
           <string>32-bit Integer</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="7" column="1" colspan="2" >
-        <widget class="QLabel" name="labelInt32RateText" >
-         <property name="frameShape" >
+       <item row="7" column="1" colspan="2">
+        <widget class="QLabel" name="labelInt32RateText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;rate Miop/s></string>
+         <property name="text">
+          <string>&lt;rate Miop/s&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="8" column="0" >
-        <widget class="QLabel" name="labelInt24Rate" >
-         <property name="text" >
+       <item row="8" column="0">
+        <widget class="QLabel" name="labelInt24Rate">
+         <property name="text">
           <string>24-bit Integer</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="8" column="1" colspan="2" >
-        <widget class="QLabel" name="labelInt24RateText" >
-         <property name="frameShape" >
+       <item row="8" column="1" colspan="2">
+        <widget class="QLabel" name="labelInt24RateText">
+         <property name="frameShape">
           <enum>QFrame::Panel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
-          <string>&lt;rate Miop/s></string>
+         <property name="text">
+          <string>&lt;rate Miop/s&gt;</string>
          </property>
-         <property name="textInteractionFlags" >
+         <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="9" column="0" colspan="3" >
-        <spacer name="verticalSpacer_6" >
-         <property name="orientation" >
+       <item row="9" column="0" colspan="3">
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>273</width>
            <height>110</height>
@@ -868,24 +869,38 @@
          </property>
         </spacer>
        </item>
-       <item row="10" column="0" colspan="3" >
-        <layout class="QHBoxLayout" name="horizontalLayout_4" >
+       <item row="10" column="0" colspan="3">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QCheckBox" name="checkUpdateResults" >
-           <property name="text" >
-            <string>Update Results in Background</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
-          </widget>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QCheckBox" name="checkUpdateResults">
+             <property name="text">
+              <string>&amp;Update Results in Background</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkHeavyMode">
+             <property name="text">
+              <string>&amp;Heavy Load Test Mode</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
-          <spacer name="horizontalSpacer_4" >
-           <property name="orientation" >
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeHint" stdset="0" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>17</width>
              <height>20</height>
@@ -894,11 +909,11 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushExport" >
-           <property name="text" >
-            <string>&amp;Export >></string>
+          <widget class="QPushButton" name="pushExport">
+           <property name="text">
+            <string>&amp;Export &gt;&gt;</string>
            </property>
-           <property name="autoDefault" >
+           <property name="autoDefault">
             <bool>false</bool>
            </property>
           </widget>
@@ -907,81 +922,81 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabAbout" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tabAbout">
+      <attribute name="title">
        <string>About</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_3" >
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QLabel" name="labelAppLogo" >
-         <property name="text" >
+        <widget class="QLabel" name="labelAppLogo">
+         <property name="text">
           <string/>
          </property>
-         <property name="pixmap" >
-          <pixmap resource="../res/cuda-z.qrc" >:/img/logo.png</pixmap>
+         <property name="pixmap">
+          <pixmap resource="../res/cuda-z.qrc">:/img/logo.png</pixmap>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="labelAppName" >
-         <property name="text" >
-          <string>&lt;name></string>
+        <widget class="QLabel" name="labelAppName">
+         <property name="text">
+          <string>&lt;name&gt;</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="labelAppVersion" >
-         <property name="text" >
-          <string>&lt;version></string>
+        <widget class="QLabel" name="labelAppVersion">
+         <property name="text">
+          <string>&lt;version&gt;</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="labelAppURL" >
-         <property name="text" >
-          <string>&lt;urls></string>
+        <widget class="QLabel" name="labelAppURL">
+         <property name="text">
+          <string>&lt;urls&gt;</string>
          </property>
-         <property name="openExternalLinks" >
+         <property name="openExternalLinks">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="labelAppAuthor" >
-         <property name="text" >
-          <string>&lt;author></string>
+        <widget class="QLabel" name="labelAppAuthor">
+         <property name="text">
+          <string>&lt;author&gt;</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="labelAppCopy" >
-         <property name="text" >
-          <string>&lt;copyrights></string>
+        <widget class="QLabel" name="labelAppCopy">
+         <property name="text">
+          <string>&lt;copyrights&gt;</string>
          </property>
-         <property name="wordWrap" >
+         <property name="wordWrap">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="labelAppUpdate" >
-         <property name="text" >
-          <string>&lt;update></string>
+        <widget class="QLabel" name="labelAppUpdate">
+         <property name="text">
+          <string>&lt;update&gt;</string>
          </property>
-         <property name="wordWrap" >
+         <property name="wordWrap">
           <bool>true</bool>
          </property>
-         <property name="openExternalLinks" >
+         <property name="openExternalLinks">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_4" >
-         <property name="orientation" >
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>77</height>
@@ -994,10 +1009,10 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" >
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QComboBox" name="comboDevice" >
-       <property name="minimumSize" >
+      <widget class="QComboBox" name="comboDevice">
+       <property name="minimumSize">
         <size>
          <width>200</width>
          <height>0</height>
@@ -1006,11 +1021,11 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer" >
-       <property name="orientation" >
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -1019,11 +1034,11 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushOk" >
-       <property name="text" >
+      <widget class="QPushButton" name="pushOk">
+       <property name="text">
         <string>&amp;OK</string>
        </property>
-       <property name="default" >
+       <property name="default">
         <bool>true</bool>
        </property>
       </widget>
@@ -1037,13 +1052,8 @@
   <tabstop>pushOk</tabstop>
  </tabstops>
  <resources>
-  <include location="../res/cuda-z.qrc" />
-  <include location="../res/cuda-z.qrc" />
-  <include location="../res/cuda-z.qrc" />
-  <include location="../res/cuda-z.qrc" />
-  <include location="../res/cuda-z.qrc" />
-  <include location="../res/cuda-z.qrc" />
-  <include location="../res/cuda-z.qrc" />
+  <include location="../res/cuda-z.qrc"/>
+  <include location="../res/cuda-z.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -1052,13 +1062,29 @@
    <receiver>CZDialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
-     <x>326</x>
-     <y>384</y>
+    <hint type="sourcelabel">
+     <x>331</x>
+     <y>345</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>247</x>
      <y>378</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkUpdateResults</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkHeavyMode</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>105</x>
+     <y>265</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>289</y>
     </hint>
    </hints>
   </connection>

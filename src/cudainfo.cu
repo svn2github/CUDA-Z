@@ -854,6 +854,7 @@ static float CZCudaCalcDevicePerformanceTest(
 	float performanceKOPs = 0.0;
 	cudaEvent_t start;
 	cudaEvent_t stop;
+	int blocksNum = info->heavyMode? info->core.muliProcCount: 1;
 	int i;
 
 	if(info == NULL)
@@ -878,12 +879,13 @@ static float CZCudaCalcDevicePerformanceTest(
 			threadsNum = CZ_DEF_THREADS_MAX;
 	}
 
-	CZLog(CZLogLevelLow, "Starting %s test on %s (%d loops).",
+	CZLog(CZLogLevelLow, "Starting %s test on %s on %d block(s) %d thread(s) each.",
 		(mode == CZ_CALC_MODE_FLOAT)? "single-precision float":
 		(mode == CZ_CALC_MODE_DOUBLE)? "double-precision float":
 		(mode == CZ_CALC_MODE_INTEGER32)? "32-bit integer":
 		(mode == CZ_CALC_MODE_INTEGER24)? "24-bit integer": "unknown",
 		info->deviceName,
+		blocksNum,
 		threadsNum);
 
 	for(i = 0; i < CZ_CALC_LOOPS_NUM; i++) {
@@ -897,19 +899,19 @@ static float CZCudaCalcDevicePerformanceTest(
 
 		switch(mode) {
 		case CZ_CALC_MODE_FLOAT:
-			CZCudaCalcKernelFloat<<<1, threadsNum>>>(lData->memDevice1);
+			CZCudaCalcKernelFloat<<<blocksNum, threadsNum>>>(lData->memDevice1);
 			break;
 
 		case CZ_CALC_MODE_DOUBLE:
-			CZCudaCalcKernelDouble<<<1, threadsNum>>>((double*)lData->memDevice1);
+			CZCudaCalcKernelDouble<<<blocksNum, threadsNum>>>((double*)lData->memDevice1);
 			break;
 
 		case CZ_CALC_MODE_INTEGER32:
-			CZCudaCalcKernelInteger32<<<1, threadsNum>>>(lData->memDevice1);
+			CZCudaCalcKernelInteger32<<<blocksNum, threadsNum>>>(lData->memDevice1);
 			break;
 
 		case CZ_CALC_MODE_INTEGER24:
-			CZCudaCalcKernelInteger24<<<1, threadsNum>>>(lData->memDevice1);
+			CZCudaCalcKernelInteger24<<<blocksNum, threadsNum>>>(lData->memDevice1);
 			break;
 
 		default: // WTF!
