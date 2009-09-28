@@ -59,7 +59,7 @@ CZUpdateThread::~CZUpdateThread() {
 void CZUpdateThread::testPerformance(
 	int index			/*!< Index of device in list. */
 ) {
-	CZLog(CZLogLevelMid, "Rising update action for device %d", index);
+	CZLog(CZLogLevelModerate, "Rising update action for device %d", index);
 
 	mutex.lock();
 	this->index = index;
@@ -82,7 +82,7 @@ void CZUpdateThread::waitPerformance() {
 
 	testPerformance(-1);
 
-	CZLog(CZLogLevelMid, "Waiting for results...");
+	CZLog(CZLogLevelModerate, "Waiting for results...");
 
 	mutex.lock();
 	CZLog(CZLogLevelLow, "Waiting for beginnig of test...");
@@ -93,7 +93,7 @@ void CZUpdateThread::waitPerformance() {
 		testFinish.wait(&mutex);
 	mutex.unlock();
 
-	CZLog(CZLogLevelMid, "Got results!");
+	CZLog(CZLogLevelModerate, "Got results!");
 }
 
 /*!

@@ -21,13 +21,13 @@ typedef enum {
 	CZLogLevelError = -2,		/*!< Error. */
 	CZLogLevelWarning = -1,		/*!< Warning. */
 	CZLogLevelHigh = 0,		/*!< Important information. */
-	CZLogLevelMid = 1,		/*!< Moderate information. */
+	CZLogLevelModerate = 1,		/*!< Moderate information. */
 	CZLogLevelLow = 2,		/*!< Not important information. */
 } CZLogLevel;
 
 void CZLog(CZLogLevel level, char *fmt, ...)
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
-    __attribute__ ((format (printf, 2, 3)))
+	__attribute__ ((format (printf, 2, 3)))
 #endif
 ;
 

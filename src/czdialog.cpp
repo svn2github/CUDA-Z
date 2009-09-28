@@ -278,7 +278,7 @@ void CZDialog::slotShowDevice(
 ) {
 	setupDeviceInfo(index);
 	if(checkUpdateResults->checkState() == Qt::Checked) {
-		CZLog(CZLogLevelMid, "Switch device -> update performance for device %d", index);
+		CZLog(CZLogLevelModerate, "Switch device -> update performance for device %d", index);
 		deviceList[index]->testPerformance(index);
 	}
 }
@@ -307,10 +307,10 @@ void CZDialog::slotUpdateTimer() {
 		} else {
 			deviceList[index]->info().heavyMode = 0;
 		}
-		CZLog(CZLogLevelMid, "Timer shot -> update performance for device %d in mode %d", index, deviceList[index]->info().heavyMode);
+		CZLog(CZLogLevelModerate, "Timer shot -> update performance for device %d in mode %d", index, deviceList[index]->info().heavyMode);
 		deviceList[index]->testPerformance(index);
 	} else {
-		CZLog(CZLogLevelMid, "Timer shot -> update ignored");
+		CZLog(CZLogLevelModerate, "Timer shot -> update ignored");
 	}
 }
 
@@ -542,7 +542,7 @@ void CZDialog::slotExportToText() {
 	if(fileName.isEmpty())
 		return;
 
-	CZLog(CZLogLevelMid, "Export to text as %s", fileName);
+	CZLog(CZLogLevelModerate, "Export to text as %s", fileName);
 
 	QFile file(fileName);
 	if(!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -680,7 +680,7 @@ void CZDialog::slotExportToHTML() {
 	if(fileName.isEmpty())
 		return;
 
-	CZLog(CZLogLevelMid, "Export to HTML as %s", fileName);
+	CZLog(CZLogLevelModerate, "Export to HTML as %s", fileName);
 
 	QFile file(fileName);
 	if(!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -870,7 +870,7 @@ void CZDialog::slotGetHistoryDone(
 
 		labelAppUpdate->setText(tr("Can't load version information.\n") + http->errorString());
 	} else {
-		CZLog(CZLogLevelMid, "Get version request done successfully");
+		CZLog(CZLogLevelModerate, "Get version request done successfully");
 
 		QString history(http->readAll().data());
 		history.remove('\r');
@@ -918,7 +918,7 @@ void CZDialog::slotGetHistoryDone(
 			if(historyStrings[i].left(nameDownload.size()) == nameDownload) {
 				url = historyStrings[i];
 				url.remove(0, nameDownload.size());
-				CZLog(CZLogLevelLow, "Valid URL found:", url.toLocal8Bit().data());
+				CZLog(CZLogLevelLow, "Valid URL found: %s", url.toLocal8Bit().data());
 				validVersion = true;
 			}
 		}
@@ -929,7 +929,7 @@ void CZDialog::slotGetHistoryDone(
 			lastVersion = version;
 		}
 
-		CZLog(CZLogLevelMid, "Last valid version: %s\n%s\n%s",
+		CZLog(CZLogLevelModerate, "Last valid version: %s\n%s\n%s",
 			lastVersion.toLocal8Bit().data(),
 			releaseNotes.toLocal8Bit().data(),
 			downloadUrl.toLocal8Bit().data());

@@ -4,8 +4,7 @@
 	\author AG
 */
 
-//#include <QDebug>
-#include <QByteArray>
+#include <QString>
 
 #include <stdarg.h>
 
@@ -21,20 +20,19 @@ void CZLog(
 	char *fmt,					/*!< printf()-like format string. */
 	...							/*!< Additional arguments for printout. */
 ) {
-    char buf[CZ_LOG_BUFFER_LENGTH];
-    buf[CZ_LOG_BUFFER_LENGTH - 1] = '\0';
+	QString buf;
 
 #ifdef QT_NO_DEBUG
-	if(level > CZLogLevelHigh) {
+	if(level <= CZLogLevelHigh) {
 		return;
 	}
 #endif
 
 	va_list ap;
-    va_start(ap, fmt);
-    if(fmt)
-        qvsnprintf(buf, CZ_LOG_BUFFER_LENGTH - 1, fmt, ap);
-    va_end(ap);
+	va_start(ap, fmt);
+	if(fmt)
+		buf.vsprintf(fmt, ap);
+	va_end(ap);
 
 	QtMsgType type;
 	switch(level) {
@@ -52,5 +50,5 @@ void CZLog(
 		break;
 	}
 
-	qt_message_output(type, buf);
+	qt_message_output(type, buf.toLocal8Bit().constData());
 }
