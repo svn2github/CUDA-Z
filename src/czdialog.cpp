@@ -542,7 +542,7 @@ void CZDialog::slotExportToText() {
 	if(fileName.isEmpty())
 		return;
 
-	CZLog(CZLogLevelModerate, "Export to text as %s", fileName);
+	CZLog(CZLogLevelModerate, "Export to text as %s", fileName.toLocal8Bit().data());
 
 	QFile file(fileName);
 	if(!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -680,7 +680,7 @@ void CZDialog::slotExportToHTML() {
 	if(fileName.isEmpty())
 		return;
 
-	CZLog(CZLogLevelModerate, "Export to HTML as %s", fileName);
+	CZLog(CZLogLevelModerate, "Export to HTML as %s", fileName.toLocal8Bit().data());
 
 	QFile file(fileName);
 	if(!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -866,7 +866,7 @@ void CZDialog::slotGetHistoryDone(
 	bool error			/*!< HTTP operation error state. */
 ) {
 	if(error) {
-		CZLog(CZLogLevelWarning, "Get version request done with error %d: %s", http->error(), http->errorString());
+		CZLog(CZLogLevelWarning, "Get version request done with error %d: %s", http->error(), http->errorString().toLocal8Bit().data());
 
 		labelAppUpdate->setText(tr("Can't load version information.\n") + http->errorString());
 	} else {
