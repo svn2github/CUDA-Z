@@ -29,11 +29,11 @@ struct CZDeviceInfoCore {
 	\brief Information about CUDA-device memory.
 */
 struct CZDeviceInfoMem {
-	int		totalGlobal;		/*!< Total amount of global memory available on the device in bytes. */
-	int		sharedPerBlock;		/*!< Total amount of shared memory available per block in bytes. */
-	int		maxPitch;		/*!< Maximum pitch allowed by the memory copy functions that involve memory region allocated through cudaMallocPitch()/cuMemAllocPitch() */
-	int		totalConst;		/*!< Total amount of constant memory available on the device in bytes. */
-	int		textureAlignment;	/*!< Texture base addresses that are aligned to textureAlignment bytes do not need an offset applied to texture fetches. */
+	size_t		totalGlobal;		/*!< Total amount of global memory available on the device in bytes. */
+	size_t		sharedPerBlock;		/*!< Total amount of shared memory available per block in bytes. */
+	size_t		maxPitch;		/*!< Maximum pitch allowed by the memory copy functions that involve memory region allocated through cudaMallocPitch()/cuMemAllocPitch() */
+	size_t		totalConst;		/*!< Total amount of constant memory available on the device in bytes. */
+	size_t		textureAlignment;	/*!< Texture base addresses that are aligned to textureAlignment bytes do not need an offset applied to texture fetches. */
 	int		gpuOverlap;		/*!< 1 if the device can concurrently copy memory between host and device while executing a kernel, or 0 if not. */
 };
 

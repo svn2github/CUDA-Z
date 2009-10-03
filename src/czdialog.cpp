@@ -380,7 +380,8 @@ void CZDialog::setupMemoryTab(
 		.arg((double)info.mem.maxPitch / 1024).arg(tr("KB")));
 	labelTotalConstText->setText(QString("%1 %2")
 		.arg((double)info.mem.totalConst / 1024).arg(tr("KB")));
-	labelTextureAlignmentText->setNum(info.mem.textureAlignment);
+	labelTextureAlignmentText->setText(QString("%1 %2")
+		.arg((double)info.mem.textureAlignment).arg(tr("B")));
 	labelGpuOverlapText->setText(info.mem.gpuOverlap? tr("Yes"): tr("No"));
 }
 
@@ -598,7 +599,7 @@ void CZDialog::slotExportToText() {
 	out << "\t" << QString("%1: %2 %3").arg(tr("Shared Per Block")).arg((double)info.mem.sharedPerBlock / 1024).arg(tr("KB")) << endl;
 	out << "\t" << QString("%1: %2 %3").arg(tr("Pitch")).arg((double)info.mem.maxPitch / 1024).arg(tr("KB")) << endl;
 	out << "\t" << QString("%1: %2 %3").arg(tr("Total Constant")).arg((double)info.mem.totalConst / 1024).arg(tr("KB")) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Texture Alignment")).arg(info.mem.textureAlignment) << endl;
+	out << "\t" << QString("%1: %2 %3").arg(tr("Texture Alignment")).arg((double)info.mem.textureAlignment).arg(tr("B")) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("GPU Overlap")).arg(info.mem.gpuOverlap? tr("Yes"): tr("No")) << endl;
 	out << endl;
 
@@ -751,7 +752,7 @@ void CZDialog::slotExportToHTML() {
 		"<tr><th>" << tr("Shared Per Block") << "</th><td>" << (double)info.mem.sharedPerBlock / 1024 << " " << tr("KB") << "</td></tr>\n"
 		"<tr><th>" << tr("Pitch") << "</th><td>" << (double)info.mem.maxPitch / 1024 << " " << tr("KB") << "</td></tr>\n"
 		"<tr><th>" << tr("Total Constant") << "</th><td>" << (double)info.mem.totalConst / 1024 << " " << tr("KB") << "</td></tr>\n"
-		"<tr><th>" << tr("Texture Alignment") << "</th><td>" << info.mem.textureAlignment << "</td></tr>\n"
+		"<tr><th>" << tr("Texture Alignment") << "</th><td>" << (double)info.mem.textureAlignment << " " << tr("B") << "</td></tr>\n"
 		"<tr><th>" << tr("GPU Overlap") << "</th><td>" << (info.mem.gpuOverlap? tr("Yes"): tr("No")) << "</td></tr>\n"
 		"</table>\n";
 
