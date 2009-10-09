@@ -361,6 +361,9 @@ void CZDialog::setupCoreTab(
 	if(deviceName.contains("quadro", Qt::CaseInsensitive)) {
 		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-quadro.png"));
 	} else
+	if(deviceName.contains("ion", Qt::CaseInsensitive)) {
+		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-ion.png"));
+	} else
 	if(deviceName.contains("geforce", Qt::CaseInsensitive)) {
 		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-geforce.png"));
 	}
