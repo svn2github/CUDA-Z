@@ -8,5 +8,10 @@
 		<file>img/logo-tesla.png</file>
 		<file>img/logo-ion.png</file>
 		<file>img/logo-unknown.png</file>
+		<file>img/upd-download.png</file>
+		<file>img/upd-download-critical.png</file>
+		<file>img/upd-error.png</file>
+		<file>img/upd-info.png</file>
+		<file>img/upd-warning.png</file>
 	</qresource>
 </RCC>

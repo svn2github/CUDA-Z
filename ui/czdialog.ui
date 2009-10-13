@@ -979,17 +979,37 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="labelAppUpdate">
-         <property name="text">
-          <string>&lt;update&gt;</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-         <property name="openExternalLinks">
-          <bool>true</bool>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="labelAppUpdateImg">
+           <property name="maximumSize">
+            <size>
+             <width>16</width>
+             <height>16</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="pixmap">
+            <pixmap resource="../res/cuda-z.qrc">:/img/upd-info.png</pixmap>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelAppUpdate">
+           <property name="text">
+            <string>&lt;update&gt;</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+           <property name="openExternalLinks">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <spacer name="verticalSpacer_4">
@@ -1052,7 +1072,6 @@
   <tabstop>pushOk</tabstop>
  </tabstops>
  <resources>
-  <include location="../res/cuda-z.qrc"/>
   <include location="../res/cuda-z.qrc"/>
  </resources>
  <connections>

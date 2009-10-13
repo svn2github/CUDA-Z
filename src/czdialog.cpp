@@ -32,6 +32,17 @@
 #endif
 
 /*!
+	\name Update progress icons definitions.
+*/
+/*@{*/
+#define CZ_UPD_ICON_INFO	":/img/upd-info.png"
+#define CZ_UPD_ICON_WARNING	":/img/upd-warning.png"
+#define CZ_UPD_ICON_ERROR	":/img/upd-error.png"
+#define CZ_UPD_ICON_DOWNLOAD	":/img/upd-download.png"
+#define CZ_UPD_ICON_DOWNLOAD_CR	":/img/upd-download-critical.png"
+/*@}*/
+
+/*!
 	\class CZSplashScreen
 	\brief Splash screen with multiline logging effect.
 */
@@ -193,6 +204,7 @@ CZDialog::CZDialog(
 	connect(updateTimer, SIGNAL(timeout()), SLOT(slotUpdateTimer()));
 	updateTimer->start(CZ_TIMER_REFRESH);
 
+	labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_INFO));
 	labelAppUpdate->setText(tr("Looking for new version..."));
 	startGetHistoryHttp();
 }
@@ -869,10 +881,20 @@ void CZDialog::cleanGetHistoryHttp() {
 void CZDialog::slotGetHistoryDone(
 	bool error			/*!< HTTP operation error state. */
 ) {
-	if(error) {
-		CZLog(CZLogLevelWarning, "Get version request done with error %d: %s", http->error(), http->errorString().toLocal8Bit().data());
+	if(error || (!http->lastResponse().isValid()) || (http->lastResponse().statusCode() != 200)) {
 
-		labelAppUpdate->setText(tr("Can't load version information.\n") + http->errorString());
+		QString errorString;
+
+		if(error || (!http->lastResponse().isValid())) {
+			errorString = http->errorString();
+		} else {
+			errorString = QString("%1 %2.").arg(tr("Error")).arg(http->lastResponse().statusCode());
+		}
+
+		CZLog(CZLogLevelWarning, "Get version request done with error: %s", errorString.toLocal8Bit().data());
+
+		labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_ERROR));
+		labelAppUpdate->setText(tr("Can't load version information. ") + errorString);
 	} else {
 		CZLog(CZLogLevelModerate, "Get version request done successfully");
 
@@ -891,10 +913,12 @@ void CZDialog::slotGetHistoryDone(
 		bool validVersion = false;
 		QString version;
 		QString notes;
+		bool criticalVersion = false;
 		QString url;
 
 		QString nameVersion("version ");
 		QString nameNotes("release-notes ");
+		QString nameCritical("release-critical");
 		QString nameDownload = QString("download-") + CZ_OS_PLATFORM_STR + " ";
 
 		for(int i = 0; i < historyStrings.size(); i++) {
@@ -912,6 +936,7 @@ void CZDialog::slotGetHistoryDone(
 				CZLog(CZLogLevelLow, "Version found: %s", version.toLocal8Bit().data());
 				notes = "";
 				url = "";
+				criticalVersion = 0;
 				validVersion = false;
 			}
 			if(historyStrings[i].left(nameNotes.size()) == nameNotes) {
@@ -924,6 +949,10 @@ void CZDialog::slotGetHistoryDone(
 				url.remove(0, nameDownload.size());
 				CZLog(CZLogLevelLow, "Valid URL found: %s", url.toLocal8Bit().data());
 				validVersion = true;
+			}
+			if(historyStrings[i].left(nameCritical.size()) == nameCritical) {
+				criticalVersion = 1;
+				CZLog(CZLogLevelLow, "Version is critical!");
 			}
 		}
 
@@ -965,19 +994,21 @@ void CZDialog::slotGetHistoryDone(
 
 		if(isNewest) {
 			if(isNonReleased) {
-				labelAppUpdate->setText(tr("WARNING: You are running prerelease version!"));
+				labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_WARNING));
+				labelAppUpdate->setText(tr("WARNING: You are running non-released version!"));
 			} else {
+				labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_INFO));
 				labelAppUpdate->setText(tr("No new version was found."));
 			}
 		} else {
-			QString updateString = QString("%1 <b>%2</b>.")
+			QString updateString = QString("%1 <b>%2</b>!")
 				.arg(tr("New version is available")).arg(lastVersion);
 			if(!downloadUrl.isEmpty()) {
-				updateString += QString("<br><a href=\"%1\">%2</a>")
+				updateString += QString(" <a href=\"%1\">%2</a>")
 					.arg(downloadUrl)
 					.arg(tr("Download"));
 			} else {
-				updateString += QString("<br><a href=\"%1\">%2</a>")
+				updateString += QString(" <a href=\"%1\">%2</a>")
 					.arg(CZ_ORG_URL_MAINPAGE)
 					.arg(tr("Main page"));
 			}
@@ -986,6 +1017,7 @@ void CZDialog::slotGetHistoryDone(
 					.arg(releaseNotes)
 					.arg(tr("Release notes"));
 			}
+			labelAppUpdateImg->setPixmap(QPixmap(criticalVersion? CZ_UPD_ICON_DOWNLOAD_CR :CZ_UPD_ICON_DOWNLOAD));
 			labelAppUpdate->setText(updateString);
 		}
 	}
