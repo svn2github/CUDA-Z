@@ -28,6 +28,21 @@ bool testCudaPresent() {
 int getCudaDeviceNum() {
 	int res = CZCudaDeviceFound();
 	CZLog(CZLogLevelHigh, "CUDA Devices found: %d", res);
+
+	if(res == 1) { // Check for emulator device
+		struct CZDeviceInfo info;
+
+		if(CZCudaReadDeviceInfo(&info, 0) == -1) {
+			CZLog(CZLogLevelHigh, "CUDA Devices error: Can't get device info!");
+			return 0;
+		}
+
+		if(info.deviceName[0] == 0) {
+			CZLog(CZLogLevelHigh, "CUDA Devices error: Emilator detected!");
+			return 0;
+		}
+	}
+
 	return res;
 }
 
