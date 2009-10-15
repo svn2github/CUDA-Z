@@ -38,7 +38,7 @@ int getCudaDeviceNum() {
 		}
 
 		if(info.deviceName[0] == 0) {
-			CZLog(CZLogLevelHigh, "CUDA Devices error: Emilator detected!");
+			CZLog(CZLogLevelHigh, "CUDA Devices error: Emulator detected!");
 			return 0;
 		}
 	}
