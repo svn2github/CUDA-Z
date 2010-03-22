@@ -7,8 +7,6 @@
 #ifndef CZ_LOG_H
 #define CZ_LOG_H
 
-#include <qglobal.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

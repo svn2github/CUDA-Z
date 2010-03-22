@@ -12,9 +12,16 @@
 #error CUDA 1.1 is not supported any more! Please use CUDA Toolkit 2.0+ instead.
 #endif
 
-#include <qglobal.h>
 #include "log.h"
 #include "cudainfo.h"
+
+#if (defined(WIN64) || defined(_WIN64) || defined(__WIN64__)) || (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__))
+#define Q_OS_WIN
+#elif defined(__linux__) || defined(__linux)
+#define Q_OS_LINUX
+#else
+#error Unknown/unsupported platform!
+#endif
 
 #define CZ_COPY_BUF_SIZE	(16 * (1 << 20))	/*!< Transfer buffer size. */
 #define CZ_COPY_LOOPS_NUM	8			/*!< Number of loops to run transfer test to. */

@@ -42,19 +42,14 @@ Section "-Go"
 	CreateDirectory $OUTDIR
 	SetOutPath $OUTDIR
 	File /oname=cuda-z.exe bin\cuda-z.exe
-	File /oname=cudart.dll bin\cudart.dll
-#	SearchPath $1 nvcuda.dll
-#	IfFileExists $1 +2 0
-#	File /oname=nvcuda.dll bin\nvcuda.dll
+	File /oname=cudart32_30_14.dll bin\cudart32_30_14.dll
 
 	ExecWait '"$OUTDIR\cuda-z.exe"'
 
 	Delete $OUTDIR\cuda-z.exe
 	IfFileExists $OUTDIR\cuda-z.exe -1 0
 	Delete $OUTDIR\cudart.dll
-	IfFileExists $OUTDIR\cudart.dll -1 0
-#	Delete $OUTDIR\nvcuda.dll
-#	IfFileExists $OUTDIR\nvcuda.dll -1 0
+	IfFileExists $OUTDIR\cudart32_30_14.dll -1 0
 	SetOutPath $TEMP
 	RMDir $OUTDIR
 SectionEnd

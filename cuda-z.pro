@@ -24,9 +24,14 @@ win32:RC_FILE += res/cuda-z.rc
 CUSOURCES = src/cudainfo.cu
 
 CUFLAGS = \
-	-gencode arch=compute_10,code=compute_10 \
-	-gencode arch=compute_11,code=compute_11 \
-	-gencode arch=compute_13,code=compute_13
+	-gencode=arch=compute_10,code=sm_10 \
+	-gencode=arch=compute_10,code=compute_10 \
+	-gencode=arch=compute_11,code=sm_11 \
+	-gencode=arch=compute_11,code=compute_11 \
+	-gencode=arch=compute_13,code=sm_13 \
+	-gencode=arch=compute_13,code=compute_13 \
+	-gencode=arch=compute_20,code=sm_20 \
+	-gencode=arch=compute_20,code=compute_20 \
 
 unix:LIBS += -lcudart
 win32:LIBS += \
@@ -110,9 +115,12 @@ unix:QMAKE_CUC = nvcc
 	QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS_RTTI_ON $$QMAKE_CXXFLAGS_WARN_ON $$QMAKE_CXXFLAGS_STL_ON
 #	message(QMAKE_CUFLAGS: $$QMAKE_CUFLAGS)
 
-	QMAKE_CUEXTRAFLAGS += -Xcompiler $$join(QMAKE_CUFLAGS, ",") $$CUFLAGS
+#	QMAKE_CUEXTRAFLAGS += -Xcompiler $$join(QMAKE_CUFLAGS, ",") $$CUFLAGS
+#	QMAKE_CUEXTRAFLAGS += -Xcompiler \"$$QMAKE_CUFLAGS\" $$CUFLAGS
+	QMAKE_CUEXTRAFLAGS += $$CUFLAGS
 	QMAKE_CUEXTRAFLAGS += $(DEFINES) $(INCPATH) $$join(QMAKE_COMPILER_DEFINES, " -D", -D)
 	QMAKE_CUEXTRAFLAGS += -c
+#	QMAKE_CUEXTRAFLAGS += -v
 #	QMAKE_CUEXTRAFLAGS += -keep
 #	QMAKE_CUEXTRAFLAGS += -clean
 	QMAKE_EXTRA_VARIABLES += QMAKE_CUEXTRAFLAGS
