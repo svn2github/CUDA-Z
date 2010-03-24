@@ -1,8 +1,12 @@
 !system "sh ./make_build_svn.sh | sed -e $\"s,endif//,endif \;,$\" | tr \# ! > build.nsi"
 !system "cat src/version.h | sed -e $\"s,\$\"build.h\$\",build.nsi,$\" -e $\"s,endif//,endif \;,$\" -e $\"s,^//,\;,$\" | tr \# ! > version.nsi"
+#!system "cd tmp\cert && signfile.bat ..\..\bin\cuda-z.exe"
 !include version.nsi
 !delfile build.nsi
 !delfile version.nsi
+
+!define CZ_CUDART_DLL cudart32_30_14.dll
+!define CZ_CUDAZ_EXE cuda-z.exe
 
 !ifndef CZ_VER_BUILD
 !define CZ_VER_BUILD "0"
@@ -41,15 +45,15 @@ Section "-Go"
 	Delete $OUTDIR
 	CreateDirectory $OUTDIR
 	SetOutPath $OUTDIR
-	File /oname=cuda-z.exe bin\cuda-z.exe
-	File /oname=cudart32_30_14.dll bin\cudart32_30_14.dll
+	File /oname=$CZ_CUDAZ_EXE bin\$CZ_CUDAZ_EXE
+	File /oname=$CZ_CUDART_DLL bin\$CZ_CUDART_DLL
 
-	ExecWait '"$OUTDIR\cuda-z.exe"'
+	ExecWait '"$OUTDIR\$CZ_CUDAZ_EXE"'
 
-	Delete $OUTDIR\cuda-z.exe
-	IfFileExists $OUTDIR\cuda-z.exe -1 0
-	Delete $OUTDIR\cudart.dll
-	IfFileExists $OUTDIR\cudart32_30_14.dll -1 0
+	Delete $OUTDIR\$CZ_CUDAZ_EXE
+	IfFileExists $OUTDIR\$CZ_CUDAZ_EXE -1 0
+	Delete $OUTDIR\$CZ_CUDART_DLL
+	IfFileExists $OUTDIR\$CZ_CUDART_DLL -1 0
 	SetOutPath $TEMP
 	RMDir $OUTDIR
 SectionEnd
