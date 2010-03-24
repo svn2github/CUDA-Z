@@ -32,11 +32,15 @@ CUFLAGS = \
 	-gencode=arch=compute_13,code=compute_13 \
 	-gencode=arch=compute_20,code=sm_20 \
 	-gencode=arch=compute_20,code=compute_20 \
+	-Xcompiler "-nologo"
 
 unix:LIBS += -lcudart
 win32:LIBS += \
 	$(CUDA_LIB_PATH)\cuda.lib \
-	$(CUDA_LIB_PATH)\cudart.lib
+	$(CUDA_LIB_PATH)\cudart.lib \
+	Version.lib \
+	Kernel32.lib \
+	Psapi.lib
 
 BUILD_H = src/build.h
 QMAKE_EXTRA_VARIABLES += BUILD_H

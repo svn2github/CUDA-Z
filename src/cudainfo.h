@@ -12,6 +12,16 @@ extern "C" {
 #endif
 
 /*!
+	\brief Device compute mode.
+*/
+enum CZComputeMode {
+	CZComputeModeUnknown = -1,		/*!< Unknown compute mode. */
+	CZComputeModeDefault = 0,		/*!< Default compute mode. */
+	CZComputeModeExclusive,			/*!< Compute-exclusive mode. */
+	CZComputeModeProhibited,		/*!< Compute-prohibited mode. */
+};
+
+/*!
 	\brief Information about CUDA-device core.
 */
 struct CZDeviceInfoCore {
@@ -23,6 +33,9 @@ struct CZDeviceInfoCore {
 	int		clockRate;		/*!< Clock frequency in kilohertz. */
 	int		muliProcCount;		/*!< Number of mutiprocessors in GPU. */
 	int		watchdogEnabled;	/*!< Has run time limit for kernels executed. */
+	int		integratedGpu;		/*!< 1 if the device is an integrated GPU and 0 if it is a discrete component. */
+	int		concurrentKernels;	/*!< 1 if the device supports executing multiple kernels within the same context simultaneously. */
+	int		computeMode;		/*!< Current compute mode. See enum #CZComputeMode. */
 };
 
 /*!
@@ -34,7 +47,12 @@ struct CZDeviceInfoMem {
 	size_t		maxPitch;		/*!< Maximum pitch allowed by the memory copy functions that involve memory region allocated through cudaMallocPitch()/cuMemAllocPitch() */
 	size_t		totalConst;		/*!< Total amount of constant memory available on the device in bytes. */
 	size_t		textureAlignment;	/*!< Texture base addresses that are aligned to textureAlignment bytes do not need an offset applied to texture fetches. */
+	size_t		texture1D[1];		/*!< 1D texture size. */
+	size_t		texture2D[2];		/*!< 2D texture size. */
+	size_t		texture3D[3];		/*!< 3D texture size. */
 	int		gpuOverlap;		/*!< 1 if the device can concurrently copy memory between host and device while executing a kernel, or 0 if not. */
+	int		mapHostMemory;		/*!< 1 if device can map host memory. */
+	int		errorCorrection;	/*!< 1 if error correction is enabled on the device. */
 };
 
 /*!
@@ -69,6 +87,10 @@ struct CZDeviceInfo {
 	char		deviceName[256];	/*!< ASCII string identifying the device. */
 	int		major;			/*!< Major revision numbers defining the device's compute capability. */
 	int		minor;			/*!< Minor revision numbers defining the device's compute capability. */
+	int		drvVersion;		/*!< Driver version. */
+	char		*drvVersionStr;		/*!< Driver version string. */
+	int		rtVersion;		/*!< Runtime version. */
+	char		*rtVersionStr;		/*!< Runtime version string. */
 	struct CZDeviceInfoCore	core;
 	struct CZDeviceInfoMem	mem;
 	struct CZDeviceInfoBand	band;

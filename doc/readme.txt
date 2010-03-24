@@ -72,7 +72,7 @@ In Windows you need:
                    -no-phonon -no-webkit -no-style-plastique
                    -no-style-cleanlooks -no-style-motif -no-style-cde
 3. CUDA driver and CUDA toolkit installed on your computer.
-   http://www.nvidia.com/object/cuda_get.html (v. 2.0+)
+   http://www.nvidia.com/object/cuda_get.html (v. 3.0+)
    After generation of EXE file, it still needs cudart.dll... :-(
    TODO: Rid of CUDA Runtime library and use driver API instead.
 

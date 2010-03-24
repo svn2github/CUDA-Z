@@ -8,8 +8,8 @@
 #include <cuda_runtime.h>
 #include <string.h>
 
-#if CUDA_VERSION < 2000
-#error CUDA 1.1 is not supported any more! Please use CUDA Toolkit 2.0+ instead.
+#if CUDA_VERSION < 3000
+#error CUDA 1.x and 2.x are not supported any more! Please use CUDA Toolkit 3.0+ instead.
 #endif
 
 #include "log.h"
@@ -34,6 +34,8 @@
 
 #define CZ_DEF_WARP_SIZE	32			/*!< Default warp size value. */
 #define CZ_DEF_THREADS_MAX	512			/*!< Default max threads value value. */
+
+#define CZ_VER_STR_LEN		256			/*!< Version string length. */
 
 /*!
 	\brief Error handling of CUDA RT calls.
@@ -69,21 +71,103 @@ static cuDeviceGetAttribute_t p_cuDeviceGetAttribute = NULL;
 */
 static cuInit_t p_cuInit = NULL;
 
+/*!
+	\brief Driver version.
+*/
+static int drvVersion = 0;
+
+/*!
+	\brief Driver version string.
+*/
+static char drvVersionStr[CZ_VER_STR_LEN] = "";
+
+/*!
+	\brief Runtime version.
+*/
+static int rtVersion = 0;
+
+/*!
+	\brief Runtime version string.
+*/
+static char rtVersionStr[CZ_VER_STR_LEN] = "";
+
 #ifdef Q_OS_WIN
 //#include <windows.h>
+#define CZ_DLL_LIST_LEN		64			/*!< Process dll list length. */
+#define CZ_DLL_BNAME_LEN	64			/*!< Dll base name length. */
+#define CZ_DLL_FNAME_LEN	256			/*!< Dll file name length. */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 #define WINAPI __stdcall
+typedef void *HANDLE;
+typedef void *HMODULE;
 typedef void *HINSTANCE;
 typedef HINSTANCE HMODULE;
 typedef const char *LPCSTR;
+typedef char *LPSTR;
+typedef short DWORD, *LPDWORD;
+typedef unsigned int UINT, *PUINT;
+typedef void *LPVOID;
+typedef const void *LPCVOID;
+typedef bool BOOL;
 typedef int (WINAPI *FARPROC)();
-__out_opt HMODULE WINAPI LoadLibraryA(__in LPCSTR lpLibFileName);
+HMODULE WINAPI LoadLibraryA(__in LPCSTR lpLibFileName);
 FARPROC WINAPI GetProcAddress(__in HMODULE hModule, __in LPCSTR lpProcName);
+DWORD WINAPI GetFileVersionInfoSizeA(LPCSTR lptstrFilename, LPDWORD lpdwHandle);
+BOOL WINAPI GetFileVersionInfoA(LPCSTR lptstrFilename, DWORD dwHandle, DWORD dwLen, LPVOID lpData);
+BOOL WINAPI VerQueryValueA(LPCVOID pBlock, LPCSTR lpSubBlock, LPVOID *lplpBuffer, PUINT puLen);
+HANDLE WINAPI GetCurrentProcess(void);
+BOOL WINAPI EnumProcessModules(HANDLE hProcess, HMODULE *lphModule, DWORD cb, LPDWORD lpcbNeeded);
+DWORD WINAPI GetModuleBaseNameA(HANDLE hProcess, HMODULE hModule, LPSTR lpBaseName, DWORD nSize);
+DWORD WINAPI GetModuleFileNameA(HMODULE hModule, LPSTR lpFilename, DWORD nSize);
 #ifdef __cplusplus
 }
 #endif
+
+/*!
+	\brief Get version of dll library.
+*/
+static char *CZGetDllVersion(
+	char *name,			/*!<[in] Name of dll file. */
+	char *version			/*!<[out] Dll version buffer. */
+) {
+
+	DWORD dwVerInfoSize;
+	DWORD dwVerHnd = 0;
+	LPSTR lpstrVffInfo;
+	LPSTR lpVersion = NULL;
+	UINT uVersionLen = 0;
+
+	dwVerInfoSize = GetFileVersionInfoSizeA(name, &dwVerHnd);
+	if(!dwVerInfoSize) {
+		return NULL;
+	}
+
+	lpstrVffInfo = (LPSTR)malloc(dwVerInfoSize);
+	if(lpstrVffInfo == NULL) {
+		return NULL;
+	}
+
+	if(!GetFileVersionInfoA(name, dwVerHnd, dwVerInfoSize, lpstrVffInfo)) {
+		free(lpstrVffInfo);
+		return NULL;
+	}
+
+	if(!VerQueryValueA(lpstrVffInfo, (LPSTR)"\\StringFileInfo\\040904E4\\FileVersion", 
+		(LPVOID*)&lpVersion, (UINT*)&uVersionLen)) {
+		free(lpstrVffInfo);
+		return NULL;
+	}
+
+	strncpy(version, lpVersion, CZ_VER_STR_LEN - 1);
+
+	CZLog(CZLogLevelLow, "Version of %s is %s.", name, version);
+
+	free(lpstrVffInfo);
+	return version;
+}
 
 /*!
 	\brief Check if CUDA fully initialized.
@@ -94,6 +178,8 @@ FARPROC WINAPI GetProcAddress(__in HMODULE hModule, __in LPCSTR lpProcName);
 static bool CZCudaIsInit(void) {
 
 	HINSTANCE hDll;
+	HMODULE hModule[CZ_DLL_LIST_LEN];
+	DWORD cbRet = 0;
 
 	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
 
@@ -110,6 +196,25 @@ static bool CZCudaIsInit(void) {
 		p_cuInit = (cuInit_t)GetProcAddress(hDll, "cuInit");
 		if(p_cuInit == NULL) {
 			return false;
+		}
+
+		CZGetDllVersion("nvcuda.dll", drvVersionStr);
+
+		if(EnumProcessModules(GetCurrentProcess(), hModule, sizeof(hModule), &cbRet) == true) {
+			UINT i;
+			char bname[CZ_DLL_BNAME_LEN];
+			char fname[CZ_DLL_FNAME_LEN];
+			for(i = 0; i < (cbRet / sizeof(HMODULE)); i++) {
+				bname[0] = 0;
+				fname[0] = 0;
+				GetModuleBaseNameA(GetCurrentProcess(), hModule[i], bname, CZ_DLL_BNAME_LEN - 1);
+				strlwr(bname);
+				if(strstr(bname, "cudart") != NULL) {
+					GetModuleFileNameA(hModule[i], fname, CZ_DLL_FNAME_LEN - 1);
+					CZGetDllVersion(fname, rtVersionStr);
+					break;
+				}
+			}
 		}
 	}
 
@@ -178,6 +283,12 @@ bool CZCudaCheck(void) {
 		return false;
 	}
 
+	CZ_CUDA_CALL(cudaDriverGetVersion(&drvVersion),
+		drvVersion = 0);
+
+	CZ_CUDA_CALL(cudaRuntimeGetVersion(&rtVersion),
+		rtVersion = 0);
+
 	return true;
 }
 
@@ -204,6 +315,7 @@ int CZCudaReadDeviceInfo(
 	int num				/*!< Number (index) of CUDA-device. */
 ) {
 	cudaDeviceProp prop;
+	int ecc;
 
 	if(info == NULL)
 		return -1;
@@ -221,6 +333,10 @@ int CZCudaReadDeviceInfo(
 	strcpy(info->deviceName, prop.name);
 	info->major = prop.major;
 	info->minor = prop.minor;
+	info->drvVersion = drvVersion;
+	info->drvVersionStr = drvVersionStr;
+	info->rtVersion = rtVersion;
+	info->rtVersionStr = rtVersionStr;
 
 	info->core.regsPerBlock = prop.regsPerBlock;
 	info->core.SIMDWidth = prop.warpSize;
@@ -234,13 +350,31 @@ int CZCudaReadDeviceInfo(
 	info->core.clockRate = prop.clockRate;
 	info->core.muliProcCount = prop.multiProcessorCount;
 	info->core.watchdogEnabled = prop.kernelExecTimeoutEnabled;
+	info->core.integratedGpu = prop.integrated;
+	info->core.concurrentKernels = prop.concurrentKernels;
+	info->core.computeMode =
+		(prop.computeMode == cudaComputeModeDefault)? CZComputeModeDefault:
+		(prop.computeMode == cudaComputeModeExclusive)? CZComputeModeExclusive:
+		(prop.computeMode == cudaComputeModeProhibited)? CZComputeModeProhibited:
+		CZComputeModeUnknown;
 
 	info->mem.totalGlobal = prop.totalGlobalMem;
 	info->mem.sharedPerBlock = prop.sharedMemPerBlock;
 	info->mem.maxPitch = prop.memPitch;
 	info->mem.totalConst = prop.totalConstMem;
 	info->mem.textureAlignment = prop.textureAlignment;
+	info->mem.texture1D[0] = prop.maxTexture1D;
+	info->mem.texture2D[0] = prop.maxTexture2D[0];
+	info->mem.texture2D[1] = prop.maxTexture2D[1];
+	info->mem.texture3D[0] = prop.maxTexture3D[0];
+	info->mem.texture3D[1] = prop.maxTexture3D[1];
+	info->mem.texture3D[2] = prop.maxTexture3D[2];
 	info->mem.gpuOverlap = prop.deviceOverlap;
+	info->mem.mapHostMemory = prop.canMapHostMemory;
+
+	if(p_cuDeviceGetAttribute(&ecc, CU_DEVICE_ATTRIBUTE_ECC_ENABLED, num) != CUDA_SUCCESS)
+		return -1;
+	info->mem.errorCorrection = ecc;
 
 	return 0;
 }
