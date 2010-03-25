@@ -23,12 +23,23 @@ czPkgHeader=pkg-linux.dat
 czPackSuffix=gz # Let's assume gzip is more common than bzip2...
 czExeName=cuda-z
 czExeDir=bin
-czDllName=libcudart.so.2 # Warning: check this with ldd!
-czDllDir=/usr/local/cuda/lib
+czDllName= #libcudart.so.3 # Warning: check this with ldd!
+czDllDir= #/usr/local/cuda/lib
 
 czVerFile=src/version.h
 czBldFile=src/build.h
 
+if test -z "$czDllName" -o -z "$czDllDir"; then
+	czDll=`ldd bin/cuda-z | grep -i cudart | sed -e "s/^.*=> *//" -e "s/ *(.*$//"`
+	if test -f "$czDll"; then
+		czDllName=`basename $czDll`
+		czDllDir=`dirname $czDll`
+	else
+		echo "Can't find CUDART library!"; exit 1
+	fi
+fi
+
+strip $czExeDir/$czExeName
 czExeSum=`md5sum $czExeDir/$czExeName | sed -e "s/ .*$//"`
 if test -z "$czExeSum"; then
 	echo "Can't get md5 sum of $czExeDir/$czExeName!"; exit 1

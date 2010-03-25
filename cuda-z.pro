@@ -32,7 +32,8 @@ CUFLAGS = \
 	-gencode=arch=compute_13,code=compute_13 \
 	-gencode=arch=compute_20,code=sm_20 \
 	-gencode=arch=compute_20,code=compute_20 \
-	-Xcompiler "-nologo"
+
+#	-Xcompiler "-nologo"
 
 unix:LIBS += -lcudart
 win32:LIBS += \

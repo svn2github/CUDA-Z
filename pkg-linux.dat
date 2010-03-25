@@ -11,7 +11,7 @@ esac
 tmpDir=/tmp
 randID=`head -c8 /dev/random | od -x | head -n1 | sed -e "s/^[0-9]* //g" | tr " " -`
 outDir=$tmpDir/$czNameShort-$randID
-mkdir $outDir
+mkdir $outDir; sync; sleep 1
 if test $? != 0; then echo "Cannot create temp directory."; exit 1; fi
 case "$czPackSuffix" in
 gz) czUnPack="gzip -dc" ;;
