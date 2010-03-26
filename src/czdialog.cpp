@@ -389,25 +389,32 @@ void CZDialog::setupCoreTab(
 	}
 
 	QString version;
-	if(info.drvVersion == 0) {
-		version = "<i>" + tr("Unknown") + "</i>";
+	if(strlen(info.drvVersion) != 0) {
+		version = " (" + QString(info.drvVersion) + ")";
 	} else {
-		version = QString("%1").arg(info.drvVersion);
+		version = "<i>" + tr("Unknown") + "</i>";
 	}
-	if(strlen(info.drvVersionStr) != 0) {
-		version += " (" + QString(info.drvVersionStr) + ")";
-	}
-	labelDrvVersionText->setText(version);
+	labelDrvVersionText->setText(info.drvVersion);
 
-	if(info.rtVersion == 0) {
+	if(info.drvDllVer == 0) {
 		version = "<i>" + tr("Unknown") + "</i>";
 	} else {
-		version = QString("%1").arg(info.rtVersion);
+		version = QString("%1").arg(info.drvDllVer);
 	}
-	if(strlen(info.rtVersionStr) != 0) {
-		version += " (" + QString(info.rtVersionStr) + ")";
+	if(strlen(info.drvDllVerStr) != 0) {
+		version += " (" + QString(info.drvDllVerStr) + ")";
 	}
-	labelRtVersionText->setText(version);
+	labelDrvDllVersionText->setText(version);
+
+	if(info.rtDllVer == 0) {
+		version = "<i>" + tr("Unknown") + "</i>";
+	} else {
+		version = QString("%1").arg(info.rtDllVer);
+	}
+	if(strlen(info.rtDllVerStr) != 0) {
+		version += " (" + QString(info.rtDllVerStr) + ")";
+	}
+	labelRtDllVersionText->setText(version);
 }
 
 /*!
@@ -624,25 +631,32 @@ void CZDialog::slotExportToText() {
 	out << QString("%1: %2").arg(tr("OS Version")).arg(getOSVersion()) << endl;
 
 	QString version;
-	if(info.drvVersion == 0) {
+	if(info.drvDllVer == 0) {
 		version = tr("Unknown");
 	} else {
 		version = QString("%1").arg(info.drvVersion);
 	}
-	if(strlen(info.drvVersionStr) != 0) {
-		version += " (" + QString(info.drvVersionStr) + ")";
-	}
 	out << QString("%1: %2").arg(tr("Driver Version")).arg(version) << endl;
 
-	if(info.rtVersion == 0) {
+	if(info.drvDllVer == 0) {
 		version = tr("Unknown");
 	} else {
-		version = QString("%1").arg(info.rtVersion);
+		version = QString("%1").arg(info.drvDllVer);
 	}
-	if(strlen(info.rtVersionStr) != 0) {
-		version += " (" + QString(info.rtVersionStr) + ")";
+	if(strlen(info.drvDllVerStr) != 0) {
+		version += " (" + QString(info.drvDllVerStr) + ")";
 	}
-	out << QString("%1: %2").arg(tr("Runtime Version")).arg(version) << endl;
+	out << QString("%1: %2").arg(tr("Driver Dll Version")).arg(version) << endl;
+
+	if(info.rtDllVer == 0) {
+		version = tr("Unknown");
+	} else {
+		version = QString("%1").arg(info.rtDllVer);
+	}
+	if(strlen(info.rtDllVerStr) != 0) {
+		version += " (" + QString(info.rtDllVerStr) + ")";
+	}
+	out << QString("%1: %2").arg(tr("Runtime Dll Version")).arg(version) << endl;
 	out << endl;
 
 	subtitle = tr("Core Information");
@@ -815,25 +829,32 @@ void CZDialog::slotExportToHTML() {
 	out <<	tr("<b>%1:</b> %2<br/>").arg(tr("OS Version")).arg(getOSVersion());
 
 	QString version;
-	if(info.drvVersion == 0) {
+	if(info.drvDllVer == 0) {
 		version = "<i>" + tr("Unknown") + "</i>";
 	} else {
 		version = QString("%1").arg(info.drvVersion);
 	}
-	if(strlen(info.drvVersionStr) != 0) {
-		version += " (" + QString(info.drvVersionStr) + ")";
-	}
 	out <<	QString("<b>%1</b>: %2<br/>").arg(tr("Driver Version")).arg(version) << endl;
 
-	if(info.rtVersion == 0) {
+	if(info.drvDllVer == 0) {
 		version = "<i>" + tr("Unknown") + "</i>";
 	} else {
-		version = QString("%1").arg(info.rtVersion);
+		version = QString("%1").arg(info.drvDllVer);
 	}
-	if(strlen(info.rtVersionStr) != 0) {
-		version += " (" + QString(info.rtVersionStr) + ")";
+	if(strlen(info.drvDllVerStr) != 0) {
+		version += " (" + QString(info.drvDllVerStr) + ")";
 	}
-	out <<	QString("<b>%1</b>: %2<br/>").arg(tr("Runtime Version")).arg(version) << endl;
+	out <<	QString("<b>%1</b>: %2<br/>").arg(tr("Driver Dll Version")).arg(version) << endl;
+
+	if(info.rtDllVer == 0) {
+		version = "<i>" + tr("Unknown") + "</i>";
+	} else {
+		version = QString("%1").arg(info.rtDllVer);
+	}
+	if(strlen(info.rtDllVerStr) != 0) {
+		version += " (" + QString(info.rtDllVerStr) + ")";
+	}
+	out <<	QString("<b>%1</b>: %2<br/>").arg(tr("Runtime Dll Version")).arg(version) << endl;
 	out <<	"</small></p>\n";
 
 	out << 	"<h2>" << tr("Core Information") << "</h2>\n"
@@ -866,7 +887,7 @@ void CZDialog::slotExportToHTML() {
 		"<table border=\"1\">\n"
 		"<tr><th>" << tr("Total Global") << "</th><td>" << (double)info.mem.totalGlobal / (1024 * 1024) << " " << tr("MB") << "</td></tr>\n"
 		"<tr><th>" << tr("Shared Per Block") << "</th><td>" << (double)info.mem.sharedPerBlock / 1024 << " " << tr("KB") << "</td></tr>\n"
-		"<tr><th>" << tr("Pitch") << "</th><td>" << (double)info.mem.maxPitch / 1024 << " " << tr("KB") << "</td></tr>\n"
+		"<tr><th>" << tr("Pitch") << "</th><td>" << (double)info.mem.maxPitch / (1024 * 1024) << " " << tr("MB") << "</td></tr>\n"
 		"<tr><th>" << tr("Total Constant") << "</th><td>" << (double)info.mem.totalConst / 1024 << " " << tr("KB") << "</td></tr>\n"
 		"<tr><th>" << tr("Texture Alignment") << "</th><td>" << (double)info.mem.textureAlignment << " " << tr("B") << "</td></tr>\n"
 		"<tr><th>" << tr("Texture 1D Size") << "</th><td>" << info.mem.texture1D[0] << "</td></tr>\n"

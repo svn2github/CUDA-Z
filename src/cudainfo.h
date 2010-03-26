@@ -87,10 +87,11 @@ struct CZDeviceInfo {
 	char		deviceName[256];	/*!< ASCII string identifying the device. */
 	int		major;			/*!< Major revision numbers defining the device's compute capability. */
 	int		minor;			/*!< Minor revision numbers defining the device's compute capability. */
-	int		drvVersion;		/*!< Driver version. */
-	char		*drvVersionStr;		/*!< Driver version string. */
-	int		rtVersion;		/*!< Runtime version. */
-	char		*rtVersionStr;		/*!< Runtime version string. */
+	char		*drvVersion;		/*!< Driver version string. */
+	int		drvDllVer;		/*!< Driver Dll version. */
+	char		*drvDllVerStr;		/*!< Driver Dll version string. */
+	int		rtDllVer;		/*!< Runtime Dll version. */
+	char		*rtDllVerStr;		/*!< Runtime Dll version string. */
 	struct CZDeviceInfoCore	core;
 	struct CZDeviceInfoMem	mem;
 	struct CZDeviceInfoBand	band;

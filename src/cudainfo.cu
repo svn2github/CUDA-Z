@@ -72,24 +72,29 @@ static cuDeviceGetAttribute_t p_cuDeviceGetAttribute = NULL;
 static cuInit_t p_cuInit = NULL;
 
 /*!
-	\brief Driver version.
-*/
-static int drvVersion = 0;
-
-/*!
 	\brief Driver version string.
 */
-static char drvVersionStr[CZ_VER_STR_LEN] = "";
+static char drvVersion[CZ_VER_STR_LEN] = "";
 
 /*!
-	\brief Runtime version.
+	\brief Driver dll version.
 */
-static int rtVersion = 0;
+static int drvDllVer = 0;
 
 /*!
-	\brief Runtime version string.
+	\brief Driver dll version string.
 */
-static char rtVersionStr[CZ_VER_STR_LEN] = "";
+static char drvDllVerStr[CZ_VER_STR_LEN] = "";
+
+/*!
+	\brief Runtime dll version.
+*/
+static int rtDllVer = 0;
+
+/*!
+	\brief Runtime dll version string.
+*/
+static char rtDllVerStr[CZ_VER_STR_LEN] = "";
 
 #ifdef Q_OS_WIN
 //#include <windows.h>
@@ -133,7 +138,6 @@ static char *CZGetDllVersion(
 	char *name,			/*!<[in] Name of dll file. */
 	char *version			/*!<[out] Dll version buffer. */
 ) {
-
 	DWORD dwVerInfoSize;
 	DWORD dwVerHnd = 0;
 	LPSTR lpstrVffInfo;
@@ -155,7 +159,7 @@ static char *CZGetDllVersion(
 		return NULL;
 	}
 
-	if(!VerQueryValueA(lpstrVffInfo, (LPSTR)"\\StringFileInfo\\040904E4\\FileVersion", 
+	if(!VerQueryValueA(lpstrVffInfo, (LPSTR)"\\StringFileInfo\\040904E4\\FileVersion",
 		(LPVOID*)&lpVersion, (UINT*)&uVersionLen)) {
 		free(lpstrVffInfo);
 		return NULL;
@@ -170,6 +174,48 @@ static char *CZGetDllVersion(
 }
 
 /*!
+	\brief Get description of dll library.
+*/
+static char *CZGetDllDescription(
+	char *name,			/*!<[in] Name of dll file. */
+	char *description		/*!<[out] Dll description buffer. */
+) {
+	DWORD dwVerInfoSize;
+	DWORD dwVerHnd = 0;
+	LPSTR lpstrVffInfo;
+	LPSTR lpDescription = NULL;
+	UINT uDescriptionLen = 0;
+
+	dwVerInfoSize = GetFileVersionInfoSizeA(name, &dwVerHnd);
+	if(!dwVerInfoSize) {
+		return NULL;
+	}
+
+	lpstrVffInfo = (LPSTR)malloc(dwVerInfoSize);
+	if(lpstrVffInfo == NULL) {
+		return NULL;
+	}
+
+	if(!GetFileVersionInfoA(name, dwVerHnd, dwVerInfoSize, lpstrVffInfo)) {
+		free(lpstrVffInfo);
+		return NULL;
+	}
+
+	if(!VerQueryValueA(lpstrVffInfo, (LPSTR)"\\StringFileInfo\\040904E4\\FileDescription",
+		(LPVOID*)&lpDescription, (UINT*)&uDescriptionLen)) {
+		free(lpstrVffInfo);
+		return NULL;
+	}
+
+	strncpy(description, lpDescription, CZ_VER_STR_LEN - 1);
+
+	CZLog(CZLogLevelLow, "Description of %s is %s.", name, description);
+
+	free(lpstrVffInfo);
+	return description;
+}
+
+/*!
 	\brief Check if CUDA fully initialized.
 	This function loads nvcuda.dll and finds functions \a cuInit()
 	and \a cuDeviceGetAttribute().
@@ -180,6 +226,7 @@ static bool CZCudaIsInit(void) {
 	HINSTANCE hDll;
 	HMODULE hModule[CZ_DLL_LIST_LEN];
 	DWORD cbRet = 0;
+	char description[CZ_VER_STR_LEN] = "";
 
 	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
 
@@ -198,7 +245,24 @@ static bool CZCudaIsInit(void) {
 			return false;
 		}
 
-		CZGetDllVersion("nvcuda.dll", drvVersionStr);
+		CZGetDllVersion("nvcuda.dll", drvDllVerStr);
+
+		if(CZGetDllDescription("nvcuda.dll", description) != NULL) {
+			char *p = NULL;
+			char *version = "version";
+			strlwr(description);
+			if((p = strstr(description, version)) != NULL) {
+				p += strlen(version);
+				while(*p == ' ')
+					p++;
+				strncpy(drvVersion, p, CZ_VER_STR_LEN - 1);
+				p = drvVersion + strlen(drvVersion) - 1;
+				while(*p == ' ') {
+					*p = 0;
+					p--;
+				}
+			}
+		}
 
 		if(EnumProcessModules(GetCurrentProcess(), hModule, sizeof(hModule), &cbRet) == true) {
 			UINT i;
@@ -211,7 +275,7 @@ static bool CZCudaIsInit(void) {
 				strlwr(bname);
 				if(strstr(bname, "cudart") != NULL) {
 					GetModuleFileNameA(hModule[i], fname, CZ_DLL_FNAME_LEN - 1);
-					CZGetDllVersion(fname, rtVersionStr);
+					CZGetDllVersion(fname, rtDllVerStr);
 					break;
 				}
 			}
@@ -283,11 +347,11 @@ bool CZCudaCheck(void) {
 		return false;
 	}
 
-	CZ_CUDA_CALL(cudaDriverGetVersion(&drvVersion),
-		drvVersion = 0);
+	CZ_CUDA_CALL(cudaDriverGetVersion(&drvDllVer),
+		drvDllVer = 0);
 
-	CZ_CUDA_CALL(cudaRuntimeGetVersion(&rtVersion),
-		rtVersion = 0);
+	CZ_CUDA_CALL(cudaRuntimeGetVersion(&rtDllVer),
+		rtDllVer = 0);
 
 	return true;
 }
@@ -334,9 +398,10 @@ int CZCudaReadDeviceInfo(
 	info->major = prop.major;
 	info->minor = prop.minor;
 	info->drvVersion = drvVersion;
-	info->drvVersionStr = drvVersionStr;
-	info->rtVersion = rtVersion;
-	info->rtVersionStr = rtVersionStr;
+	info->drvDllVer = drvDllVer;
+	info->drvDllVerStr = drvDllVerStr;
+	info->rtDllVer = rtDllVer;
+	info->rtDllVerStr = rtDllVerStr;
 
 	info->core.regsPerBlock = prop.regsPerBlock;
 	info->core.SIMDWidth = prop.warpSize;
