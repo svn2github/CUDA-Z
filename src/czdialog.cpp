@@ -399,7 +399,9 @@ void CZDialog::setupCoreTab(
 	if(info.drvDllVer == 0) {
 		version = "<i>" + tr("Unknown") + "</i>";
 	} else {
-		version = QString("%1").arg(info.drvDllVer);
+		version = QString("%1.%2")
+			.arg(info.drvDllVer / 1000)
+			.arg(info.drvDllVer % 1000);
 	}
 	if(strlen(info.drvDllVerStr) != 0) {
 		version += " (" + QString(info.drvDllVerStr) + ")";
@@ -409,7 +411,9 @@ void CZDialog::setupCoreTab(
 	if(info.rtDllVer == 0) {
 		version = "<i>" + tr("Unknown") + "</i>";
 	} else {
-		version = QString("%1").arg(info.rtDllVer);
+		version = QString("%1.%2")
+			.arg(info.rtDllVer / 1000)
+			.arg(info.rtDllVer % 1000);
 	}
 	if(strlen(info.rtDllVerStr) != 0) {
 		version += " (" + QString(info.rtDllVerStr) + ")";
@@ -641,7 +645,9 @@ void CZDialog::slotExportToText() {
 	if(info.drvDllVer == 0) {
 		version = tr("Unknown");
 	} else {
-		version = QString("%1").arg(info.drvDllVer);
+		version = QString("%1.%2")
+			.arg(info.drvDllVer / 1000)
+			.arg(info.drvDllVer % 1000);
 	}
 	if(strlen(info.drvDllVerStr) != 0) {
 		version += " (" + QString(info.drvDllVerStr) + ")";
@@ -651,7 +657,9 @@ void CZDialog::slotExportToText() {
 	if(info.rtDllVer == 0) {
 		version = tr("Unknown");
 	} else {
-		version = QString("%1").arg(info.rtDllVer);
+		version = QString("%1.%2")
+			.arg(info.rtDllVer / 1000)
+			.arg(info.rtDllVer % 1000);
 	}
 	if(strlen(info.rtDllVerStr) != 0) {
 		version += " (" + QString(info.rtDllVerStr) + ")";
@@ -839,7 +847,9 @@ void CZDialog::slotExportToHTML() {
 	if(info.drvDllVer == 0) {
 		version = "<i>" + tr("Unknown") + "</i>";
 	} else {
-		version = QString("%1").arg(info.drvDllVer);
+		version = QString("%1.%2")
+			.arg(info.drvDllVer / 1000)
+			.arg(info.drvDllVer % 1000);
 	}
 	if(strlen(info.drvDllVerStr) != 0) {
 		version += " (" + QString(info.drvDllVerStr) + ")";
@@ -849,7 +859,9 @@ void CZDialog::slotExportToHTML() {
 	if(info.rtDllVer == 0) {
 		version = "<i>" + tr("Unknown") + "</i>";
 	} else {
-		version = QString("%1").arg(info.rtDllVer);
+		version = QString("%1.%2")
+			.arg(info.rtDllVer / 1000)
+			.arg(info.rtDllVer % 1000);
 	}
 	if(strlen(info.rtDllVerStr) != 0) {
 		version += " (" + QString(info.rtDllVerStr) + ")";
