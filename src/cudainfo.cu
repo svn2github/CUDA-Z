@@ -286,6 +286,12 @@ static bool CZCudaIsInit(void) {
 }
 #elif defined(Q_OS_LINUX)
 #include <dlfcn.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#define CZ_VER_STR_LEN	256			/*!< Version file string length. */
+#define CZ_VER_FILE_NAME	"/proc/driver/nvidia/version"	/*!< Driver version file name. */
+
 /*!
 	\brief Check if CUDA fully initialized.
 	This function loads libcuda.so and finds functions \a cuInit()
@@ -327,6 +333,32 @@ static bool CZCudaIsInit(void) {
 		if(p_cuInit == NULL) {
 			return false;
 		}
+
+		if(access(CZ_VER_FILE_NAME, R_OK) == 0) {
+			FILE *fp = NULL;
+			char str[CZ_VER_STR_LEN];
+			fp = fopen(CZ_VER_FILE_NAME, "r");
+			if(fp != NULL) {
+				while(fgets(str, CZ_VER_STR_LEN - 1, fp) != NULL) {
+					char *p = NULL;
+					char *kernel_module = "Kernel Module";
+					if((p = strstr(str, kernel_module)) != NULL) {
+						p += strlen(kernel_module);
+						while(*p == ' ')
+							p++;
+						strncpy(drvVersion, p, CZ_VER_STR_LEN - 1);
+						p = drvVersion;
+						while((*p != ' ') && (*p != '\t') && (*p != 0)) {
+							p++;
+						}
+						*p = 0;
+						break;
+					}
+				}
+				fclose(fp);
+			}
+		}
+
 	}
 	return true;
 }
