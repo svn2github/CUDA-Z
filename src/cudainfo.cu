@@ -289,8 +289,70 @@ static bool CZCudaIsInit(void) {
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#define CZ_VER_STR_LEN	256			/*!< Version file string length. */
+#define CZ_FILE_STR_LEN	256			/*!< Version file string length. */
 #define CZ_VER_FILE_NAME	"/proc/driver/nvidia/version"	/*!< Driver version file name. */
+#define CZ_PROC_MAP_NAME	"/proc/self/maps"		/*!< Process memory map file. */
+
+/*!
+	\brief Get version of shared library.
+*/
+static char *CZGetSoVersion(
+	char *name,			/*!<[in] Name of so file. E.g. "libcuda.so". */
+	char *version			/*!<[out] Library version buffer. */
+) {
+	FILE *fp = NULL;
+	char str[CZ_FILE_STR_LEN];
+	int found = 0;
+
+	fp = fopen(CZ_PROC_MAP_NAME, "r");
+	if(fp == NULL) {
+		return NULL;
+	}
+
+	while(fgets(str, CZ_FILE_STR_LEN - 1, fp) != NULL) {
+		if(strstr(str, name) != NULL) {
+			char *p = NULL;
+			char fname[CZ_FILE_STR_LEN];
+
+			p = str + strlen(str) - 1;
+			while((p >= str) && ((*p == ' ') || (*p == '\n') || (*p == '\r') || (*p == '\t') || (*p == 0))) {
+				*p = 0;
+				p--;
+			}
+
+			while((p >= str) && ((*p != ' ') && (*p != '\n') && (*p != '\r') && (*p != '\t') && (*p != 0))) {
+				p--;
+			}
+
+			strncpy(fname, p, CZ_FILE_STR_LEN - 1);
+			p = basename(fname);
+			if(p == NULL)
+				continue;
+
+			if(strstr(p, name) != p) {
+				continue;
+			}
+
+			p = p + strlen(name);
+			if(*p != '.')
+				continue;
+
+			strncpy(version, p + 1, CZ_VER_STR_LEN - 1);
+
+			found++;
+			break;
+		}
+	}
+
+	fclose(fp);
+
+	if(found) {
+		CZLog(CZLogLevelLow, "Version of %s is %s.", name, version);
+		return version;
+	} else {
+		return NULL;
+	}
+}
 
 /*!
 	\brief Check if CUDA fully initialized.
@@ -334,12 +396,15 @@ static bool CZCudaIsInit(void) {
 			return false;
 		}
 
+		CZGetSoVersion("libcuda.so", drvDllVerStr);
+		CZGetSoVersion("libcudart.so", rtDllVerStr);
+
 		if(access(CZ_VER_FILE_NAME, R_OK) == 0) {
 			FILE *fp = NULL;
-			char str[CZ_VER_STR_LEN];
+			char str[CZ_FILE_STR_LEN];
 			fp = fopen(CZ_VER_FILE_NAME, "r");
 			if(fp != NULL) {
-				while(fgets(str, CZ_VER_STR_LEN - 1, fp) != NULL) {
+				while(fgets(str, CZ_FILE_STR_LEN - 1, fp) != NULL) {
 					char *p = NULL;
 					char *kernel_module = "Kernel Module";
 					if((p = strstr(str, kernel_module)) != NULL) {
@@ -348,7 +413,7 @@ static bool CZCudaIsInit(void) {
 							p++;
 						strncpy(drvVersion, p, CZ_VER_STR_LEN - 1);
 						p = drvVersion;
-						while((*p != ' ') && (*p != '\t') && (*p != 0)) {
+						while((*p != ' ') && (*p != '\n') && (*p != '\r') && (*p != '\t') && (*p != 0)) {
 							p++;
 						}
 						*p = 0;
@@ -365,7 +430,6 @@ static bool CZCudaIsInit(void) {
 #else//!Q_OS_WIN
 #error Function CZCudaIsInit() is not implemented for your platform!
 #endif//Q_OS_WIN
-
 
 /*!
 	\brief Check if CUDA is present here.
