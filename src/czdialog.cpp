@@ -522,7 +522,6 @@ void CZDialog::setupPerformanceTab(
 	\brief Fill tab "About" with information about this program.
 */
 void CZDialog::setupAboutTab() {
-//	labelAppLogo->setPixmap(QPixmap(":/img/logo.png"));
 	labelAppName->setText(QString("<b><font size=\"+2\">%1</font></b>")
 		.arg(CZ_NAME_LONG));
 
@@ -1077,7 +1076,7 @@ void CZDialog::slotGetHistoryDone(
 				CZLog(CZLogLevelLow, "Version found: %s", version.toLocal8Bit().data());
 				notes = "";
 				url = "";
-				criticalVersion = 0;
+				criticalVersion = false;
 				validVersion = false;
 			}
 			if(historyStrings[i].left(nameNotes.size()) == nameNotes) {
@@ -1092,7 +1091,7 @@ void CZDialog::slotGetHistoryDone(
 				validVersion = true;
 			}
 			if(historyStrings[i].left(nameCritical.size()) == nameCritical) {
-				criticalVersion = 1;
+				criticalVersion = true;
 				CZLog(CZLogLevelLow, "Version is critical!");
 			}
 		}
@@ -1158,7 +1157,7 @@ void CZDialog::slotGetHistoryDone(
 					.arg(releaseNotes)
 					.arg(tr("Release notes"));
 			}
-			labelAppUpdateImg->setPixmap(QPixmap(criticalVersion? CZ_UPD_ICON_DOWNLOAD_CR :CZ_UPD_ICON_DOWNLOAD));
+			labelAppUpdateImg->setPixmap(QPixmap((criticalVersion == true)? CZ_UPD_ICON_DOWNLOAD_CR: CZ_UPD_ICON_DOWNLOAD));
 			labelAppUpdate->setText(updateString);
 		}
 	}

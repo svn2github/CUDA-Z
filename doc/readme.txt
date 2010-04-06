@@ -36,6 +36,7 @@ What I need for building CUDA-Z from sources?
 ---------------------------------------------
 
 WINDOWS Platform
+................
 
 In Windows you need:
 1. Microsoft Visual C++ 2005 or 2008. Having Express edition is enough.
@@ -93,6 +94,7 @@ Visual Studio 2005/2008 Command Prompt:
    > nmake pkg-win32
 
 LINUX Platform
+..............
 
 You need coplete C++ build environment (including g++, binutils, make),
 Qt development package or source code, NVIDIA driver and toolkit (v. 2.0+)
@@ -106,6 +108,7 @@ additionally:
    # make pkg-linux
 
 APPLE Platform
+..............
 
 I didn't have chance to try to build CUDA-Z in MacOS X because of lack of
 original Apple hardware. Build of CUDA-Z in MacOS X shouldn't be too
