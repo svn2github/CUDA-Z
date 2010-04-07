@@ -10,15 +10,15 @@
 
 #include "log.h"
 
-#define CZ_LOG_BUFFER_LENGTH		4096
+#define CZ_LOG_BUFFER_LENGTH		4096	/*!< Log bufer size. */
 
 /*
 	\brief Logging function.
 */
 void CZLog(
-	CZLogLevel level,		/*!< Log level value. */
-	char *fmt,					/*!< printf()-like format string. */
-	...							/*!< Additional arguments for printout. */
+	CZLogLevel level,		/*!<[in] Log level value. */
+	char *fmt,			/*!<[in] printf()-like format string. */
+	...				/* Additional arguments for printout. */
 ) {
 	QString buf;
 

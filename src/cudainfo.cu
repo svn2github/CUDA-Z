@@ -471,8 +471,8 @@ int CZCudaDeviceFound(void) {
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaReadDeviceInfo(
-	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
-	int num				/*!< Number (index) of CUDA-device. */
+	struct CZDeviceInfo *info,	/*!<[in,out] CUDA-device information. */
+	int num				/*!<[in] Number (index) of CUDA-device. */
 ) {
 	cudaDeviceProp prop;
 	int ecc;
@@ -554,7 +554,7 @@ struct CZDeviceInfoBandLocalData {
 	\brief Set device for current thread.
 */
 int CZCudaCalcDeviceSelect(
-	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
 ) {
 
 	CZLog(CZLogLevelLow, "Selecting %s.", info->deviceName);
@@ -570,7 +570,7 @@ int CZCudaCalcDeviceSelect(
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthAlloc(
-	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
 ) {
 	CZDeviceInfoBandLocalData *lData;
 
@@ -637,7 +637,7 @@ static int CZCudaCalcDeviceBandwidthAlloc(
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthFree(
-	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
 ) {
 	CZDeviceInfoBandLocalData *lData;
 
@@ -681,7 +681,7 @@ static int CZCudaCalcDeviceBandwidthFree(
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthReset(
-	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
 ) {
 
 	if(info == NULL)
@@ -702,16 +702,16 @@ static int CZCudaCalcDeviceBandwidthReset(
 
 /*!
 	\brief Run data transfer bandwidth tests.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\return \a 0 in case of success, \a other is value in KiB/s.
 */
 static float CZCudaCalcDeviceBandwidthTestCommon (
-	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
-	int mode,			/*!< Run bandwidth test in one of modes. */
-	int pinned			/*!< Use pinned \a (=1) memory buffer instead of pagable \a (=0). */
+	struct CZDeviceInfo *info,	/*!<[in,out] CUDA-device information. */
+	int mode,			/*!<[in] Run bandwidth test in one of modes. */
+	int pinned			/*!<[in] Use pinned \a (=1) memory buffer instead of pagable \a (=0). */
 ) {
 	CZDeviceInfoBandLocalData *lData;
 	float timeMs = 0.0;
-	float bandwidthKBs = 0.0;
+	float bandwidthKiBs = 0.0;
 	cudaEvent_t start;
 	cudaEvent_t stop;
 	void *memHost;
@@ -799,7 +799,7 @@ static float CZCudaCalcDeviceBandwidthTestCommon (
 
 	CZLog(CZLogLevelLow, "Test complete in %f ms.", timeMs);
 
-	bandwidthKBs = (
+	bandwidthKiBs = (
 		1000 *
 		(float)CZ_COPY_BUF_SIZE *
 		(float)CZ_COPY_LOOPS_NUM
@@ -811,7 +811,7 @@ static float CZCudaCalcDeviceBandwidthTestCommon (
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
 
-	return (int)bandwidthKBs;
+	return (int)bandwidthKiBs;
 }
 
 /*!
@@ -819,7 +819,7 @@ static float CZCudaCalcDeviceBandwidthTestCommon (
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthTest(
-	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
 ) {
 
 	info->band.copyHDPage = CZCudaCalcDeviceBandwidthTestCommon(info, CZ_COPY_MODE_H2D, 0);
@@ -836,7 +836,7 @@ static int CZCudaCalcDeviceBandwidthTest(
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaPrepareDevice(
-	struct CZDeviceInfo *info
+	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
 ) {
 
 	if(info == NULL)
@@ -856,7 +856,7 @@ int CZCudaPrepareDevice(
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaCalcDeviceBandwidth(
-	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
 ) {
 
 	if(info == NULL)
@@ -882,7 +882,7 @@ int CZCudaCalcDeviceBandwidth(
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaCleanDevice(
-	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
 ) {
 
 	if(info == NULL)
@@ -899,7 +899,7 @@ int CZCudaCleanDevice(
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDevicePerformanceReset(
-	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
 ) {
 
 	if(info == NULL)
@@ -1018,7 +1018,9 @@ static int CZCudaCalcDevicePerformanceReset(
 /*!
 	\brief GPU code for float point test.
 */
-static __global__ void CZCudaCalcKernelFloat(void *buf) {
+static __global__ void CZCudaCalcKernelFloat(
+	void *buf			/*!<[in] Data buffer. */
+) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	float *arr = (float*)buf;
 	float val1 = index;
@@ -1050,7 +1052,9 @@ static __global__ void CZCudaCalcKernelFloat(void *buf) {
 /*!
 	\brief GPU code for double-precision test.
 */
-static __global__ void CZCudaCalcKernelDouble(double *buf) {
+static __global__ void CZCudaCalcKernelDouble(
+	void *buf			/*!<[in] Data buffer. */
+) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	double *arr = (double*)buf;
 	double val1 = index;
@@ -1082,7 +1086,9 @@ static __global__ void CZCudaCalcKernelDouble(double *buf) {
 /*!
 	\brief GPU code for 32-bit integer test.
 */
-static __global__ void CZCudaCalcKernelInteger32(void *buf) {
+static __global__ void CZCudaCalcKernelInteger32(
+	void *buf			/*!<[in] Data buffer. */
+) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int *arr = (int*)buf;
 	int val1 = index;
@@ -1114,7 +1120,9 @@ static __global__ void CZCudaCalcKernelInteger32(void *buf) {
 /*!
 	\brief GPU code for 24-bit integer test.
 */
-static __global__ void CZCudaCalcKernelInteger24(void *buf) {
+static __global__ void CZCudaCalcKernelInteger24(
+	void *buf			/*!<[in] Data buffer. */
+) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int *arr = (int*)buf;
 	int val1 = index;
@@ -1148,8 +1156,8 @@ static __global__ void CZCudaCalcKernelInteger24(void *buf) {
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static float CZCudaCalcDevicePerformanceTest(
-	struct CZDeviceInfo *info,	/*!< CUDA-device information. */
-	int mode			/*!< Run performance test in one of modes. */
+	struct CZDeviceInfo *info,	/*!<[in,out] CUDA-device information. */
+	int mode			/*!<[in] Run performance test in one of modes. */
 ) {
 	CZDeviceInfoBandLocalData *lData;
 	float timeMs = 0.0;
@@ -1268,7 +1276,7 @@ static float CZCudaCalcDevicePerformanceTest(
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaCalcDevicePerformance(
-	struct CZDeviceInfo *info	/*!< CUDA-device information. */
+	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
 ) {
 
 	if(info == NULL)

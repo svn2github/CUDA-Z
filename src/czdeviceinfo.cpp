@@ -18,8 +18,8 @@
 	\brief Creates the performance data update thread.
 */
 CZUpdateThread::CZUpdateThread(
-	CZCudaDeviceInfo *info,
-	QObject *parent			/*!< Parent of the thread. */
+	CZCudaDeviceInfo *info,		/*!<[in,out] CUDA device information class. */
+	QObject *parent			/*!<[in,out] Parent of the thread. */
 )	: QThread(parent) {
 
 	abort = false;
@@ -57,7 +57,7 @@ CZUpdateThread::~CZUpdateThread() {
 	\brief Push performance test.
 */
 void CZUpdateThread::testPerformance(
-	int index			/*!< Index of device in list. */
+	int index			/*!<[in] Index of device in list. */
 ) {
 	CZLog(CZLogLevelModerate, "Rising update action for device %d", index);
 
@@ -161,8 +161,8 @@ void CZUpdateThread::run() {
 	\brief Creates CUDA-device information container.
 */
 CZCudaDeviceInfo::CZCudaDeviceInfo(
-	int devNum,
-	QObject *parent
+	int devNum,			/*!<[in] Index of device. */
+	QObject *parent			/*!<[in,out] Parent of CUDA device information. */
 ) 	: QObject(parent) {
 	memset(&_info, 0, sizeof(_info));
 	_info.num = devNum;
@@ -241,7 +241,7 @@ struct CZDeviceInfo &CZCudaDeviceInfo::info() {
 	\brief Push performance test in thread.
 */
 void CZCudaDeviceInfo::testPerformance(
-	int index			/*!< Index of device in list. */
+	int index			/*!<[in] Index of device in list. */
 ) {
 	_thread->testPerformance(index);
 }

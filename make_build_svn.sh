@@ -59,7 +59,7 @@ if test x"$BUILD" = x"none"
 then
 	echo "/* WARNING! Cannot detect SVN revision number. */"
 else
-	echo "#define CZ_VER_BUILD		$BUILD	/*!< SVN revision number constant. */"
+	echo "#define CZ_VER_BUILD		$BUILD	/*!< SVN revision numeric constant. */"
 	echo "#define CZ_VER_BUILD_STRING	\"$BUILD\"	/*!< SVN revision string constant. */"
 fi
 

@@ -19,7 +19,8 @@
 #define CZ_TIMER_REFRESH	2000	/*!< Test results update timer period (ms). */
 
 /*!
-	\def CZ_OS_PLATFORM_STR Platform ID string.
+	\def CZ_OS_PLATFORM_STR
+	\brief Platform ID string.
 */
 #if defined(Q_OS_WIN)
 #define CZ_OS_PLATFORM_STR	"win32"
@@ -52,9 +53,9 @@
 	parameters of the class.
 */
 CZSplashScreen::CZSplashScreen(
-	const QPixmap &pixmap,	/*!< Picture for window background. */
-	int maxLines,		/*!< Number of lines in boot log. */
-	Qt::WindowFlags f	/*!< Window flags. */
+	const QPixmap &pixmap,	/*!<[in] Picture for window background. */
+	int maxLines,		/*!<[in] Number of lines in boot log. */
+	Qt::WindowFlags f	/*!<[in] Window flags. */
 ):	QSplashScreen(pixmap, f),
 	m_maxLines(maxLines) {
 	m_message = QString::null;
@@ -68,10 +69,10 @@ CZSplashScreen::CZSplashScreen(
 	initializes internal parameters of the class.
 */
 CZSplashScreen::CZSplashScreen(
-	QWidget *parent,	/*!< Parent of widget. */
-	const QPixmap &pixmap,	/*!< Picture for window background. */
-	int maxLines,		/*!< Number of lines in boot log. */
-	Qt::WindowFlags f	/*!< Window flags. */
+	QWidget *parent,	/*!<[in,out] Parent of widget. */
+	const QPixmap &pixmap,	/*!<[in] Picture for window background. */
+	int maxLines,		/*!<[in] Number of lines in boot log. */
+	Qt::WindowFlags f	/*!<[in] Window flags. */
 ):	QSplashScreen(parent, pixmap, f),
 	m_maxLines(maxLines) {
 	m_message = QString::null;
@@ -90,7 +91,7 @@ CZSplashScreen::~CZSplashScreen() {
 	\brief Sets the maximal number of lines in log.
 */
 void CZSplashScreen::setMaxLines(
-	int maxLines		/*!< Number of lines in log. */
+	int maxLines		/*!<[in] Number of lines in log. */
 ) {
 	if(maxLines >= 1) {
 		m_maxLines = maxLines;
@@ -113,9 +114,9 @@ int CZSplashScreen::maxLines() {
 	\brief Adds new message line in log.
 */
 void CZSplashScreen::showMessage(
-	const QString &message,	/*!< Message text. */
-	int alignment,		/*!< Placement of log in window. */
-	const QColor &color	/*!< Color used for protocol display. */
+	const QString &message,	/*!<[in] Message text. */
+	int alignment,		/*!<[in] Placement of log in window. */
+	const QColor &color	/*!<[in] Color used for protocol display. */
 ) {
 
 	m_alignment = alignment;
@@ -149,7 +150,7 @@ void CZSplashScreen::clearMessage() {
 	\brief Removes first \a lines entries in log.
 */
 void CZSplashScreen::deleteTop(
-	int lines		/*!< Number of lines to be removed. */
+	int lines		/*!<[in] Number of lines to be removed. */
 ) {
 	QStringList linesList = m_message.split('\n');
 	for(int i = 0; i < lines; i++) {
@@ -180,8 +181,8 @@ CZSplashScreen *splash;
 	- Starts Performance data update timer.
 */
 CZDialog::CZDialog(
-	QWidget *parent,	/*!< Parent of widget. */
-	Qt::WFlags f		/*!< Window flags. */
+	QWidget *parent,	/*!<[in,out] Parent of widget. */
+	Qt::WFlags f		/*!<[in] Window flags. */
 )	: QDialog(parent, f /*| Qt::MSWindowsFixedSizeDialogHint*/ | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint) {
 
 	http = NULL;
@@ -286,7 +287,7 @@ void CZDialog::setupDeviceList() {
 	\brief This slot shows in dialog information about given device.
 */
 void CZDialog::slotShowDevice(
-	int index			/*!< Index of device in list. */
+	int index			/*!<[in] Index of device in list. */
 ) {
 	setupDeviceInfo(index);
 	if(checkUpdateResults->checkState() == Qt::Checked) {
@@ -300,7 +301,7 @@ void CZDialog::slotShowDevice(
 	pointed by \a index.
 */
 void CZDialog::slotUpdatePerformance(
-	int index			/*!< Index of device in list. */
+	int index			/*!<[in] Index of device in list. */
 ) {
 	if(index == comboDevice->currentIndex())
 	setupPerformanceTab(deviceList[index]->info());
@@ -330,7 +331,7 @@ void CZDialog::slotUpdateTimer() {
 	\brief Places in dialog's tabs information about given device.
 */
 void CZDialog::setupDeviceInfo(
-	int dev				/*!< Number of CUDA-device. */
+	int dev				/*!<[in] Number/index of CUDA-device. */
 ) {
 	setupCoreTab(deviceList[dev]->info());
 	setupMemoryTab(deviceList[dev]->info());
@@ -341,13 +342,13 @@ void CZDialog::setupDeviceInfo(
 	\brief Fill tab "Core" with CUDA devices information.
 */
 void CZDialog::setupCoreTab(
-	struct CZDeviceInfo &info	/*!< Information about CUDA-device. */
+	struct CZDeviceInfo &info	/*!<[in] Information about CUDA-device. */
 ) {
 	QString deviceName(info.deviceName);
 
 	labelNameText->setText(deviceName);
 	labelCapabilityText->setText(QString("%1.%2").arg(info.major).arg(info.minor));
-	labelClockText->setText(QString("%1 %2").arg((double)info.core.clockRate / 1000).arg(tr("MHz")));
+	labelClockText->setText(getValue1000(info.core.clockRate, prefixKilo, tr("Hz")));
 	if(info.core.muliProcCount == 0)
 		labelMultiProcText->setText("<i>" + tr("Unknown") + "</i>");
 	else
@@ -425,18 +426,13 @@ void CZDialog::setupCoreTab(
 	\brief Fill tab "Memory" with CUDA devices information.
 */
 void CZDialog::setupMemoryTab(
-	struct CZDeviceInfo &info	/*!< Information about CUDA-device. */
+	struct CZDeviceInfo &info	/*!<[in] Information about CUDA-device. */
 ) {
-	labelTotalGlobalText->setText(QString("%1 %2")
-		.arg((double)info.mem.totalGlobal / (1024 * 1024)).arg(tr("MB")));
-	labelSharedText->setText(QString("%1 %2")
-		.arg((double)info.mem.sharedPerBlock / 1024).arg(tr("KB")));
-	labelPitchText->setText(QString("%1 %2")
-		.arg((double)info.mem.maxPitch / (1024 * 1024)).arg(tr("MB")));
-	labelTotalConstText->setText(QString("%1 %2")
-		.arg((double)info.mem.totalConst / 1024).arg(tr("KB")));
-	labelTextureAlignmentText->setText(QString("%1 %2")
-		.arg((double)info.mem.textureAlignment).arg(tr("B")));
+	labelTotalGlobalText->setText(getValue1024(info.mem.totalGlobal, prefixNothing, tr("B")));
+	labelSharedText->setText(getValue1024(info.mem.sharedPerBlock, prefixNothing, tr("B")));
+	labelPitchText->setText(getValue1024(info.mem.maxPitch, prefixNothing, tr("B")));
+	labelTotalConstText->setText(getValue1024(info.mem.totalConst, prefixNothing, tr("B")));
+	labelTextureAlignmentText->setText(getValue1024(info.mem.textureAlignment, prefixNothing, tr("B")));
 	labelTexture1DText->setText(QString("%1")
 		.arg((double)info.mem.texture1D[0]));
 	labelTexture2DText->setText(QString("%1 x %2")
@@ -455,52 +451,45 @@ void CZDialog::setupMemoryTab(
 	\brief Fill tab "Performance" with CUDA devices information.
 */
 void CZDialog::setupPerformanceTab(
-	struct CZDeviceInfo &info	/*!< Information about CUDA-device. */
+	struct CZDeviceInfo &info	/*!<[in] Information about CUDA-device. */
 ) {
 
 	if(info.band.copyHDPin == 0)
 		labelHDRatePinText->setText("--");
 	else
-		labelHDRatePinText->setText(QString("%1 %2")
-			.arg((double)info.band.copyHDPin / 1024).arg(tr("MB/s")));
+		labelHDRatePinText->setText(getValue1024(info.band.copyHDPin, prefixKibi, tr("B/s")));
 
 	if(info.band.copyHDPage == 0)
 		labelHDRatePageText->setText("--");
 	else
-		labelHDRatePageText->setText(QString("%1 %2")
-			.arg((double)info.band.copyHDPage / 1024).arg(tr("MB/s")));
+		labelHDRatePageText->setText(getValue1024(info.band.copyHDPage, prefixKibi, tr("B/s")));
 
 	if(info.band.copyDHPin == 0)
 		labelDHRatePinText->setText("--");
 	else
-		labelDHRatePinText->setText(QString("%1 %2")
-			.arg((double)info.band.copyDHPin / 1024).arg(tr("MB/s")));
+		labelDHRatePinText->setText(getValue1024(info.band.copyDHPin, prefixKibi, tr("B/s")));
 
 	if(info.band.copyDHPage == 0)
 		labelDHRatePageText->setText("--");
 	else
-		labelDHRatePageText->setText(QString("%1 %2")
-			.arg((double)info.band.copyDHPage / 1024).arg(tr("MB/s")));
+		labelDHRatePageText->setText(getValue1024(info.band.copyDHPage, prefixKibi, tr("B/s")));
 
 	if(info.band.copyDD == 0)
 		labelDDRateText->setText("--");
 	else
-		labelDDRateText->setText(QString("%1 %2")
-			.arg((double)info.band.copyDD / 1024).arg(tr("MB/s")));
+		labelDDRateText->setText(getValue1024(info.band.copyDD, prefixKibi, tr("B/s")));
 
 	if(info.perf.calcFloat == 0)
 		labelFloatRateText->setText("--");
 	else
-		labelFloatRateText->setText(QString("%1 %2")
-			.arg((double)info.perf.calcFloat / 1000).arg(tr("Mflop/s")));
+		labelFloatRateText->setText(getValue1000(info.perf.calcFloat, prefixKilo, tr("flop/s")));
 
 	if(((info.major > 1)) ||
 		((info.major == 1) && (info.minor >= 3))) {
 		if(info.perf.calcDouble == 0)
 			labelDoubleRateText->setText("--");
 		else
-			labelDoubleRateText->setText(QString("%1 %2")
-				.arg((double)info.perf.calcDouble / 1000).arg(tr("Mflop/s")));
+			labelDoubleRateText->setText(getValue1000(info.perf.calcDouble, prefixKilo, tr("flop/s")));
 	} else {
 		labelDoubleRateText->setText("<i>" + tr("Not Supported") + "</i>");
 	}
@@ -508,14 +497,12 @@ void CZDialog::setupPerformanceTab(
 	if(info.perf.calcInteger32 == 0)
 		labelInt32RateText->setText("--");
 	else
-		labelInt32RateText->setText(QString("%1 %2")
-			.arg((double)info.perf.calcInteger32 / 1000).arg(tr("Miop/s")));
+		labelInt32RateText->setText(getValue1000(info.perf.calcInteger32, prefixKilo, tr("iop/s")));
 
 	if(info.perf.calcInteger24 == 0)
 		labelInt24RateText->setText("--");
 	else
-		labelInt24RateText->setText(QString("%1 %2")
-			.arg((double)info.perf.calcInteger24 / 1000).arg(tr("Miop/s")));
+		labelInt24RateText->setText(getValue1000(info.perf.calcInteger24, prefixKilo, tr("iop/s")));
 }
 
 /*!
@@ -673,7 +660,7 @@ void CZDialog::slotExportToText() {
 	out << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Name")).arg(info.deviceName) << endl;
 	out << "\t" << QString("%1: %2.%3").arg(tr("Compute Capability")).arg(info.major).arg(info.minor) << endl;
-	out << "\t" << QString("%1: %2 %3").arg(tr("Clock Rate")).arg((double)info.core.clockRate / 1000).arg(tr("MHz")) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Clock Rate")).arg(getValue1000(info.core.clockRate, prefixKilo, tr("Hz"))) << endl;
 	out << "\t" << tr("Multiprocessors") << ": ";
 	if(info.core.muliProcCount == 0)
 		out << tr("Unknown") << endl;
@@ -699,11 +686,11 @@ void CZDialog::slotExportToText() {
 	for(int i = 0; i < subtitle.size(); i++)
 		out << "-";
 	out << endl;
-	out << "\t" << QString("%1: %2 %3").arg(tr("Total Global")).arg((double)info.mem.totalGlobal / (1024 * 1024)).arg(tr("MB")) << endl;
-	out << "\t" << QString("%1: %2 %3").arg(tr("Shared Per Block")).arg((double)info.mem.sharedPerBlock / 1024).arg(tr("KB")) << endl;
-	out << "\t" << QString("%1: %2 %3").arg(tr("Pitch")).arg((double)info.mem.maxPitch / (1024 * 1024)).arg(tr("MB")) << endl;
-	out << "\t" << QString("%1: %2 %3").arg(tr("Total Constant")).arg((double)info.mem.totalConst / 1024).arg(tr("KB")) << endl;
-	out << "\t" << QString("%1: %2 %3").arg(tr("Texture Alignment")).arg((double)info.mem.textureAlignment).arg(tr("B")) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Total Global")).arg(getValue1024(info.mem.totalGlobal, prefixNothing, tr("B"))) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Shared Per Block")).arg(getValue1024(info.mem.sharedPerBlock, prefixNothing, tr("B"))) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Pitch")).arg(getValue1024(info.mem.maxPitch, prefixNothing, tr("B"))) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Total Constant")).arg(getValue1024(info.mem.totalConst, prefixNothing, tr("B"))) << endl;
+	out << "\t" << QString("%1: %2").arg(tr("Texture Alignment")).arg(getValue1024(info.mem.textureAlignment, prefixNothing, tr("B"))) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Texture 1D Size")).arg((double)info.mem.texture1D[0]) << endl;
 	out << "\t" << QString("%1: %2 x %3").arg(tr("Texture 2D Size")).arg((double)info.mem.texture2D[0]).arg((double)info.mem.texture2D[1]) << endl;
 	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Texture 3D Size")).arg((double)info.mem.texture3D[0]).arg((double)info.mem.texture3D[1]).arg((double)info.mem.texture3D[2]) << endl;
@@ -722,41 +709,41 @@ void CZDialog::slotExportToText() {
 	if(info.band.copyHDPin == 0)
 		out << "--" << endl;
 	else
-		out << QString("%1 %2").arg((double)info.band.copyHDPin / 1024).arg(tr("MB/s")) << endl;
+		out << getValue1024(info.band.copyHDPin, prefixKibi, tr("B/s")) << endl;
 	out << "\t" << tr("Host Pageable to Device") << ": ";
 	if(info.band.copyHDPage == 0)
 		out << "--" << endl;
 	else
-		out << QString("%1 %2").arg((double)info.band.copyHDPage / 1024).arg(tr("MB/s")) << endl;
+		out << getValue1024(info.band.copyHDPage, prefixKibi, tr("B/s")) << endl;
 
 	out << "\t" << tr("Device to Host Pinned") << ": ";
 	if(info.band.copyDHPin == 0)
 		out << "--" << endl;
 	else
-		out << QString("%1 %2").arg((double)info.band.copyDHPin / 1024).arg(tr("MB/s")) << endl;
+		out << getValue1024(info.band.copyDHPin, prefixKibi, tr("B/s")) << endl;
 	out << "\t" << tr("Device to Host Pageable") << ": ";
 	if(info.band.copyDHPage == 0)
 		out << "--" << endl;
 	else
-		out << QString("%1 %2").arg((double)info.band.copyDHPage / 1024).arg(tr("MB/s")) << endl;
+		out << getValue1024(info.band.copyDHPage, prefixKibi, tr("B/s")) << endl;
 	out << "\t" << tr("Device to Device") << ": ";
 	if(info.band.copyDD == 0)
 		out << "--" << endl;
 	else
-		out << QString("%1 %2").arg((double)info.band.copyDD / 1024).arg(tr("MB/s")) << endl;
+		out << getValue1024(info.band.copyDD, prefixKibi, tr("B/s")) << endl;
 	out << tr("GPU Core Performance") << endl;
 	out << "\t" << tr("Single-precision Float") << ": ";
 	if(info.perf.calcFloat == 0)
 		out << "--" << endl;
 	else
-		out << QString("%1 %2").arg((double)info.perf.calcFloat / 1000).arg(tr("Mflop/s")) << endl;
+		out << getValue1000(info.perf.calcFloat, prefixKilo, tr("flop/s")) << endl;
 	out << "\t" << tr("Double-precision Float") << ": ";
 	if(((info.major > 1)) ||
 		((info.major == 1) && (info.minor >= 3))) {
 		if(info.perf.calcDouble == 0)
 			out << "--" << endl;
 		else
-			out << QString("%1 %2").arg((double)info.perf.calcDouble / 1000).arg(tr("Mflop/s")) << endl;
+			out << getValue1000(info.perf.calcDouble, prefixKilo, tr("flop/s")) << endl;
 	} else {
 		out << tr("Not Supported") << endl;
 	}
@@ -764,12 +751,12 @@ void CZDialog::slotExportToText() {
 	if(info.perf.calcInteger32 == 0)
 		out << "--" << endl;
 	else
-		out << QString("%1 %2").arg((double)info.perf.calcInteger32 / 1000).arg(tr("Miop/s")) << endl;
+		out << getValue1000(info.perf.calcInteger32, prefixKilo, tr("iop/s")) << endl;
 	out << "\t" << tr("24-bit Integer") << ": ";
 	if(info.perf.calcInteger24 == 0)
 		out << "--" << endl;
 	else
-		out << QString("%1 %2").arg((double)info.perf.calcInteger24 / 1000).arg(tr("Miop/s")) << endl;
+		out << getValue1000(info.perf.calcInteger24, prefixKilo, tr("iop/s")) << endl;
 	out << endl;
 
 	time_t t;
@@ -872,7 +859,7 @@ void CZDialog::slotExportToHTML() {
 		"<table border=\"1\">\n"
 		"<tr><th>" << tr("Name") << "</th><td>" << info.deviceName << "</td></tr>\n"
 		"<tr><th>" << tr("Compute Capability") << "</th><td>" << info.major << "." << info.minor << "</td></tr>\n"
-		"<tr><th>" << tr("Clock Rate") << "</th><td>" << (double)info.core.clockRate / 1000 << " " << tr("MHz") << "</td></tr>\n";
+		"<tr><th>" << tr("Clock Rate") << "</th><td>" << getValue1000(info.core.clockRate, prefixKilo, tr("Hz")) << "</td></tr>\n";
 	out <<	"<tr><th>" << tr("Multiprocessors") << "</th><td>";
 	if(info.core.muliProcCount == 0)
 		out << "<i>" << tr("Unknown") << "</i>";
@@ -896,11 +883,11 @@ void CZDialog::slotExportToHTML() {
 
 	out << 	"<h2>" << tr("Memory Information") << "</h2>\n"
 		"<table border=\"1\">\n"
-		"<tr><th>" << tr("Total Global") << "</th><td>" << (double)info.mem.totalGlobal / (1024 * 1024) << " " << tr("MB") << "</td></tr>\n"
-		"<tr><th>" << tr("Shared Per Block") << "</th><td>" << (double)info.mem.sharedPerBlock / 1024 << " " << tr("KB") << "</td></tr>\n"
-		"<tr><th>" << tr("Pitch") << "</th><td>" << (double)info.mem.maxPitch / (1024 * 1024) << " " << tr("MB") << "</td></tr>\n"
-		"<tr><th>" << tr("Total Constant") << "</th><td>" << (double)info.mem.totalConst / 1024 << " " << tr("KB") << "</td></tr>\n"
-		"<tr><th>" << tr("Texture Alignment") << "</th><td>" << (double)info.mem.textureAlignment << " " << tr("B") << "</td></tr>\n"
+		"<tr><th>" << tr("Total Global") << "</th><td>" << getValue1024(info.mem.totalGlobal, prefixNothing, tr("B")) << "</td></tr>\n"
+		"<tr><th>" << tr("Shared Per Block") << "</th><td>" << getValue1024(info.mem.sharedPerBlock, prefixNothing, tr("B")) << "</td></tr>\n"
+		"<tr><th>" << tr("Pitch") << "</th><td>" << getValue1024(info.mem.maxPitch, prefixNothing, tr("B")) << "</td></tr>\n"
+		"<tr><th>" << tr("Total Constant") << "</th><td>" << getValue1024(info.mem.totalConst, prefixNothing, tr("B")) << "</td></tr>\n"
+		"<tr><th>" << tr("Texture Alignment") << "</th><td>" << getValue1024(info.mem.textureAlignment, prefixNothing, tr("B")) << "</td></tr>\n"
 		"<tr><th>" << tr("Texture 1D Size") << "</th><td>" << info.mem.texture1D[0] << "</td></tr>\n"
 		"<tr><th>" << tr("Texture 2D Size") << "</th><td>" << info.mem.texture2D[0] << " x " << info.mem.texture2D[1] << "</td></tr>\n"
 		"<tr><th>" << tr("Texture 3D Size") << "</th><td>" << info.mem.texture3D[0] << " x " << info.mem.texture3D[1] << " x " << info.mem.texture3D[2] << "</td></tr>\n"
@@ -916,38 +903,38 @@ void CZDialog::slotExportToHTML() {
 		if(info.band.copyHDPin == 0)
 			out << "--";
 		else
-			out << (double)info.band.copyHDPin / 1024 << " " << tr("MB/s");
+			out << getValue1024(info.band.copyHDPin, prefixKibi, tr("B/s"));
 		out << "</td></tr>\n"
 		"<tr><th>" << tr("Host Pageable to Device") << "</th><td>";
 		if(info.band.copyHDPage == 0)
 			out << "--";
 		else
-			out << (double)info.band.copyHDPage / 1024 << " " << tr("MB/s");
+			out << getValue1024(info.band.copyHDPage, prefixKibi, tr("B/s"));
 		out << "</td></tr>\n"
 		"<tr><th>" << tr("Device to Host Pinned") << "</th><td>";
 		if(info.band.copyDHPin == 0)
 			out << "--";
 		else
-			out << (double)info.band.copyDHPin / 1024 << " " << tr("MB/s");
+			out << getValue1024(info.band.copyDHPin, prefixKibi, tr("B/s"));
 		out << "</td></tr>\n"
 		"<tr><th>" << tr("Device to Host Pageable") << "</th><td>";
 		if(info.band.copyDHPage == 0)
 			out << "--";
 		else
-			out << (double)info.band.copyDHPage / 1024 << " " << tr("MB/s");
+			out << getValue1024(info.band.copyDHPage, prefixKibi, tr("B/s"));
 		out << "</td></tr>\n"
 		"<tr><th>" << tr("Device to Device") << "</th><td>";
 		if(info.band.copyDD == 0)
 			out << "--";
 		else
-			out << (double)info.band.copyDD / 1024 << " " << tr("MB/s");
+			out << getValue1024(info.band.copyDD, prefixKibi, tr("B/s"));
 		out << "</td></tr>\n"
 		"<tr><th colspan=\"2\">" << tr("GPU Core Performance") << "</th></tr>\n"
 		"<tr><th>" << tr("Single-precision Float") << "</th><td>";
 		if(info.perf.calcFloat == 0)
 			out << "--";
 		else
-			out << (double)info.perf.calcFloat / 1000 << " " << tr("Mflop/s");
+			out << getValue1000(info.perf.calcFloat, prefixKilo, tr("flop/s"));
 		out << "</td></tr>\n"
 		"<tr><th>" << tr("Double-precision Float") << "</th><td>";
 		if(((info.major > 1)) ||
@@ -955,7 +942,7 @@ void CZDialog::slotExportToHTML() {
 			if(info.perf.calcDouble == 0)
 				out << "--";
 			else
-				out << (double)info.perf.calcDouble / 1000 << " " << tr("Mflop/s");
+				out << getValue1000(info.perf.calcDouble, prefixKilo, tr("flop/s"));
 		} else {
 			out << "<i>" << tr("Not Supported") << "</i>";
 		}
@@ -964,13 +951,13 @@ void CZDialog::slotExportToHTML() {
 		if(info.perf.calcInteger32 == 0)
 			out << "--";
 		else
-			out << (double)info.perf.calcInteger32 / 1000 << " " << tr("Miop/s");
+			out << getValue1000(info.perf.calcInteger32, prefixKilo, tr("iop/s"));
 		out << "</td></tr>\n"
 		"<tr><th>" << tr("24-bit Integer") << "</th><td>";
 		if(info.perf.calcInteger24 == 0)
 			out << "--";
 		else
-			out << (double)info.perf.calcInteger24 / 1000 << " " << tr("Miop/s");
+			out << getValue1000(info.perf.calcInteger24, prefixKilo, tr("iop/s"));
 		out << "</td></tr>\n"
 		"</table>\n";
 
@@ -1019,7 +1006,7 @@ void CZDialog::cleanGetHistoryHttp() {
 	\brief HTTP operation result slot.
 */
 void CZDialog::slotGetHistoryDone(
-	bool error			/*!< HTTP operation error state. */
+	bool error			/*!<[in] HTTP operation error state. */
 ) {
 	if(error || (!http->lastResponse().isValid()) || (http->lastResponse().statusCode() != 200)) {
 
@@ -1174,4 +1161,66 @@ void CZDialog::slotGetHistoryStateChanged(
 	if(state == QHttp::Unconnected) {
 		CZLog(CZLogLevelLow, "Disconnected!");
 	}
+}
+
+/*!
+	\brief This function returns value and unit in SI format.
+*/
+QString CZDialog::getValue1000(
+	double value,			/*!<[in] Value to print. */
+	int valuePrefix,		/*!<[in] Value current prefix. */
+	QString unitBase		/*!<[in] Unit base string. */
+) {
+	const int prefixBase = 1000;
+	int resPrefix = valuePrefix;
+
+	static const char *prefixTab[prefixSiMax + 1] = {
+		"",	/* prefixNothing */
+		"k",	/* prefixKilo */
+		"M",	/* prefixMega */
+		"G",	/* prefixGiga */
+		"T",	/* prefixTera */
+		"P",	/* prefixPeta */
+		"E",	/* prefixExa */
+		"Z",	/* prefixZetta */
+		"Y",	/* prefixYotta */
+	};
+
+	while((value > (10 * prefixBase)) && (resPrefix < prefixSiMax)) {
+		value /= prefixBase;
+		resPrefix++;
+	}
+
+	return QString("%1 %2%3").arg(value).arg(prefixTab[resPrefix]).arg(unitBase);
+}
+
+/*!
+	\brief This function returns value and unit in IEC 60027 format.
+*/
+QString CZDialog::getValue1024(
+	double value,			/*!<[in] Value to print. */
+	int valuePrefix,		/*!<[in] Value current prefix. */
+	QString unitBase		/*!<[in] Unit base string. */
+) {
+	const int prefixBase = 1024;
+	int resPrefix = valuePrefix;
+
+	static const char *prefixTab[prefixIecMax + 1] = {
+		"",	/* prefixNothing */
+		"Ki",	/* prefixKibi */
+		"Mi",	/* prefixMebi */
+		"Gi",	/* prefixGibi */
+		"Ti",	/* prefixTebi */
+		"Pi",	/* prefixPebi */
+		"Ei",	/* prefixExbi */
+		"Zi",	/* prefixZebi */
+		"Yi",	/* prefixYobi */
+	};
+
+	while((value > (10 * prefixBase)) && (resPrefix < prefixIecMax)) {
+		value /= prefixBase;
+		resPrefix++;
+	}
+
+	return QString("%1 %2%3").arg(value).arg(prefixTab[resPrefix]).arg(unitBase);
 }

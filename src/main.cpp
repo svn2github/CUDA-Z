@@ -51,7 +51,7 @@ int getCudaDeviceNum() {
 	Actually, I don't know how to call sleep() function from Qt code :).
 */
 void wait(
-	int n			/*!< Number of times to tun this busy loop to. */
+	int n			/*!<[in] Number of times to tun this busy loop to. */
 ) {
 	char str[256];
 	int i;
@@ -65,8 +65,8 @@ void wait(
 	\brief Main initialization function.
 */
 int main(
-	int argc,		/*!< Count of command line arguments. */
-	char *argv[]		/*!< List of command line arguments. */
+	int argc,		/*!<[in] Count of command line arguments. */
+	char *argv[]		/*!<[in] List of command line arguments. */
 ) {
 
 	QApplication app(argc, argv);

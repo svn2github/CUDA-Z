@@ -24,6 +24,10 @@
 						     - "Alpha" - alpha version.
 						     - "SVN" / "CVS" - versioning system tree snapshot. */
 
+/*!
+	\def CZ_VER_STRING_BUILD
+	\brief Application version string.
+*/
 #ifdef CZ_VER_BUILD
 #define CZ_VER_STRING_BUILD	CZ_VER_STRING "." CZ_VER_BUILD_STRING
 #else
