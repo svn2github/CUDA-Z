@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextStream>
+#include <QDesktopServices>
 
 #include <time.h>
 
@@ -589,8 +590,9 @@ void CZDialog::slotExportToText() {
 
 	struct CZDeviceInfo info = deviceList[comboDevice->currentIndex()]->info();
 
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Text as..."),
-		tr("%1.txt").arg(tr(CZ_NAME_SHORT)), tr("Text files (*.txt);;All files (*.*)"));
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Text Report as..."),
+		QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation) + QDir::separator() + tr("%1.txt").arg(tr(CZ_NAME_SHORT)),
+		tr("Text files (*.txt);;All files (*.*)"));
 
 	if(fileName.isEmpty())
 		return;
@@ -771,8 +773,9 @@ void CZDialog::slotExportToHTML() {
 
 	struct CZDeviceInfo info = deviceList[comboDevice->currentIndex()]->info();
 
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Text as..."),
-		tr("%1.html").arg(tr(CZ_NAME_SHORT)), tr("HTML files (*.html *.htm);;All files (*.*)"));
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save HTML Report as..."),
+		QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation) + QDir::separator() + tr("%1.html").arg(tr(CZ_NAME_SHORT)),
+		tr("HTML files (*.html *.htm);;All files (*.*)"));
 
 	if(fileName.isEmpty())
 		return;
