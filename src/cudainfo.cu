@@ -6,6 +6,7 @@
 
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include <host_defines.h>
 #include <string.h>
 
 #if CUDA_VERSION < 3000
@@ -430,14 +431,44 @@ static bool CZCudaIsInit(void) {
 	return true;
 }
 #elif defined(Q_OS_DARWIN)
+#include <dlfcn.h>
+
+#warning No full implementation for Mac OS X yet...
 
 /*!
 	\brief Check if CUDA fully initialized.
-	This function is not yet implemented for Mac OS X.
+	This function loads libcuda.dylib and finds functions \a cuInit()
+	and \a cuDeviceGetAttribute().
 	\return \a true in case of success, \a false in case of error.
 */
 static bool CZCudaIsInit(void) {
-#warning No implementation for Mac OS X yet...
+	void *hDll = NULL;
+
+	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
+
+		if(hDll == NULL) {
+			hDll = dlopen("./libcuda.dylib", RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
+			hDll = dlopen("/usr/local/cuda/lib/libcuda.dylib", RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
+			return false;
+		}
+
+		p_cuDeviceGetAttribute = (cuDeviceGetAttribute_t)dlsym(hDll, "cuDeviceGetAttribute");
+		if(p_cuDeviceGetAttribute == NULL) {
+			return false;
+		}
+
+		p_cuInit = (cuInit_t)dlsym(hDll, "cuInit");
+		if(p_cuInit == NULL) {
+			return false;
+		}
+	}
+
 	return false;
 }
 
@@ -1032,7 +1063,7 @@ static int CZCudaCalcDevicePerformanceReset(
 /*!
 	\brief GPU code for float point test.
 */
-static __global__ void CZCudaCalcKernelFloat(
+__global__ void CZCudaCalcKernelFloat(
 	void *buf			/*!<[in] Data buffer. */
 ) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1066,7 +1097,7 @@ static __global__ void CZCudaCalcKernelFloat(
 /*!
 	\brief GPU code for double-precision test.
 */
-static __global__ void CZCudaCalcKernelDouble(
+__global__ void CZCudaCalcKernelDouble(
 	void *buf			/*!<[in] Data buffer. */
 ) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1100,7 +1131,7 @@ static __global__ void CZCudaCalcKernelDouble(
 /*!
 	\brief GPU code for 32-bit integer test.
 */
-static __global__ void CZCudaCalcKernelInteger32(
+__global__ void CZCudaCalcKernelInteger32(
 	void *buf			/*!<[in] Data buffer. */
 ) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1134,7 +1165,7 @@ static __global__ void CZCudaCalcKernelInteger32(
 /*!
 	\brief GPU code for 24-bit integer test.
 */
-static __global__ void CZCudaCalcKernelInteger24(
+__global__ void CZCudaCalcKernelInteger24(
 	void *buf			/*!<[in] Data buffer. */
 ) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1227,7 +1258,7 @@ static float CZCudaCalcDevicePerformanceTest(
 			break;
 
 		case CZ_CALC_MODE_DOUBLE:
-			CZCudaCalcKernelDouble<<<blocksNum, threadsNum>>>((double*)lData->memDevice1);
+			CZCudaCalcKernelDouble<<<blocksNum, threadsNum>>>(lData->memDevice1);
 			break;
 
 		case CZ_CALC_MODE_INTEGER32:

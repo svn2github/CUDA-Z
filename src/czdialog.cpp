@@ -530,7 +530,7 @@ void CZDialog::setupAboutTab() {
 	\brief Get OS version string.
 	\return string that describes version of OS we running at.
 */
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
 #include <windows.h>
 typedef BOOL (WINAPI *IsWow64Process_t)(HANDLE, PBOOL);
 
@@ -577,6 +577,18 @@ QString CZDialog::getOSVersion() {
 		return QString("Linux (unknown)");
 	QString OSVersion = uname.readLine();
 
+	return OSVersion.remove('\n');
+}
+#elif defined (Q_OS_DARWIN)
+#include <QProcess>
+QString CZDialog::getOSVersion() {
+	QProcess uname; 
+	
+	uname.start("uname", QStringList() << "-srvm");
+	if(!uname.waitForFinished())
+		return QString("Darwin (unknown)");
+	QString OSVersion = uname.readLine();
+	
 	return OSVersion.remove('\n');
 }
 #else//!Q_WS_WIN
