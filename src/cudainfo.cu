@@ -19,6 +19,8 @@
 #define Q_OS_WIN
 #elif defined(__linux__) || defined(__linux)
 #define Q_OS_LINUX
+#elif defined(__APPLE__) && defined(__GNUC__)
+#define Q_OS_DARWIN
 #else
 #error Unknown/unsupported platform!
 #endif
@@ -96,7 +98,7 @@ static int rtDllVer = 0;
 */
 static char rtDllVerStr[CZ_VER_STR_LEN] = "";
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
 //#include <windows.h>
 #define CZ_DLL_LIST_LEN		64			/*!< Process dll list length. */
 #define CZ_DLL_BNAME_LEN	64			/*!< Dll base name length. */
@@ -427,7 +429,19 @@ static bool CZCudaIsInit(void) {
 	}
 	return true;
 }
-#else//!Q_OS_WIN
+#elif defined(Q_OS_DARWIN)
+
+/*!
+	\brief Check if CUDA fully initialized.
+	This function is not yet implemented for Mac OS X.
+	\return \a true in case of success, \a false in case of error.
+*/
+static bool CZCudaIsInit(void) {
+#warning No implementation for Mac OS X yet...
+	return false;
+}
+
+#else//!Q_OS_WIN && !Q_OS_LINUX && !Q_OS_DARWIN
 #error Function CZCudaIsInit() is not implemented for your platform!
 #endif//Q_OS_WIN
 
