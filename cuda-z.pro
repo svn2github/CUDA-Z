@@ -113,6 +113,7 @@ unix:QMAKE_CUC = nvcc
 	win32:INCLUDEPATH += $(CUDA_INC_PATH)
 	unix:INCLUDEPATH += /usr/local/cuda/include
 	unix:LIBPATH += /usr/local/cuda/lib
+	unix:LIBPATH += /usr/local/cuda/lib64
 
 	QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS
 	DebugBuild:QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS_DEBUG
