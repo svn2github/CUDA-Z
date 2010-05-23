@@ -579,7 +579,7 @@ QString CZDialog::getOSVersion() {
 
 	return OSVersion.remove('\n');
 }
-#elif defined (Q_OS_DARWIN)
+#elif defined (Q_OS_MAC)
 #include <QProcess>
 QString CZDialog::getOSVersion() {
 	QProcess uname; 

@@ -55,15 +55,15 @@ In Windows you need:
    http://wiki.qtcentre.org/index.php?title=Building_static_applications
    Additionally, it's good to make our binary file independent from
    msvc?80.dll/msvc?90.dll. To make this you should change some variables in
-   configuration of Qt: mkspecs/win32-msvc2005/qmake.conf:
+   configuration of Qt: mkspecs/win32-msvc2008/qmake.conf:
    QMAKE_CFLAGS_RELEASE	= -O2 -MT
    QMAKE_CFLAGS_DEBUG	= -Zi -MTd
    QMAKE_LFLAGS_WINDOWS	= /SUBSYSTEM:WINDOWS
-   Keep in mind that compiler configuuration file may change with later
+   Keep in mind that compiler configuration file may change with later
    versions of compiler or Qt.
    Build Qt with new configuration file again...
    IMPORTANT: CUDA-Z package release must be linked with static Qt!
-   The smallest version of Qt I could ever biuld was configured with following
+   The smallest version of Qt I could ever build was configured with following
    command line (Note: it was Visual C++ 2005 Express and Qt 4.4.x):
    # configure.exe -release -static -no-exceptions -no-accessibility
                    -no-stl -no-sql-sqlite -no-qt3support -no-opengl
@@ -96,8 +96,8 @@ Visual Studio 2005/2008 Command Prompt:
 LINUX Platform
 ..............
 
-You need coplete C++ build environment (including g++, binutils, make),
-Qt development package or source code, NVIDIA driver and toolkit (v. 2.0+)
+You need complete C++ build environment (including g++, binutils, make),
+Qt development package or source code, NVIDIA driver and toolkit (v. 3.0+)
 for your linux architecture. Then download a source code from our website,
 unpack and type following in source code directory:
    # qmake && make
@@ -110,12 +110,12 @@ additionally:
 APPLE Platform
 ..............
 
-I didn't have chance to try to build CUDA-Z in MacOS X because of lack of
-original Apple hardware. Build of CUDA-Z in MacOS X shouldn't be too
-complicated for any C/C++-developer. You can get gcc and g++ from OS
-distributer (XCode tools). You still have to download or build Qt from NOKIA
-and CUDA toolkit package from NVIDIA website. Have fun! :-)
-Give me your feedback will it work there?
+I made few stapes to let CUDA-Z run on Mac OS X (SnowLeo). This port is in
+alpha stage.... So, don't be too optimistic here because I still have no good
+Mac HW for tests.
+To build CUDA-Z in Mac OS X you should install the Developers package
+(XCode tools). You still have to download (or/and build) Qt from NOKIA
+and CUDA driver and toolkit packages from NVIDIA website.
 
 Happy hacking!
 

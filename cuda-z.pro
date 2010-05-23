@@ -9,8 +9,7 @@ CONFIG += static
 #message(CONFIG: $$CONFIG)
 
 FORMS = ui/czdialog.ui
-HEADERS = \
-	src/version.h \
+HEADERS = src/version.h \
 	src/czdialog.h \
 	src/czdeviceinfo.h \
 	src/log.h \
@@ -19,9 +18,14 @@ SOURCES = src/czdialog.cpp \
 	src/czdeviceinfo.cpp \
 	src/log.cpp \
 	src/main.cpp
+CUSOURCES = src/cudainfo.cu
 RESOURCES = res/cuda-z.qrc
 win32:RC_FILE += res/cuda-z.rc
-CUSOURCES = src/cudainfo.cu
+mac: {
+	ICON = res/img/icon.icns
+	TARGET = CUDA-Z
+	QMAKE_INFO_PLIST = res/Info.plist
+}
 
 CUFLAGS = \
 	-gencode=arch=compute_10,code=sm_10 \
@@ -66,8 +70,19 @@ QMAKE_EXTRA_VARIABLES += QCLEANFILES
 
 qclean.target = qclean
 qclean.commands = -$(DEL_FILE) $(EXPORT_QCLEANFILES) #$(EXPORT_BUILD_H)
-qclean.depends = clean
+mac:qclean.depends = clean appclean
+else:qclean.depends = clean
 QMAKE_EXTRA_TARGETS += qclean
+
+mac: {
+	APPCLEANFILES += bin/CUDA-Z.app
+	QMAKE_EXTRA_VARIABLES += APPCLEANFILES
+
+	appclean.target = appclean
+	appclean.commands = -$(DEL_FILE) -fR $(EXPORT_APPCLEANFILES)
+	appclean.depends = clean
+	QMAKE_EXTRA_TARGETS += appclean
+}
 
 win32: {
 	pkg-win32.target = pkg-win32
@@ -81,6 +96,13 @@ unix: {
 	pkg-linux.commands = sh pkg-linux.sh
 	pkg-linux.depends = all
 	QMAKE_EXTRA_TARGETS += pkg-linux
+}
+
+mac: {
+	pkg-macosx.target = pkg-macosx
+	pkg-macosx.commands = sh pkg-macosx.sh
+	pkg-macosx.depends = all
+	QMAKE_EXTRA_TARGETS += pkg-macosx
 }
 
 DESTDIR = bin

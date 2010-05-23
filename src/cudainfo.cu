@@ -21,7 +21,7 @@
 #elif defined(__linux__) || defined(__linux)
 #define Q_OS_LINUX
 #elif defined(__APPLE__) && defined(__GNUC__)
-#define Q_OS_DARWIN
+#define Q_OS_MAC
 #else
 #error Unknown/unsupported platform!
 #endif
@@ -430,7 +430,7 @@ static bool CZCudaIsInit(void) {
 	}
 	return true;
 }
-#elif defined(Q_OS_DARWIN)
+#elif defined(Q_OS_MAC)
 #include <dlfcn.h>
 
 #warning No full implementation for Mac OS X yet...
@@ -472,7 +472,7 @@ static bool CZCudaIsInit(void) {
 	return false;
 }
 
-#else//!Q_OS_WIN && !Q_OS_LINUX && !Q_OS_DARWIN
+#else//!Q_OS_WIN && !Q_OS_LINUX && !Q_OS_MAC
 #error Function CZCudaIsInit() is not implemented for your platform!
 #endif//Q_OS_WIN
 
