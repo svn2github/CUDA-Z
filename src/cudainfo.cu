@@ -447,7 +447,15 @@ static bool CZCudaIsInit(void) {
 	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
 
 		if(hDll == NULL) {
-			hDll = dlopen("./libcuda.dylib", RTLD_LAZY);
+			hDll = dlopen("libcuda.dylib", RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
+			hDll = dlopen("@rpath/libcuda.dylib", RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
+			hDll = dlopen("@executable_path/libcuda.dylib", RTLD_LAZY);
 		}
 
 		if(hDll == NULL) {
@@ -455,6 +463,7 @@ static bool CZCudaIsInit(void) {
 		}
 
 		if(hDll == NULL) {
+			CZLog(CZLogLevelError, "Can't load CUDA driver.");
 			return false;
 		}
 
@@ -468,8 +477,7 @@ static bool CZCudaIsInit(void) {
 			return false;
 		}
 	}
-
-	return false;
+	return true;
 }
 
 #else//!Q_OS_WIN && !Q_OS_LINUX && !Q_OS_MAC
@@ -491,8 +499,12 @@ bool CZCudaCheck(void) {
 	CZ_CUDA_CALL(cudaDriverGetVersion(&drvDllVer),
 		drvDllVer = 0);
 
+	CZLog(CZLogLevelLow, "Driver version %d.", drvDllVer);
+
 	CZ_CUDA_CALL(cudaRuntimeGetVersion(&rtDllVer),
 		rtDllVer = 0);
+
+	CZLog(CZLogLevelLow, "Runtime version %d.", rtDllVer);
 
 	return true;
 }

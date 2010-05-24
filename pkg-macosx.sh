@@ -23,9 +23,13 @@ do
 	cp $czLibPath/$lib $czAppBinPath
 	install_name_tool -change @rpath/$lib @executable_path/$lib $czAppBinPath/$lib
 	install_name_tool -change @rpath/$lib @executable_path/$lib $czAppBinPath/$czAppName
-	strip $czAppBinPath/$czAppName
+	strip $czAppBinPath/$lib
 done
 strip $czAppBinPath/$czAppName
+
+cp $czLibPath/libcuda.dylib $czAppBinPath
+install_name_tool -change $czLibPath/libcuda.dylib @executable_path/libcuda.dylib $czAppBinPath/libcuda.dylib
+strip $czAppBinPath/libcuda.dylib
 
 #Add copy of qt_menu.nib to Resource subdirectory!
 cp -R $czQtGuiResPath/qt_menu.nib $czAppResPath

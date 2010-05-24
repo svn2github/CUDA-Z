@@ -683,8 +683,8 @@ void CZDialog::slotExportToText() {
 	out << "\t" << QString("%1: %2").arg(tr("Warp Size")).arg(info.core.SIMDWidth) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Regs Per Block")).arg(info.core.regsPerBlock) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Threads Per Block")).arg(info.core.maxThreadsPerBlock) << endl;
-	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Threads Dimentions")).arg(info.core.maxThreadsDim[0]).arg(info.core.maxThreadsDim[1]).arg(info.core.maxThreadsDim[2]) << endl;
-	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Grid Dimentions")).arg(info.core.maxGridSize[0]).arg(info.core.maxGridSize[1]).arg(info.core.maxGridSize[2]) << endl;
+	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Threads Dimensions")).arg(info.core.maxThreadsDim[0]).arg(info.core.maxThreadsDim[1]).arg(info.core.maxThreadsDim[2]) << endl;
+	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Grid Dimensions")).arg(info.core.maxGridSize[0]).arg(info.core.maxGridSize[1]).arg(info.core.maxGridSize[2]) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Watchdog Enabled")).arg(info.core.watchdogEnabled? tr("Yes"): tr("No")) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Integrated GPU")).arg(info.core.integratedGpu? tr("Yes"): tr("No")) << endl;
 	out << "\t" << QString("%1: %2").arg(tr("Concurrent Kernels")).arg(info.core.concurrentKernels? tr("Yes"): tr("No")) << endl;
@@ -884,8 +884,8 @@ void CZDialog::slotExportToHTML() {
 		"<tr><th>" << tr("Warp Size") << "</th><td>" << info.core.SIMDWidth << "</td></tr>\n"
 		"<tr><th>" << tr("Regs Per Block") << "</th><td>" << info.core.regsPerBlock << "</td></tr>\n"
 		"<tr><th>" << tr("Threads Per Block") << "</th><td>" << info.core.maxThreadsPerBlock << "</td></tr>\n"
-		"<tr><th>" << tr("Threads Dimentions") << "</th><td>" << info.core.maxThreadsDim[0] << " x " << info.core.maxThreadsDim[1] << " x " << info.core.maxThreadsDim[2] << "</td></tr>\n"
-		"<tr><th>" << tr("Grid Dimentions") << "</th><td>" << info.core.maxGridSize[0] << " x " << info.core.maxGridSize[1] << " x " << info.core.maxGridSize[2] << "</td></tr>\n"
+		"<tr><th>" << tr("Threads Dimensions") << "</th><td>" << info.core.maxThreadsDim[0] << " x " << info.core.maxThreadsDim[1] << " x " << info.core.maxThreadsDim[2] << "</td></tr>\n"
+		"<tr><th>" << tr("Grid Dimensions") << "</th><td>" << info.core.maxGridSize[0] << " x " << info.core.maxGridSize[1] << " x " << info.core.maxGridSize[2] << "</td></tr>\n"
 		"<tr><th>" << tr("Watchdog Enabled") << "</th><td>" << (info.core.watchdogEnabled? tr("Yes"): tr("No")) << "</td></tr>\n"
 		"<tr><th>" << tr("Integrated GPU") << "</th><td>" << (info.core.integratedGpu? tr("Yes"): tr("No")) << "</td></tr>\n"
 		"<tr><th>" << tr("Concurrent Kernels") << "</th><td>" << (info.core.concurrentKernels? tr("Yes"): tr("No")) << "</td></tr>\n"
