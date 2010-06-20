@@ -245,6 +245,7 @@ void CZDialog::readCudaDevices() {
 			qApp->processEvents();
 
 //			wait(10000000);
+
 			info->waitPerformance();
 			
 			connect(info, SIGNAL(testedPerformance(int)), SLOT(slotUpdatePerformance(int)));

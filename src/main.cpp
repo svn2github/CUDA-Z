@@ -73,8 +73,11 @@ int main(
 
 	CZLog(CZLogLevelHigh, "CUDA-Z Started!");
 
-	QPixmap pixmap(":/img/splash.png");
-	splash = new CZSplashScreen(pixmap, 2);
+	QPixmap pixmap1(":/img/splash1.png");
+	QPixmap pixmap2(":/img/splash2.png");
+	QPixmap pixmap3(":/img/splash3.png");
+
+	splash = new CZSplashScreen(pixmap1, 2);
 	splash->show();
 
 	splash->showMessage(QObject::tr("Checking CUDA ..."),
@@ -97,12 +100,14 @@ int main(
 		exit(1);
 	}
 
+	splash->setPixmap(pixmap2);
 	splash->showMessage(QObject::tr("Found %1 CUDA Device(s) ...").arg(devs),
 		Qt::AlignLeft | Qt::AlignBottom);
 	app.processEvents();
 
 //	wait(10000000);
 
+	splash->setPixmap(pixmap3);
 	CZDialog window;
 	window.show(); 
 	splash->finish(&window);

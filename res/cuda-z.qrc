@@ -2,7 +2,9 @@
 	<qresource>
 		<file>img/icon.png</file>
 		<file>img/logo.png</file>
-		<file>img/splash.png</file>
+		<file>img/splash1.png</file>
+		<file>img/splash2.png</file>
+		<file>img/splash3.png</file>
 		<file>img/logo-geforce.png</file>
 		<file>img/logo-quadro.png</file>
 		<file>img/logo-tesla.png</file>
