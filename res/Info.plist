@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
-<plist version="0.9">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
 <dict>
 	<key>CFBundleIconFile</key>
 	<string>@ICON@</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-        <key>CFBundleGetInfoString</key>
-	<string>Created by AG</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.sourceforge.CUDA-Z</string>
 	<key>CFBundleExecutable</key>
 	<string>@EXECUTABLE@</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleIdentifier</key>
+	<string>net.sourceforge.CUDA-Z</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleVersion</key>
+	<string>$czVersion</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$czVersion</string>
+	<key>CFBundleGetInfoString</key>
+	<string>$czNameShort $czVersion by AG</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
 </dict>
 </plist>

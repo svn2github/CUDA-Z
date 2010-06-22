@@ -4,10 +4,11 @@
 #	\author AG
 #
 
-#set -x
+set -x
 
 czAppName=CUDA-Z
 czAppDir=bin/$czAppName.app
+czAppPlistPath=$czAppDir/Contents/Info.plist
 czAppBinPath=$czAppDir/Contents/MacOS
 czAppResPath=$czAppDir/Contents/Resources
 czAppLibs="libcudart.dylib libtlshook.dylib"
@@ -59,7 +60,10 @@ fi
 outFile="$czNameShort-$czVersion.dmg"
 outVol="$czNameShort-$czVersion"
 
-if test $? != 0; then echo "Cannot create temp directory."; exit 1; fi
+tmpPlistPath="Info.plist"
+
+sed -e "s/\$czVersion/$czVersion/g" -e "s/\$czNameShort/$czNameShort/g" $czAppPlistPath > $tmpPlistPath
+mv -f $tmpPlistPath $czAppPlistPath
 
 tmpDmg="tmp.dmg"
 
@@ -68,7 +72,7 @@ sudo -v
 dmgSize=`du -sk $czAppDir | tr "\t" " " | sed -e 's/ .*$//'`
 dmgSize=$((${dmgSize}/1000+1))
 hdiutil create "$tmpDmg" -megabytes ${dmgSize} -ov -type UDIF
-dmgDisk=`hdid -nomount "$tmpDmg" |awk '/scheme/ {print substr ($1, 6, length)}'`
+dmgDisk=`hdid -nomount "$tmpDmg" | awk '/scheme/ {print substr ($1, 6, length)}'`
 newfs_hfs -v "$outVol" /dev/r${dmgDisk}s1
 hdiutil eject $dmgDisk
 
