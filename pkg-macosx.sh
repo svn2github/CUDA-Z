@@ -4,7 +4,7 @@
 #	\author AG
 #
 
-set -x
+#set -x
 
 czAppName=CUDA-Z
 czAppDir=bin/$czAppName.app
@@ -15,6 +15,8 @@ czAppLibs="libcudart.dylib libtlshook.dylib"
 czLibPath=/usr/local/cuda/lib
 czQtPath=`qmake --version | tail -n1 | sed -e "s/^Using .* in //"`
 czQtGuiResPath=$czQtPath/QtGui.framework/Resources
+czImgDir=res/img
+czVolumeIcon=$czImgDir/VolumeIcon.icns
 
 czVerFile=src/version.h
 czBldFile=src/build.h
@@ -77,15 +79,18 @@ newfs_hfs -v "$outVol" /dev/r${dmgDisk}s1
 hdiutil eject $dmgDisk
 
 hdid "$tmpDmg"
+cp $czVolumeIcon "/Volumes/$outVol/.VolumeIcon.icns"
+SetFile -a C "/Volumes/$outVol/"
 mkdir "/Volumes/$outVol/$czAppName.app"
 sudo ditto -rsrcFork -v "$czAppDir" "/Volumes/$outVol/$czAppName.app"
-sudo chflags -R nouchg,noschg "/Volumes/$outVol/*"
+sudo chflags -R nouchg,noschg "/Volumes/$outVol/$czAppName.app"
 ls -l "/Volumes/$outVol"
 hdiutil eject $dmgDisk
 
 rm -f "$outFile"
 hdiutil convert "$tmpDmg" -format UDBZ -imagekey bzip2-level=9 -o "$outFile"
 #hdiutil convert "$tmpDmg" -format UDZO -imagekey zlib-level=9 -o "$outFile"
+#cp "$tmpDmg" "$outFile"
 rm -f "$tmpDmg"
 
 exit 0
