@@ -581,14 +581,17 @@ QString CZDialog::getOSVersion() {
 	return OSVersion.remove('\n');
 }
 #elif defined (Q_OS_MAC)
-#include <QProcess>
+#include "plist.h"
 QString CZDialog::getOSVersion() {
-	QProcess uname; 
-	
-	uname.start("uname", QStringList() << "-srvm");
-	if(!uname.waitForFinished())
-		return QString("Darwin (unknown)");
-	QString OSVersion = uname.readLine();
+	char osName[256];
+	char osVersion[256];
+	char osBuild[256];
+
+	if((CZPlistGet("/System/Library/CoreServices/SystemVersion.plist", "ProductName", osName, sizeof(osName)) != 0) ||
+	   (CZPlistGet("/System/Library/CoreServices/SystemVersion.plist", "ProductUserVisibleVersion", osVersion, sizeof(osVersion)) != 0) ||
+	   (CZPlistGet("/System/Library/CoreServices/SystemVersion.plist", "ProductBuildVersion", osBuild, sizeof(osBuild)) != 0))
+	   return QString("Mac OS X (unknown)");
+	QString OSVersion = QString(osName) + " " + QString(osVersion) + " " + QString(osBuild);
 	
 	return OSVersion.remove('\n');
 }
