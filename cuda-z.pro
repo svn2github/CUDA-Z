@@ -14,10 +14,12 @@ HEADERS = src/version.h \
 	src/czdeviceinfo.h \
 	src/log.h \
 	src/cudainfo.h
+mac:HEADERS += src/plist.h
 SOURCES = src/czdialog.cpp \
 	src/czdeviceinfo.cpp \
 	src/log.cpp \
 	src/main.cpp
+mac:SOURCES += src/plist.cpp
 CUSOURCES = src/cudainfo.cu
 RESOURCES = res/cuda-z.qrc
 win32:RC_FILE += res/cuda-z.rc

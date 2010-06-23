@@ -432,8 +432,83 @@ static bool CZCudaIsInit(void) {
 }
 #elif defined(Q_OS_MAC)
 #include <dlfcn.h>
+#include <stdio.h>
+#include "plist.h"
+#define CZ_FILE_STR_LEN		256			/*!< Version file string length. */
+#define CZ_PLIST_PATH		"/Contents/Info.plist"	/*!< Path to Info.plist inside of kext/app. */
+#define CZ_KEXT_SYSTEM_PATH	"/System/Library/Extensions/"	/*!< Main kext path. */
+#define CZ_KEXT_EXTRA_PATH	"/Extra/Extensions/"	/*!< Alternative kext path. */
+#define CZ_PLIST_GETINFOSTR		"CFBundleGetInfoString"	/*!< Most informative property name. */
+#define CZ_PLIST_SHORTVERSTR	"CFBundleShortVersionString"	/*!< Less informative property name. */
 
 #warning No full implementation for Mac OS X yet...
+
+static char *CZGetKextVersion(
+	char *name,			/*!<[in] Name of kext file. E.g. "GeForce". */
+	char *version			/*!<[out] Kext version buffer. */
+) {
+	char plist[CZ_FILE_STR_LEN];
+	char str[CZ_FILE_STR_LEN];
+	char *p;
+
+	sprintf(plist, CZ_KEXT_SYSTEM_PATH "%s.kext" CZ_PLIST_PATH, name);
+
+	if(CZPlistGet(plist, CZ_PLIST_GETINFOSTR, str, sizeof(str)) == 0) {
+		p = strstr(str, name);
+		if(p != NULL) {
+			p = p + strlen(name);
+			while(*p == ' ')
+				p++;
+		} else {
+			p = str;
+		}
+		strcpy(version, p);
+		return version;
+	}
+
+	if(CZPlistGet(plist, CZ_PLIST_SHORTVERSTR, str, sizeof(str)) == 0) {
+		p = strstr(str, name);
+		if(p != NULL) {
+			p = p + strlen(name);
+			while(*p == ' ')
+				p++;
+		} else {
+			p = str;
+		}
+		strcpy(version, p);
+		return version;
+	}
+
+	sprintf(plist, CZ_KEXT_EXTRA_PATH "%s.kext" CZ_PLIST_PATH, name);
+
+	if(CZPlistGet(plist, CZ_PLIST_GETINFOSTR, str, sizeof(str)) == 0) {
+		p = strstr(str, name);
+		if(p != NULL) {
+			p = p + strlen(name);
+			while(*p == ' ')
+				p++;
+		} else {
+			p = str;
+		}
+		strcpy(version, p);
+		return version;
+	}
+
+	if(CZPlistGet(plist, CZ_PLIST_SHORTVERSTR, str, sizeof(str)) == 0) {
+		p = strstr(str, name);
+		if(p != NULL) {
+			p = p + strlen(name);
+			while(*p == ' ')
+				p++;
+		} else {
+			p = str;
+		}
+		strcpy(version, p);
+		return version;
+	}
+
+	return NULL;
+}
 
 /*!
 	\brief Check if CUDA fully initialized.
@@ -476,6 +551,8 @@ static bool CZCudaIsInit(void) {
 		if(p_cuInit == NULL) {
 			return false;
 		}
+
+		CZGetKextVersion("GeForce", drvVersion);
 	}
 	return true;
 }
