@@ -13,10 +13,14 @@ czAppBinPath=$czAppDir/Contents/MacOS
 czAppResPath=$czAppDir/Contents/Resources
 czAppLibs="libcudart.dylib libtlshook.dylib"
 czLibPath=/usr/local/cuda/lib
-czQtPath=`qmake --version | tail -n1 | sed -e "s/^Using .* in //"`
-czQtGuiResPath=$czQtPath/QtGui.framework/Resources
 czImgDir=res/img
 czVolumeIcon=$czImgDir/VolumeIcon.icns
+czMakefile=Makefile
+
+czQmake=`grep "QMAKE *=" $czMakefile | sed -e "s/^.*=//"`
+czQtPath=`$czQmake --version | tail -n1 | sed -e "s/^Using .* in //"`
+#czQtGuiResPath=$czQtPath/QtGui.framework/Resources
+czQtGuiResPath=$czQtPath/../src/gui/mac
 
 czVerFile=src/version.h
 czBldFile=src/build.h
