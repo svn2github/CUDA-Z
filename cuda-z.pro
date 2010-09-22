@@ -43,8 +43,8 @@ CUFLAGS = \
 
 unix:LIBS += -lcudart
 win32:LIBS += \
-	$(CUDA_LIB_PATH)\cuda.lib \
-	$(CUDA_LIB_PATH)\cudart.lib \
+	$(CUDA_LIB_PATH)/cuda.lib \
+	$(CUDA_LIB_PATH)/cudart.lib \
 	Version.lib \
 	Kernel32.lib \
 	Psapi.lib
@@ -66,7 +66,7 @@ QCLEANFILES = \
 	cudainfo.linkinfo \
 	version.nsi \
 	build.nsi
-win32:QCLEANFILES += bin\cuda-z.exe
+win32:QCLEANFILES += bin\\cuda-z.exe
 unix:QCLEANFILES += bin/cuda-z
 QMAKE_EXTRA_VARIABLES += QCLEANFILES
 

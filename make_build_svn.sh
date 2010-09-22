@@ -36,6 +36,7 @@ BUILD=`get_build`
 # Opening file if first argument given
 if test ! -z "$1"
 then
+	rm -f "$1"
 	exec 1<> "$1"
 fi
 
