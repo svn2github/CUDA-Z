@@ -43,8 +43,8 @@ CUFLAGS = \
 
 unix:LIBS += -lcudart
 win32:LIBS += \
-	$(CUDA_LIB_PATH)/cuda.lib \
-	$(CUDA_LIB_PATH)/cudart.lib \
+	$$quote($$(CUDA_LIB_PATH)\\cuda.lib) \
+	$$quote($$(CUDA_LIB_PATH)\\cudart.lib) \
 	Version.lib \
 	Kernel32.lib \
 	Psapi.lib
@@ -117,9 +117,6 @@ RCC_DIR = bld/rcc
 # Cuda extra-compiler for handling files specified in the CUSOURCES variable
 #
 
-win32:QMAKE_CUC = $(CUDA_BIN_PATH)/nvcc.exe
-unix:QMAKE_CUC = nvcc
-
 {
 	cu.name = Cuda ${QMAKE_FILE_IN}
 	cu.input = CUSOURCES
@@ -127,14 +124,14 @@ unix:QMAKE_CUC = nvcc
 	cu.variable_out = OBJECTS
 
 	isEmpty(QMAKE_CUC) {
-		win32:QMAKE_CUC = $(CUDA_BIN_PATH)/nvcc.exe
+		win32:QMAKE_CUC = $$quote($$(CUDA_BIN_PATH)\\nvcc.exe)
 		else:QMAKE_CUC = nvcc
 	}
 	isEmpty(CU_DIR):CU_DIR = .
 	isEmpty(QMAKE_CPP_MOD_CU):QMAKE_CPP_MOD_CU = 
 	isEmpty(QMAKE_EXT_CPP_CU):QMAKE_EXT_CPP_CU = .cu
 
-	win32:INCLUDEPATH += $(CUDA_INC_PATH)
+	win32:INCLUDEPATH += $$quote($$(CUDA_INC_PATH))
 	unix:INCLUDEPATH += /usr/local/cuda/include
 	unix:LIBPATH += /usr/local/cuda/lib
 	unix:LIBPATH += /usr/local/cuda/lib64

@@ -1,4 +1,4 @@
-!define CZ_CUDART_DLL cudart32_30_14.dll
+!define CZ_CUDART_DLL cudart32_42_9.dll
 !define CZ_CUDAZ_EXE cuda-z.exe
 
 !system "sh ./make_build_svn.sh | sed -e $\"s,endif//,endif \;,$\" | tr \# ! > build.nsi"
