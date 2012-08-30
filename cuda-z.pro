@@ -54,7 +54,7 @@ QMAKE_EXTRA_VARIABLES += BUILD_H
 PRE_TARGETDEPS += build_h
 
 build_h.target = build_h
-build_h.commands = sh ./make_build_svn.sh $(EXPORT_BUILD_H)
+build_h.commands = perl ./make_build_svn.pl $(EXPORT_BUILD_H)
 QMAKE_EXTRA_TARGETS += build_h
 
 QCLEANFILES = \

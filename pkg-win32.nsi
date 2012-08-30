@@ -1,7 +1,7 @@
 !define CZ_CUDART_DLL cudart32_42_9.dll
 !define CZ_CUDAZ_EXE cuda-z.exe
 
-!system "sh ./make_build_svn.sh | sed -e $\"s,endif//,endif \;,$\" | tr \# ! > build.nsi"
+!system "perl ./make_build_svn.pl | sed -e $\"s,endif//,endif \;,$\" | tr \# ! > build.nsi"
 !system "cat src/version.h | sed -e $\"s,\$\"build.h\$\",build.nsi,$\" -e $\"s,endif//,endif \;,$\" -e $\"s,^//,\;,$\" | tr \# ! > version.nsi"
 #!system "cd tmp\cert && signfile.bat ..\..\bin\${CZ_CUDAZ_EXE}"
 !include version.nsi
