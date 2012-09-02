@@ -56,7 +56,7 @@ if($line =~ /exported/) {
 }
 
 print OUT "\n";
-print OUT '#endif/*CZ_BUILD_H*/'."\n";
+print OUT '#endif /*CZ_BUILD_H*/'."\n";
 
 close(OUT);
 close(VER);

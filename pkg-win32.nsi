@@ -1,8 +1,8 @@
 !define CZ_CUDART_DLL cudart32_42_9.dll
 !define CZ_CUDAZ_EXE cuda-z.exe
 
-!system "perl ./make_build_svn.pl | sed -e $\"s,endif//,endif \;,$\" | tr \# ! > build.nsi"
-!system "cat src/version.h | sed -e $\"s,\$\"build.h\$\",build.nsi,$\" -e $\"s,endif//,endif \;,$\" -e $\"s,^//,\;,$\" | tr \# ! > version.nsi"
+!system "perl -pe $\"s/#/!/g$\" < src/build.h > build.nsi"
+!system "perl -pe $\"s/#/!/g$\" < src/version.h | perl -pe $\"s/build.h/build.nsi/g$\" > version.nsi"
 #!system "cd tmp\cert && signfile.bat ..\..\bin\${CZ_CUDAZ_EXE}"
 !include version.nsi
 !delfile build.nsi
@@ -34,7 +34,7 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION_STR}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "${CZ_COPY_INFO}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "${CZ_NAME_SHORT}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION_STR}"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "It's a Smart Container for ${CZ_NAME_SHORT}"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "Smart Container for ${CZ_NAME_SHORT}"
 
 Function .onInit
 	SetSilent silent

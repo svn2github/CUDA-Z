@@ -32,7 +32,7 @@
 #define CZ_VER_STRING_BUILD	CZ_VER_STRING "." CZ_VER_BUILD_STRING
 #else
 #define CZ_VER_STRING_BUILD	CZ_VER_STRING
-#endif//CZ_VER_BUILD
+#endif /*CZ_VER_BUILD*/
 
 /*!
 	\def CZ_VERSION
@@ -42,7 +42,7 @@
 #define CZ_VERSION		CZ_VER_STRING_BUILD " " CZ_VER_STATE
 #else
 #define CZ_VERSION		CZ_VER_STRING_BUILD
-#endif//CZ_VER_STATE
+#endif /*CZ_VER_STATE*/
 
 #define CZ_NAME_SHORT		"CUDA-Z"	/*!< Application short name. */
 #define CZ_NAME_LONG		"CUDA Information Utility"
@@ -63,4 +63,4 @@
 						/*!< Program's copyright information. */
 /*@}*/
 
-#endif//CZ_VERSION_H
+#endif /*CZ_VERSION_H*/
