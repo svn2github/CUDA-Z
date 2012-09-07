@@ -1,4 +1,9 @@
 #!/bin/sh
+#	\file pkg-linux.dat
+#	\brief linux package generator.
+#	\author Andriy Golovnya <andrew_golovnia@ukr.net> http://ag.embedded.org.ru/
+#	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
+#	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
 #set -x
 echo "$czNameShort $czVersion Container"
 errMsgWrong="Wrong OS! This is a linux i686/x86_64 package."
@@ -8,11 +13,16 @@ osArch=`uname -m`; case "$osArch" in
 i?86|x86_64) ;;
 *) echo "$errMsgWrong"; exit 1 ;;
 esac
-tmpDir=/tmp
+tmpDir=$HOME/tmp
 randID=`head -c8 /dev/random | od -x | head -n1 | sed -e "s/^[0-9]* //g" | tr " " -`
 outDir=$tmpDir/$czNameShort-$randID
 mkdir $outDir; sync; sleep 1
+if test $? != 0; then
+mkdir $tmpDir; sync; sleep 1
+mkdir $outDir; sync; sleep 1
 if test $? != 0; then echo "Cannot create temp directory."; exit 1; fi
+rmTmpDir=1
+fi
 case "$czPackSuffix" in
 gz) czUnPack="gzip -dc" ;;
 bz2) czUnPack="bzip2 -dc" ;;
@@ -29,4 +39,5 @@ chmod +x $outDir/$czExeName $outDir/$czDllName
 echo "Starting CUDA-Z..."
 LD_LIBRARY_PATH=$outDir:$LD_LIBRARY_PATH $outDir/$czExeName
 rm -Rf $outDir
+if test x"$rmTmpDir" == x1; then rm -Rf $tmpDir; fi
 exit 0
