@@ -5,7 +5,6 @@
 	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-//#include <QDebug>
 #include <QMenu>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -172,8 +171,6 @@ CZDialog::CZDialog(
 	QWidget *parent,	/*!<[in,out] Parent of widget. */
 	Qt::WFlags f		/*!<[in] Window flags. */
 )	: QDialog(parent, f /*| Qt::MSWindowsFixedSizeDialogHint*/ | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint) {
-
-	http = NULL;
 
 	setupUi(this);
 	this->setWindowTitle(QString("%1 %2").arg(CZ_NAME_SHORT).arg(CZ_VERSION));
@@ -965,187 +962,190 @@ void CZDialog::slotExportToHTML() {
 */
 void CZDialog::startGetHistoryHttp() {
 
-	if(http == NULL) {
-		http = new QHttp(this);
-
-		connect(http, SIGNAL(done(bool)), this, SLOT(slotGetHistoryDone(bool)));
-		connect(http, SIGNAL(stateChanged(int)), this, SLOT(slotGetHistoryStateChanged(int)));
-
-		http->setHost(CZ_ORG_DOMAIN);
-		http->get("/history.txt");
-	}
-
+	url = QString(CZ_ORG_URL_MAINPAGE) + "/history.txt";
+	startHttpRequest(url);
 }
 
 /*!	\brief Clean up after version reading procedure.
 */
 void CZDialog::cleanGetHistoryHttp() {
 
-	if(http != NULL) {
-		disconnect(http, SIGNAL(done(bool)), this, SLOT(slotGetHistoryDone(bool)));
-		disconnect(http, SIGNAL(stateChanged(int)), this, SLOT(slotGetHistoryStateChanged(int)));
-
-		delete http;
-		http = NULL;
-	}
 }
 
-/*!	\brief HTTP operation result slot.
+/*!	\brief Start a HTTP request with a given \a url.
 */
-void CZDialog::slotGetHistoryDone(
-	bool error			/*!<[in] HTTP operation error state. */
+void CZDialog::startHttpRequest(
+	QUrl url			/*!<[in] URL to be read out. */
 ) {
-	if(error || (!http->lastResponse().isValid()) || (http->lastResponse().statusCode() != 200)) {
+	history = "";
+	reply = qnam.get(QNetworkRequest(url));
+	connect(reply, SIGNAL(finished()), this, SLOT(slotHttpFinished()));
+	connect(reply, SIGNAL(readyRead()), this, SLOT(slotHttpReadyRead()));
+}
 
+/*!	\brief HTTP requst status processing slot.
+*/
+void CZDialog::slotHttpFinished() {
+
+	QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+
+	if(reply->error()) {
 		QString errorString;
-
-		if(error || (!http->lastResponse().isValid())) {
-			errorString = http->errorString();
-		} else {
-			errorString = QString("%1 %2.").arg(tr("Error")).arg(http->lastResponse().statusCode());
-		}
-
+		errorString = QString("%1 %2.").arg(tr("Error")).arg(reply->errorString());
 		CZLog(CZLogLevelWarning, "Get version request done with error: %s", errorString.toLocal8Bit().data());
 
 		labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_ERROR));
 		labelAppUpdate->setText(tr("Can't load version information. ") + errorString);
+	} else if (!redirectionTarget.isNull()) {
+		QUrl newUrl = url.resolved(redirectionTarget.toUrl());
+		CZLog(CZLogLevelModerate, "Get version redirected to %s", newUrl.toString().toLocal8Bit().data());
+
+		url = newUrl;
+		startHttpRequest(url);
 	} else {
 		CZLog(CZLogLevelModerate, "Get version request done successfully");
 
-		QString history(http->readAll().data());
-		history.remove('\r');
-		QStringList historyStrings(history.split("\n"));
-
-		for(int i = 0; i < historyStrings.size(); i++) {
-			CZLog(CZLogLevelLow, "%3d %s", i, historyStrings[i].toLocal8Bit().data());
-		}
-
-		QString lastVersion;
-		QString downloadUrl;
-		QString releaseNotes;
-
-		bool validVersion = false;
-		QString version;
-		QString notes;
-		bool criticalVersion = false;
-		QString url;
-
-		QString nameVersion("version ");
-		QString nameNotes("release-notes ");
-		QString nameCritical("release-critical");
-		QString nameDownload = QString("download-") + CZ_OS_PLATFORM_STR + " ";
-
-		for(int i = 0; i < historyStrings.size(); i++) {
-
-			if(historyStrings[i].left(nameVersion.size()) == nameVersion) {
-
-				if(validVersion) {
-					downloadUrl = url;
-					releaseNotes = notes;
-					lastVersion = version;
-				}
-
-				version = historyStrings[i];
-				version.remove(0, nameVersion.size());
-				CZLog(CZLogLevelLow, "Version found: %s", version.toLocal8Bit().data());
-				notes = "";
-				url = "";
-				criticalVersion = false;
-				validVersion = false;
-			}
-			if(historyStrings[i].left(nameNotes.size()) == nameNotes) {
-				notes = historyStrings[i];
-				notes.remove(0, nameNotes.size());
-				CZLog(CZLogLevelLow, "Notes found: %s", notes.toLocal8Bit().data());
-			}
-			if(historyStrings[i].left(nameDownload.size()) == nameDownload) {
-				url = historyStrings[i];
-				url.remove(0, nameDownload.size());
-				CZLog(CZLogLevelLow, "Valid URL found: %s", url.toLocal8Bit().data());
-				validVersion = true;
-			}
-			if(historyStrings[i].left(nameCritical.size()) == nameCritical) {
-				criticalVersion = true;
-				CZLog(CZLogLevelLow, "Version is critical!");
-			}
-		}
-
-		if(validVersion) {
-			downloadUrl = url;
-			releaseNotes = notes;
-			lastVersion = version;
-		}
-
-		CZLog(CZLogLevelModerate, "Last valid version: %s\n%s\n%s",
-			lastVersion.toLocal8Bit().data(),
-			releaseNotes.toLocal8Bit().data(),
-			downloadUrl.toLocal8Bit().data());
-
-		bool isNewest = true;
-		bool isNonReleased = false;
-
-		if(!lastVersion.isEmpty()) {
-
-			QStringList versionNumbers = lastVersion.split('.');
-
-			#define GEN_VERSION(major, minor) ((major * 10000) + minor)
-			unsigned int myVersion = GEN_VERSION(CZ_VER_MAJOR, CZ_VER_MINOR);
-			unsigned int lastVersion = GEN_VERSION(versionNumbers[0].toInt(), versionNumbers[1].toInt());;
-
-			if(myVersion < lastVersion) {
-				isNewest = false;
-			} else if(myVersion == lastVersion) {
-				isNewest = true;
-#ifdef CZ_VER_BUILD
-				if(CZ_VER_BUILD < versionNumbers[2].toInt()) {
-					isNewest = false;
-				}
-#endif//CZ_VER_BUILD
-			} else { // myVersion > lastVersion
-				isNonReleased = true;
-			}
-		}
-
-		if(isNewest) {
-			if(isNonReleased) {
-				labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_WARNING));
-				labelAppUpdate->setText(tr("WARNING: You are running non-released version!"));
-			} else {
-				labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_INFO));
-				labelAppUpdate->setText(tr("No new version was found."));
-			}
-		} else {
-			QString updateString = QString("%1 <b>%2</b>!")
-				.arg(tr("New version is available")).arg(lastVersion);
-			if(!downloadUrl.isEmpty()) {
-				updateString += QString(" <a href=\"%1\">%2</a>")
-					.arg(downloadUrl)
-					.arg(tr("Download"));
-			} else {
-				updateString += QString(" <a href=\"%1\">%2</a>")
-					.arg(CZ_ORG_URL_MAINPAGE)
-					.arg(tr("Main page"));
-			}
-			if(!releaseNotes.isEmpty()) {
-				updateString += QString(" <a href=\"%1\">%2</a>")
-					.arg(releaseNotes)
-					.arg(tr("Release notes"));
-			}
-			labelAppUpdateImg->setPixmap(QPixmap((criticalVersion == true)? CZ_UPD_ICON_DOWNLOAD_CR: CZ_UPD_ICON_DOWNLOAD));
-			labelAppUpdate->setText(updateString);
-		}
+		parseHistoryTxt(history);
 	}
+
 }
 
-/*!	\brief HTTP connection state change slot.
+/*!	\brief HTTP data processing slot.
 */
-void CZDialog::slotGetHistoryStateChanged(
-	int state			/*!< Current state of HTTP link. */
-) {
-	CZLog(CZLogLevelLow, "Get version connection state changed to %d", state);
+void CZDialog::slotHttpReadyRead() {
+	CZLog(CZLogLevelLow, "Get potrion of data %d", reply->size());
+	history += reply->readAll().data();
+}
 
-	if(state == QHttp::Unconnected) {
-		CZLog(CZLogLevelLow, "Disconnected!");
+/*!	\brief Parse \a history.txt received over HTTP.
+*/
+void CZDialog::parseHistoryTxt(
+	QString history			/*!<[in] history.txt as a string. */
+) {
+
+	history.remove('\r');
+	QStringList historyStrings(history.split("\n"));
+
+	for(int i = 0; i < historyStrings.size(); i++) {
+		CZLog(CZLogLevelLow, "%3d %s", i, historyStrings[i].toLocal8Bit().data());
+	}
+
+	QString lastVersion;
+	QString downloadUrl;
+	QString releaseNotes;
+
+	bool validVersion = false;
+	QString version;
+	QString notes;
+	bool criticalVersion = false;
+	QString url;
+
+	QString nameVersion("version ");
+	QString nameNotes("release-notes ");
+	QString nameCritical("release-critical");
+	QString nameDownload = QString("download-") + CZ_OS_PLATFORM_STR + " ";
+
+	for(int i = 0; i < historyStrings.size(); i++) {
+
+		if(historyStrings[i].left(nameVersion.size()) == nameVersion) {
+
+			if(validVersion) {
+				downloadUrl = url;
+				releaseNotes = notes;
+				lastVersion = version;
+			}
+
+			version = historyStrings[i];
+			version.remove(0, nameVersion.size());
+			CZLog(CZLogLevelLow, "Version found: %s", version.toLocal8Bit().data());
+			notes = "";
+			url = "";
+			criticalVersion = false;
+			validVersion = false;
+		}
+
+		if(historyStrings[i].left(nameNotes.size()) == nameNotes) {
+			notes = historyStrings[i];
+			notes.remove(0, nameNotes.size());
+			CZLog(CZLogLevelLow, "Notes found: %s", notes.toLocal8Bit().data());
+		}
+
+		if(historyStrings[i].left(nameDownload.size()) == nameDownload) {
+			url = historyStrings[i];
+			url.remove(0, nameDownload.size());
+			CZLog(CZLogLevelLow, "Valid URL found: %s", url.toLocal8Bit().data());
+			validVersion = true;
+		}
+
+		if(historyStrings[i].left(nameCritical.size()) == nameCritical) {
+			criticalVersion = true;
+			CZLog(CZLogLevelLow, "Version is critical!");
+		}
+	}
+
+	if(validVersion) {
+		downloadUrl = url;
+		releaseNotes = notes;
+		lastVersion = version;
+	}
+
+	CZLog(CZLogLevelModerate, "Last valid version: %s\n%s\n%s",
+		lastVersion.toLocal8Bit().data(),
+		releaseNotes.toLocal8Bit().data(),
+		downloadUrl.toLocal8Bit().data());
+
+	bool isNewest = true;
+	bool isNonReleased = false;
+
+	if(!lastVersion.isEmpty()) {
+
+		QStringList versionNumbers = lastVersion.split('.');
+
+		#define GEN_VERSION(major, minor) ((major * 10000) + minor)
+		unsigned int myVersion = GEN_VERSION(CZ_VER_MAJOR, CZ_VER_MINOR);
+		unsigned int lastVersion = GEN_VERSION(versionNumbers[0].toInt(), versionNumbers[1].toInt());;
+
+		if(myVersion < lastVersion) {
+			isNewest = false;
+		} else if(myVersion == lastVersion) {
+			isNewest = true;
+#ifdef CZ_VER_BUILD
+			if(CZ_VER_BUILD < versionNumbers[2].toInt()) {
+				isNewest = false;
+			}
+#endif//CZ_VER_BUILD
+		} else { // myVersion > lastVersion
+			isNonReleased = true;
+		}
+	}
+
+	if(isNewest) {
+		if(isNonReleased) {
+			labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_WARNING));
+			labelAppUpdate->setText(tr("WARNING: You are running non-released version!"));
+		} else {
+			labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_INFO));
+			labelAppUpdate->setText(tr("No new version was found."));
+		}
+	} else {
+		QString updateString = QString("%1 <b>%2</b>!")
+			.arg(tr("New version is available")).arg(lastVersion);
+		if(!downloadUrl.isEmpty()) {
+			updateString += QString(" <a href=\"%1\">%2</a>")
+				.arg(downloadUrl)
+				.arg(tr("Download"));
+		} else {
+			updateString += QString(" <a href=\"%1\">%2</a>")
+				.arg(CZ_ORG_URL_MAINPAGE)
+				.arg(tr("Main page"));
+		}
+		if(!releaseNotes.isEmpty()) {
+			updateString += QString(" <a href=\"%1\">%2</a>")
+				.arg(releaseNotes)
+				.arg(tr("Release notes"));
+		}
+		labelAppUpdateImg->setPixmap(QPixmap((criticalVersion == true)? CZ_UPD_ICON_DOWNLOAD_CR: CZ_UPD_ICON_DOWNLOAD));
+		labelAppUpdate->setText(updateString);
 	}
 }
 

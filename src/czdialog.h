@@ -10,7 +10,9 @@
 
 #include <QSplashScreen>
 #include <QTimer>
-#include <QHttp>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QUrl>
 
 #include "ui_czdialog.h"
 #include "czdeviceinfo.h"
@@ -55,7 +57,10 @@ public:
 private:
 	QList<CZCudaDeviceInfo*> deviceList;
 	QTimer *updateTimer;
-	QHttp *http;
+	QUrl url;
+	QNetworkAccessManager qnam;
+	QNetworkReply *reply;
+	QString history;
 
 	void readCudaDevices();
 	void freeCudaDevices();
@@ -74,6 +79,8 @@ private:
 
 	void startGetHistoryHttp();
 	void cleanGetHistoryHttp();
+	void startHttpRequest(QUrl url);
+	void parseHistoryTxt(QString history);
 
 	enum {
 		prefixNothing = 0,	/*!< No prefix. */
@@ -110,8 +117,8 @@ private slots:
 	void slotUpdateTimer();
 	void slotExportToText();
 	void slotExportToHTML();
-	void slotGetHistoryDone(bool error);
-	void slotGetHistoryStateChanged(int state);
+	void slotHttpFinished();
+	void slotHttpReadyRead();
 };
 
 #endif//CZ_DIALOG_H
