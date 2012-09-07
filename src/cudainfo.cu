@@ -41,8 +41,7 @@
 
 #define CZ_VER_STR_LEN		256			/*!< Version string length. */
 
-/*!
-	\brief Error handling of CUDA RT calls.
+/*!	\brief Error handling of CUDA RT calls.
 */
 #define CZ_CUDA_CALL(funcCall, errProc) \
 	{ \
@@ -53,50 +52,41 @@
 		} \
 	}
 
-/*!
-	\brief Prototype of function \a cuDeviceGetAttribute().
+/*!	\brief Prototype of function \a cuDeviceGetAttribute().
 */
 typedef CUresult (CUDAAPI *cuDeviceGetAttribute_t)(int *pi, CUdevice_attribute attrib, CUdevice dev);
 
-/*!
-	\brief Prototype of function \a cuInit().
+/*!	\brief Prototype of function \a cuInit().
 */
 typedef CUresult (CUDAAPI *cuInit_t)(unsigned int Flags);
 
-/*!
-	\brief Pointer to function \a cuDeviceGetAttribute().
+/*!	\brief Pointer to function \a cuDeviceGetAttribute().
 	This parameter is initializaed by CZCudaIsInit().
 */
 static cuDeviceGetAttribute_t p_cuDeviceGetAttribute = NULL;
 
-/*!
-	\brief Pointer to function \a cuInit().
+/*!	\brief Pointer to function \a cuInit().
 	This parameter is initializaed by CZCudaIsInit().
 */
 static cuInit_t p_cuInit = NULL;
 
-/*!
-	\brief Driver version string.
+/*!	\brief Driver version string.
 */
 static char drvVersion[CZ_VER_STR_LEN] = "";
 
-/*!
-	\brief Driver dll version.
+/*!	\brief Driver dll version.
 */
 static int drvDllVer = 0;
 
-/*!
-	\brief Driver dll version string.
+/*!	\brief Driver dll version string.
 */
 static char drvDllVerStr[CZ_VER_STR_LEN] = "";
 
-/*!
-	\brief Runtime dll version.
+/*!	\brief Runtime dll version.
 */
 static int rtDllVer = 0;
 
-/*!
-	\brief Runtime dll version string.
+/*!	\brief Runtime dll version string.
 */
 static char rtDllVerStr[CZ_VER_STR_LEN] = "";
 
@@ -135,8 +125,7 @@ DWORD WINAPI GetModuleFileNameA(HMODULE hModule, LPSTR lpFilename, DWORD nSize);
 }
 #endif
 
-/*!
-	\brief Get version of dll library.
+/*!	\brief Get version of dll library.
 */
 static char *CZGetDllVersion(
 	char *name,			/*!<[in] Name of dll file. */
@@ -177,8 +166,7 @@ static char *CZGetDllVersion(
 	return version;
 }
 
-/*!
-	\brief Get description of dll library.
+/*!	\brief Get description of dll library.
 */
 static char *CZGetDllDescription(
 	char *name,			/*!<[in] Name of dll file. */
@@ -219,8 +207,7 @@ static char *CZGetDllDescription(
 	return description;
 }
 
-/*!
-	\brief Check if CUDA fully initialized.
+/*!	\brief Check if CUDA fully initialized.
 	This function loads nvcuda.dll and finds functions \a cuInit()
 	and \a cuDeviceGetAttribute().
 	\return \a true in case of success, \a false in case of error.
@@ -297,8 +284,7 @@ static bool CZCudaIsInit(void) {
 #define CZ_VER_FILE_NAME	"/proc/driver/nvidia/version"	/*!< Driver version file name. */
 #define CZ_PROC_MAP_NAME	"/proc/self/maps"		/*!< Process memory map file. */
 
-/*!
-	\brief Get version of shared library.
+/*!	\brief Get version of shared library.
 */
 static char *CZGetSoVersion(
 	char *name,			/*!<[in] Name of so file. E.g. "libcuda.so". */
@@ -358,8 +344,7 @@ static char *CZGetSoVersion(
 	}
 }
 
-/*!
-	\brief Check if CUDA fully initialized.
+/*!	\brief Check if CUDA fully initialized.
 	This function loads libcuda.so and finds functions \a cuInit()
 	and \a cuDeviceGetAttribute().
 	\return \a true in case of success, \a false in case of error.
@@ -444,6 +429,8 @@ static bool CZCudaIsInit(void) {
 
 #warning No full implementation for Mac OS X yet...
 
+/*!	\brief Get version of Kext driver.
+*/
 static char *CZGetKextVersion(
 	char *name,			/*!<[in] Name of kext file. E.g. "GeForce". */
 	char *version			/*!<[out] Kext version buffer. */
@@ -511,8 +498,7 @@ static char *CZGetKextVersion(
 	return NULL;
 }
 
-/*!
-	\brief Check if CUDA fully initialized.
+/*!	\brief Check if CUDA fully initialized.
 	This function loads libcuda.dylib and finds functions \a cuInit()
 	and \a cuDeviceGetAttribute().
 	\return \a true in case of success, \a false in case of error.
@@ -562,8 +548,7 @@ static bool CZCudaIsInit(void) {
 #error Function CZCudaIsInit() is not implemented for your platform!
 #endif//Q_OS_WIN
 
-/*!
-	\brief Check if CUDA is present here.
+/*!	\brief Check if CUDA is present here.
 */
 bool CZCudaCheck(void) {
 
@@ -587,8 +572,7 @@ bool CZCudaCheck(void) {
 	return true;
 }
 
-/*!
-	\brief Check how many CUDA-devices are present.
+/*!	\brief Check how many CUDA-devices are present.
 	\return number of CUDA-devices in case of success, \a 0 if no CUDA-devies were found.
 */
 int CZCudaDeviceFound(void) {
@@ -601,8 +585,7 @@ int CZCudaDeviceFound(void) {
 	return count;
 }
 
-/*!
-	\brief Read information about a CUDA-device.
+/*!	\brief Read information about a CUDA-device.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaReadDeviceInfo(
@@ -675,8 +658,7 @@ int CZCudaReadDeviceInfo(
 	return 0;
 }
 
-/*!
-	\brief Local service data structure for bandwith calulations.
+/*!	\brief Local service data structure for bandwith calulations.
 */
 struct CZDeviceInfoBandLocalData {
 	void		*memHostPage;	/*!< Pageable host memory. */
@@ -685,8 +667,7 @@ struct CZDeviceInfoBandLocalData {
 	void		*memDevice2;	/*!< Device memory buffer 2. */
 };
 
-/*!
-	\brief Set device for current thread.
+/*!	\brief Set device for current thread.
 */
 int CZCudaCalcDeviceSelect(
 	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
@@ -700,8 +681,7 @@ int CZCudaCalcDeviceSelect(
 	return 0;
 }
 
-/*!
-	\brief Allocate buffers for bandwidth calculations.
+/*!	\brief Allocate buffers for bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthAlloc(
@@ -767,8 +747,7 @@ static int CZCudaCalcDeviceBandwidthAlloc(
 	return 0;
 }
 
-/*!
-	\brief Free buffers for bandwidth calculations.
+/*!	\brief Free buffers for bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthFree(
@@ -811,8 +790,7 @@ static int CZCudaCalcDeviceBandwidthFree(
 	return 0;
 }
 
-/*!
-	\brief Reset results of bandwidth calculations.
+/*!	\brief Reset results of bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthReset(
@@ -835,8 +813,7 @@ static int CZCudaCalcDeviceBandwidthReset(
 #define CZ_COPY_MODE_D2H	1	/*!< Device to host data copy mode. */
 #define CZ_COPY_MODE_D2D	2	/*!< Device to device data copy mode. */
 
-/*!
-	\brief Run data transfer bandwidth tests.
+/*!	\brief Run data transfer bandwidth tests.
 	\return \a 0 in case of success, \a other is value in KiB/s.
 */
 static float CZCudaCalcDeviceBandwidthTestCommon (
@@ -949,8 +926,7 @@ static float CZCudaCalcDeviceBandwidthTestCommon (
 	return (int)bandwidthKiBs;
 }
 
-/*!
-	\brief Run several bandwidth tests.
+/*!	\brief Run several bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthTest(
@@ -966,8 +942,7 @@ static int CZCudaCalcDeviceBandwidthTest(
 	return 0;
 }
 
-/*!
-	\brief Prepare buffers bandwidth tests.
+/*!	\brief Prepare buffers bandwidth tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaPrepareDevice(
@@ -986,8 +961,7 @@ int CZCudaPrepareDevice(
 	return 0;
 }
 
-/*!
-	\brief Calculate bandwidth information about CUDA-device.
+/*!	\brief Calculate bandwidth information about CUDA-device.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaCalcDeviceBandwidth(
@@ -1012,8 +986,7 @@ int CZCudaCalcDeviceBandwidth(
 	return 0;
 }
 
-/*!
-	\brief Cleanup after test and bandwidth calculations.
+/*!	\brief Cleanup after test and bandwidth calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaCleanDevice(
@@ -1029,8 +1002,7 @@ int CZCudaCleanDevice(
 	return 0;
 }
 
-/*!
-	\brief Reset results of preformance calculations.
+/*!	\brief Reset results of preformance calculations.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDevicePerformanceReset(
@@ -1048,8 +1020,7 @@ static int CZCudaCalcDevicePerformanceReset(
 	return 0;
 }
 
-/*!
-	\brief 16 MAD instructions for float point test.
+/*!	\brief 16 MAD instructions for float point test.
 */
 #define CZ_CALC_FMAD_16(a, b) \
 	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
@@ -1057,8 +1028,7 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
 	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
 
-/*!
-	\brief 256 MAD instructions for float point test.
+/*!	\brief 256 MAD instructions for float point test.
 */
 #define CZ_CALC_FMAD_256(a, b) \
 	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
@@ -1070,8 +1040,7 @@ static int CZCudaCalcDevicePerformanceReset(
 	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
 	CZ_CALC_FMAD_16(a, b) CZ_CALC_FMAD_16(a, b) \
 
-/*!
-	\brief 16 DMAD instructions for double-precision test.
+/*!	\brief 16 DMAD instructions for double-precision test.
 */
 #define CZ_CALC_DFMAD_16(a, b) \
 	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
@@ -1084,8 +1053,7 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = fma(b, a, b); b = fma(a, b, a); a = fma(b, a, b); b = fma(a, b, a); \
 	a = fma(b, a, b); b = fma(a, b, a); a = fma(b, a, b); b = fma(a, b, a); \*/
 
-/*!
-	\brief 256 MAD instructions for float point test.
+/*!	\brief 256 MAD instructions for float point test.
 */
 #define CZ_CALC_DFMAD_256(a, b) \
 	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
@@ -1097,8 +1065,7 @@ static int CZCudaCalcDevicePerformanceReset(
 	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
 	CZ_CALC_DFMAD_16(a, b) CZ_CALC_DFMAD_16(a, b) \
 
-/*!
-	\brief 16 MAD instructions for 32-bit integer test.
+/*!	\brief 16 MAD instructions for 32-bit integer test.
 */
 #define CZ_CALC_IMAD32_16(a, b) \
 	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
@@ -1106,8 +1073,7 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
 	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
 
-/*!
-	\brief 256 MAD instructions for 32-bit integer test.
+/*!	\brief 256 MAD instructions for 32-bit integer test.
 */
 #define CZ_CALC_IMAD32_256(a, b) \
 	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
@@ -1119,8 +1085,7 @@ static int CZCudaCalcDevicePerformanceReset(
 	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
 	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
 
-/*!
-	\brief 16 MAD instructions for 24-bit integer test.
+/*!	\brief 16 MAD instructions for 24-bit integer test.
 */
 #define CZ_CALC_IMAD24_16(a, b) \
 	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
@@ -1132,8 +1097,7 @@ static int CZCudaCalcDevicePerformanceReset(
 	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
 	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
 
-/*!
-	\brief 256 MAD instructions for 24-bit integer test.
+/*!	\brief 256 MAD instructions for 24-bit integer test.
 */
 #define CZ_CALC_IMAD24_256(a, b) \
 	CZ_CALC_IMAD24_16(a, b) CZ_CALC_IMAD24_16(a, b)\
@@ -1150,8 +1114,7 @@ static int CZCudaCalcDevicePerformanceReset(
 #define CZ_CALC_MODE_INTEGER32	2	/*!< 32-bit integer test mode. */
 #define CZ_CALC_MODE_INTEGER24	3	/*!< 24-bit integer test mode. */
 
-/*!
-	\brief GPU code for float point test.
+/*!	\brief GPU code for float point test.
 */
 __global__ void CZCudaCalcKernelFloat(
 	void *buf			/*!<[in] Data buffer. */
@@ -1184,8 +1147,7 @@ __global__ void CZCudaCalcKernelFloat(
 	arr[index] = val1 + val2;
 }
 
-/*!
-	\brief GPU code for double-precision test.
+/*!	\brief GPU code for double-precision test.
 */
 __global__ void CZCudaCalcKernelDouble(
 	void *buf			/*!<[in] Data buffer. */
@@ -1218,8 +1180,7 @@ __global__ void CZCudaCalcKernelDouble(
 	arr[index] = val1 + val2;
 }
 
-/*!
-	\brief GPU code for 32-bit integer test.
+/*!	\brief GPU code for 32-bit integer test.
 */
 __global__ void CZCudaCalcKernelInteger32(
 	void *buf			/*!<[in] Data buffer. */
@@ -1252,8 +1213,7 @@ __global__ void CZCudaCalcKernelInteger32(
 	arr[index] = val1 + val2;
 }
 
-/*!
-	\brief GPU code for 24-bit integer test.
+/*!	\brief GPU code for 24-bit integer test.
 */
 __global__ void CZCudaCalcKernelInteger24(
 	void *buf			/*!<[in] Data buffer. */
@@ -1286,8 +1246,7 @@ __global__ void CZCudaCalcKernelInteger24(
 	arr[index] = val1 + val2;
 }
 
-/*!
-	\brief Run GPU calculation performace tests.
+/*!	\brief Run GPU calculation performace tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 static float CZCudaCalcDevicePerformanceTest(
@@ -1406,8 +1365,7 @@ static float CZCudaCalcDevicePerformanceTest(
 	return (int)performanceKOPs;
 }
 
-/*!
-	\brief Calculate performance information about CUDA-device.
+/*!	\brief Calculate performance information about CUDA-device.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaCalcDevicePerformance(

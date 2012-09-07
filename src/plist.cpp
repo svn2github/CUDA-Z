@@ -10,10 +10,8 @@
 #include "plist.h"
 #include "log.h"
 
-/*
-	\brief Get property string function.
- 
-	\returns
+/*!	\brief Get property string function.
+ 	\returns
 		- \a 0 in case of successful property read out;
 		- \a 1 in case of access error.
 */

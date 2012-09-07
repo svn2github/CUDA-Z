@@ -20,8 +20,7 @@
 
 #define CZ_TIMER_REFRESH	2000	/*!< Test results update timer period (ms). */
 
-/*!
-	\def CZ_OS_PLATFORM_STR
+/*!	\def CZ_OS_PLATFORM_STR
 	\brief Platform ID string.
 */
 #if defined(Q_OS_WIN)
@@ -34,8 +33,7 @@
 #error Your platform is not supported by CUDA! Or it does but I know nothing about this...
 #endif
 
-/*!
-	\name Update progress icons definitions.
+/*!	\name Update progress icons definitions.
 */
 /*@{*/
 #define CZ_UPD_ICON_INFO	":/img/upd-info.png"
@@ -45,13 +43,11 @@
 #define CZ_UPD_ICON_DOWNLOAD_CR	":/img/upd-download-critical.png"
 /*@}*/
 
-/*!
-	\class CZSplashScreen
+/*!	\class CZSplashScreen
 	\brief Splash screen with multiline logging effect.
 */
 
-/*!
-	\brief Creates a new #CZSplashScreen and initializes internal
+/*!	\brief Creates a new #CZSplashScreen and initializes internal
 	parameters of the class.
 */
 CZSplashScreen::CZSplashScreen(
@@ -66,8 +62,7 @@ CZSplashScreen::CZSplashScreen(
 	m_color = Qt::black;
 }
 
-/*!
-	\brief Creates a new #CZSplashScreen with the given \a parent and
+/*!	\brief Creates a new #CZSplashScreen with the given \a parent and
 	initializes internal parameters of the class.
 */
 CZSplashScreen::CZSplashScreen(
@@ -83,14 +78,12 @@ CZSplashScreen::CZSplashScreen(
 	m_color = Qt::black;
 }
 
-/*!
-	\brief Class destructor.
+/*!	\brief Class destructor.
 */
 CZSplashScreen::~CZSplashScreen() {
 }
 
-/*!
-	\brief Sets the maximal number of lines in log.
+/*!	\brief Sets the maximal number of lines in log.
 */
 void CZSplashScreen::setMaxLines(
 	int maxLines		/*!<[in] Number of lines in log. */
@@ -104,16 +97,14 @@ void CZSplashScreen::setMaxLines(
 	}
 }
 
-/*!
-	\brief Returns the maximal number of lines in log.
+/*!	\brief Returns the maximal number of lines in log.
 	\return number of lines in log.
 */
 int CZSplashScreen::maxLines() {
 	return m_maxLines;
 }
 
-/*!
-	\brief Adds new message line in log.
+/*!	\brief Adds new message line in log.
 */
 void CZSplashScreen::showMessage(
 	const QString &message,	/*!<[in] Message text. */
@@ -139,8 +130,7 @@ void CZSplashScreen::showMessage(
 	QSplashScreen::showMessage(m_message, m_alignment, m_color);
 }
 
-/*!
-	\brief Removes all messages being displayed in log.
+/*!	\brief Removes all messages being displayed in log.
 */
 void CZSplashScreen::clearMessage() {
 	m_message = QString::null;
@@ -148,8 +138,7 @@ void CZSplashScreen::clearMessage() {
 	QSplashScreen::showMessage(m_message, m_alignment, m_color);
 }
 
-/*!
-	\brief Removes first \a lines entries in log.
+/*!	\brief Removes first \a lines entries in log.
 */
 void CZSplashScreen::deleteTop(
 	int lines		/*!<[in] Number of lines to be removed. */
@@ -163,18 +152,15 @@ void CZSplashScreen::deleteTop(
 	m_lines -= lines;
 }
 
-/*!
-	\brief Splash screen of application.
+/*!	\brief Splash screen of application.
 */
 CZSplashScreen *splash;
 
-/*!
-	\class CZDialog
+/*!	\class CZDialog
 	\brief This class implements main window of the application.
 */
 
-/*!
-	\brief Creates a new #CZDialog with the given \a parent.
+/*!	\brief Creates a new #CZDialog with the given \a parent.
 	This function does following steps:
 	- Sets up GUI.
 	- Setup CUDA-device information containers and add them in list.
@@ -212,8 +198,7 @@ CZDialog::CZDialog(
 	startGetHistoryHttp();
 }
 
-/*!
-	\brief Class destructor.
+/*!	\brief Class destructor.
 	This function makes class data cleanup actions.
 */
 CZDialog::~CZDialog() {
@@ -223,8 +208,7 @@ CZDialog::~CZDialog() {
 	cleanGetHistoryHttp();
 }
 
-/*!
-	\brief Reads CUDA devices information.
+/*!	\brief Reads CUDA devices information.
 	For each of detected CUDA-devices does following:
 	- Initialize CUDA-data structure.
 	- Reads CUDA-information about device.
@@ -255,8 +239,7 @@ void CZDialog::readCudaDevices() {
 	}
 }
 
-/*!
-	\brief Cleans up after bandwidth tests.
+/*!	\brief Cleans up after bandwidth tests.
 */
 void CZDialog::freeCudaDevices() {
 
@@ -267,16 +250,14 @@ void CZDialog::freeCudaDevices() {
 	}
 }
 
-/*!
-	\brief Gets number of CUDA devices.
+/*!	\brief Gets number of CUDA devices.
 	\return number of CUDA-devices in case of success, \a 0 if no CUDA-devies were found.
 */
 int CZDialog::getCudaDeviceNumber() {
 	return CZCudaDeviceFound();
 }
 
-/*!
-	\brief Puts devices in combo box.
+/*!	\brief Puts devices in combo box.
 */
 void CZDialog::setupDeviceList() {
 	comboDevice->clear();
@@ -286,8 +267,7 @@ void CZDialog::setupDeviceList() {
 	}
 }
 
-/*!
-	\brief This slot shows in dialog information about given device.
+/*!	\brief This slot shows in dialog information about given device.
 */
 void CZDialog::slotShowDevice(
 	int index			/*!<[in] Index of device in list. */
@@ -299,8 +279,7 @@ void CZDialog::slotShowDevice(
 	}
 }
 
-/*!
-	\brief This slot updates performance information of device
+/*!	\brief This slot updates performance information of device
 	pointed by \a index.
 */
 void CZDialog::slotUpdatePerformance(
@@ -310,8 +289,7 @@ void CZDialog::slotUpdatePerformance(
 	setupPerformanceTab(deviceList[index]->info());
 }
 
-/*!
-	\brief This slot updates performance information of current device
+/*!	\brief This slot updates performance information of current device
 	every timer tick.
 */
 void CZDialog::slotUpdateTimer() {
@@ -330,8 +308,7 @@ void CZDialog::slotUpdateTimer() {
 	}
 }
 
-/*!
-	\brief Places in dialog's tabs information about given device.
+/*!	\brief Places in dialog's tabs information about given device.
 */
 void CZDialog::setupDeviceInfo(
 	int dev				/*!<[in] Number/index of CUDA-device. */
@@ -341,8 +318,7 @@ void CZDialog::setupDeviceInfo(
 	setupPerformanceTab(deviceList[dev]->info());
 }
 
-/*!
-	\brief Fill tab "Core" with CUDA devices information.
+/*!	\brief Fill tab "Core" with CUDA devices information.
 */
 void CZDialog::setupCoreTab(
 	struct CZDeviceInfo &info	/*!<[in] Information about CUDA-device. */
@@ -425,8 +401,7 @@ void CZDialog::setupCoreTab(
 	labelRtDllVersionText->setText(version);
 }
 
-/*!
-	\brief Fill tab "Memory" with CUDA devices information.
+/*!	\brief Fill tab "Memory" with CUDA devices information.
 */
 void CZDialog::setupMemoryTab(
 	struct CZDeviceInfo &info	/*!<[in] Information about CUDA-device. */
@@ -450,8 +425,7 @@ void CZDialog::setupMemoryTab(
 	labelErrorCorrectionText->setText(info.mem.errorCorrection? tr("Yes"): tr("No"));
 }
 
-/*!
-	\brief Fill tab "Performance" with CUDA devices information.
+/*!	\brief Fill tab "Performance" with CUDA devices information.
 */
 void CZDialog::setupPerformanceTab(
 	struct CZDeviceInfo &info	/*!<[in] Information about CUDA-device. */
@@ -508,8 +482,7 @@ void CZDialog::setupPerformanceTab(
 		labelInt24RateText->setText(getValue1000(info.perf.calcInteger24, prefixKilo, tr("iop/s")));
 }
 
-/*!
-	\brief Fill tab "About" with information about this program.
+/*!	\brief Fill tab "About" with information about this program.
 */
 void CZDialog::setupAboutTab() {
 	labelAppName->setText(QString("<b><font size=\"+2\">%1</font></b>")
@@ -527,8 +500,7 @@ void CZDialog::setupAboutTab() {
 	labelAppCopy->setText(CZ_COPY_INFO);
 }
 
-/*!
-	\fn CZDialog::getOSVersion
+/*!	\fn CZDialog::getOSVersion
 	\brief Get OS version string.
 	\return string that describes version of OS we running at.
 */
@@ -600,8 +572,7 @@ QString CZDialog::getOSVersion() {
 #error Function getOSVersion() is not implemented for your platform!
 #endif//Q_WS_WIN
 
-/*!
-	\brief Export information to plane text file.
+/*!	\brief Export information to plane text file.
 */
 void CZDialog::slotExportToText() {
 
@@ -783,8 +754,7 @@ void CZDialog::slotExportToText() {
 	out << QString("%1: %2").arg(tr("Generated")).arg(ctime(&t)) << endl;
 }
 
-/*!
-	\brief Export information to HTML file.
+/*!	\brief Export information to HTML file.
 */
 void CZDialog::slotExportToHTML() {
 
@@ -991,8 +961,7 @@ void CZDialog::slotExportToHTML() {
 		"</html>\n";
 }
 
-/*!
-	\brief Start version reading procedure.
+/*!	\brief Start version reading procedure.
 */
 void CZDialog::startGetHistoryHttp() {
 
@@ -1008,8 +977,7 @@ void CZDialog::startGetHistoryHttp() {
 
 }
 
-/*!
-	\brief Clean up after version reading procedure.
+/*!	\brief Clean up after version reading procedure.
 */
 void CZDialog::cleanGetHistoryHttp() {
 
@@ -1022,8 +990,7 @@ void CZDialog::cleanGetHistoryHttp() {
 	}
 }
 
-/*!
-	\brief HTTP operation result slot.
+/*!	\brief HTTP operation result slot.
 */
 void CZDialog::slotGetHistoryDone(
 	bool error			/*!<[in] HTTP operation error state. */
@@ -1170,8 +1137,7 @@ void CZDialog::slotGetHistoryDone(
 	}
 }
 
-/*!
-	\brief HTTP connection state change slot.
+/*!	\brief HTTP connection state change slot.
 */
 void CZDialog::slotGetHistoryStateChanged(
 	int state			/*!< Current state of HTTP link. */
@@ -1183,8 +1149,7 @@ void CZDialog::slotGetHistoryStateChanged(
 	}
 }
 
-/*!
-	\brief This function returns value and unit in SI format.
+/*!	\brief This function returns value and unit in SI format.
 */
 QString CZDialog::getValue1000(
 	double value,			/*!<[in] Value to print. */
@@ -1214,8 +1179,7 @@ QString CZDialog::getValue1000(
 	return QString("%1 %2%3").arg(value).arg(prefixTab[resPrefix]).arg(unitBase);
 }
 
-/*!
-	\brief This function returns value and unit in IEC 60027 format.
+/*!	\brief This function returns value and unit in IEC 60027 format.
 */
 QString CZDialog::getValue1024(
 	double value,			/*!<[in] Value to print. */

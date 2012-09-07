@@ -14,8 +14,7 @@
 #include "cudainfo.h"
 #include "version.h"
 
-/*!
-	\brief Call function that checks CUDA presents.
+/*!	\brief Call function that checks CUDA presents.
 */
 bool testCudaPresent() {
 	bool res = CZCudaCheck();
@@ -23,8 +22,7 @@ bool testCudaPresent() {
 	return res;
 }
 
-/*!
-	\brief Call function that returns numbed of CUDA-devices.
+/*!	\brief Call function that returns numbed of CUDA-devices.
 */
 int getCudaDeviceNum() {
 	int res = CZCudaDeviceFound();
@@ -47,8 +45,7 @@ int getCudaDeviceNum() {
 	return res;
 }
 
-/*!
-	\brief Busy loop wait function (brutal hack for testing).
+/*!	\brief Busy loop wait function (brutal hack for testing).
 	Actually, I don't know how to call sleep() function from Qt code :).
 */
 void wait(
@@ -62,8 +59,7 @@ void wait(
 	}
 }
 
-/*!
-	\brief Main initialization function.
+/*!	\brief Main initialization function.
 */
 int main(
 	int argc,		/*!<[in] Count of command line arguments. */

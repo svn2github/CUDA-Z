@@ -10,8 +10,7 @@
 
 #include "build.h"
 
-/*!
-	\name Application version information.
+/*!	\name Application version information.
 */
 /*@{*/
 #define CZ_VER_MAJOR		0		/*!< Application major version number. */
@@ -25,8 +24,7 @@
 						     - "Alpha" - alpha version.
 						     - "SVN" / "CVS" - versioning system tree snapshot. */
 
-/*!
-	\def CZ_VER_STRING_BUILD
+/*!	\def CZ_VER_STRING_BUILD
 	\brief Application version string.
 */
 #ifdef CZ_VER_BUILD
@@ -35,8 +33,7 @@
 #define CZ_VER_STRING_BUILD	CZ_VER_STRING
 #endif /*CZ_VER_BUILD*/
 
-/*!
-	\def CZ_VERSION
+/*!	\def CZ_VERSION
 	\brief Application version final string.
 */
 #ifdef CZ_VER_STATE

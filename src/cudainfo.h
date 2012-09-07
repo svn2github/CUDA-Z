@@ -12,8 +12,7 @@
 extern "C" {
 #endif
 
-/*!
-	\brief Device compute mode.
+/*!	\brief Device compute mode.
 */
 enum CZComputeMode {
 	CZComputeModeUnknown = -1,		/*!< Unknown compute mode. */
@@ -22,8 +21,7 @@ enum CZComputeMode {
 	CZComputeModeProhibited,		/*!< Compute-prohibited mode. */
 };
 
-/*!
-	\brief Information about CUDA-device core.
+/*!	\brief Information about CUDA-device core.
 */
 struct CZDeviceInfoCore {
 	int		regsPerBlock;		/*!< Total number of registers available per block. */
@@ -39,8 +37,7 @@ struct CZDeviceInfoCore {
 	int		computeMode;		/*!< Current compute mode. See enum #CZComputeMode. */
 };
 
-/*!
-	\brief Information about CUDA-device memory.
+/*!	\brief Information about CUDA-device memory.
 */
 struct CZDeviceInfoMem {
 	size_t		totalGlobal;		/*!< Total amount of global memory available on the device in bytes. */
@@ -56,8 +53,7 @@ struct CZDeviceInfoMem {
 	int		errorCorrection;	/*!< 1 if error correction is enabled on the device. */
 };
 
-/*!
-	\brief Information about CUDA-device bandwidth.
+/*!	\brief Information about CUDA-device bandwidth.
 */
 struct CZDeviceInfoBand {
 	float		copyHDPage;		/*!< Copy rate from host pageable to device memory in KB/s. */
@@ -69,8 +65,7 @@ struct CZDeviceInfoBand {
 	void		*localData;
 };
 
-/*!
-	\brief Information about CUDA-device performance.
+/*!	\brief Information about CUDA-device performance.
 */
 struct CZDeviceInfoPerf {
 	float		calcFloat;		/*!< Single-precision float point calculations performance in KFOPS. */
@@ -79,8 +74,7 @@ struct CZDeviceInfoPerf {
 	float		calcInteger24;		/*!< 24-bit integer calculations performance in KOPS. */
 };
 
-/*!
-	\brief Information about CUDA-device.
+/*!	\brief Information about CUDA-device.
 */
 struct CZDeviceInfo {
 	int		num;			/*!< Device index. */

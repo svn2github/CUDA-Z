@@ -13,8 +13,7 @@
 
 #define CZ_LOG_BUFFER_LENGTH		4096	/*!< Log bufer size. */
 
-/*!
-	\brief Logging function.
+/*!	\brief Logging function.
 */
 void CZLog(
 	CZLogLevel level,		/*!<[in] Log level value. */

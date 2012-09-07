@@ -12,8 +12,7 @@
 extern "C" {
 #endif
 
-/*!
-	\brief Logging level definition.
+/*!	\brief Logging level definition.
 */
 typedef enum {
 	CZLogLevelFatal = -3,		/*!< Fatal error. Causes termination of application. */
