@@ -1,7 +1,8 @@
-/*!
-	\file plist.h
+/*!	\file plist.h
 	\brief OSX propery list access definitions header.
-	\author AG
+	\author Andriy Golovnya <andrew_golovnia@ukr.net> http://ag.embedded.org.ru/
+	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
+	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
 */
 
 #ifndef CZ_PLIST_H

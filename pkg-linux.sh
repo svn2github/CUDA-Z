@@ -1,8 +1,9 @@
 #!/bin/sh
 #	\file pkg-linux.sh
 #	\brief linux package generator.
-#	\author AG
-#
+#	\author Andriy Golovnya <andrew_golovnia@ukr.net> http://ag.embedded.org.ru/
+#	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
+#	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
 
 #set -x
 

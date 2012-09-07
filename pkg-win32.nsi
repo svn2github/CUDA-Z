@@ -1,3 +1,9 @@
+#	\file pkg-win32.nsi
+#	\brief Windows package generator.
+#	\author Andriy Golovnya <andrew_golovnia@ukr.net> http://ag.embedded.org.ru/
+#	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
+#	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
+
 !define CZ_CUDART_DLL cudart32_42_9.dll
 !define CZ_CUDAZ_EXE cuda-z.exe
 

@@ -1,7 +1,8 @@
-/*!
-	\file cudainfo.h
+/*!	\file cudainfo.h
 	\brief CUDA information data and function definition.
-	\author AG
+	\author Andriy Golovnya <andrew_golovnia@ukr.net> http://ag.embedded.org.ru/
+	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
+	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
 */
 
 #ifndef CZ_CUDAINFO_H
