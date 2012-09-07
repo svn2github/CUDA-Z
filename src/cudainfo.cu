@@ -872,7 +872,7 @@ static float CZCudaCalcDeviceBandwidthTestCommon (
 			break;
 
 		case CZ_COPY_MODE_D2H:
-			CZ_CUDA_CALL(cudaMemcpy(memDevice2, memHost, CZ_COPY_BUF_SIZE, cudaMemcpyHostToDevice),
+			CZ_CUDA_CALL(cudaMemcpy(memHost, memDevice2, CZ_COPY_BUF_SIZE, cudaMemcpyDeviceToHost),
 				cudaEventDestroy(start);
 				cudaEventDestroy(stop);
 				return 0);
