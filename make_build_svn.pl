@@ -17,8 +17,8 @@ if(@ARGV < 1) {
 }
 
 open(OUT, '>'.$outfile) or die 'Unable to open output file'.$outfile.'!';
-open(VER, '-|', 'svnversion.exe -c -n '.$projectroot) or die 'Can\'t get SVN revision value!';
-open(INFO, '-|', 'svn.exe info '.$projectroot) or die 'Can\'t get SVN information!';
+open(VER, '-|', 'svnversion -c -n '.$projectroot) or die 'Can\'t get SVN revision value!';
+open(INFO, '-|', 'svn info '.$projectroot) or die 'Can\'t get SVN information!';
 
 print OUT '/*!'."\t".'\\file '.$outfile.''."\n";
 print OUT "\t".'\\brief SVN revision definition.'."\n";
