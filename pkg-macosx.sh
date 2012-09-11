@@ -5,63 +5,85 @@
 #	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
 #	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
 
-#set -x
+set -x
 
-czAppName=CUDA-Z
-czAppDir=bin/$czAppName.app
-czAppPlistPath=$czAppDir/Contents/Info.plist
-czAppBinPath=$czAppDir/Contents/MacOS
-czAppResPath=$czAppDir/Contents/Resources
+czAppName="CUDA-Z"
+czAppDir="bin/$czAppName.app"
+czAppPlistPath="$czAppDir/Contents/Info.plist"
+czAppBinPath="$czAppDir/Contents/MacOS"
+czAppResPath="$czAppDir/Contents/Resources"
 czAppLibs="libcudart.dylib libtlshook.dylib"
-czLibPath=/usr/local/cuda/lib
-czImgDir=res/img
-czVolumeIcon=$czImgDir/VolumeIcon.icns
-czMakefile=Makefile
+czLibPath="/usr/local/cuda/lib"
+czImgDir="res/img"
+czVolumeIcon="$czImgDir/VolumeIcon.icns"
+czMakefile="Makefile"
+czQtMenuNib="qt_menu.nib"
+czDylibName="libcuda.dylib"
 
 czQmake=`grep "QMAKE *=" $czMakefile | sed -e "s/^.*=//"`
 czQtPath=`$czQmake --version | tail -n1 | sed -e "s/^Using .* in //"`
-#czQtGuiResPath=$czQtPath/QtGui.framework/Resources
-czQtGuiResPath=$czQtPath/../src/gui/mac
+#czQtGuiResPath="$czQtPath/QtGui.framework/Resources"
+czQtGuiResPath="$czQtPath/../src/gui/mac"
 
-czVerFile=src/version.h
-czBldFile=src/build.h
+czQtDocPath="$czQtPath/../doc"
+if [ -h "$czQtDocPath" ]; then
+	czQtRealDocPath=`readlink "$czQtDocPath"`
+	if [ -d "$czQtRealDocPath" ]; then
+		czQtGuiResPath="$czQtRealDocPath/../src/gui/mac"
+	else
+		echo "Can't find Qt Mac resources directory!"
+		exit 1
+	fi
+fi
+
+czVerFile="src/version.h"
+czBldFile="src/build.h"
 
 for lib in $czAppLibs
 do
-	cp $czLibPath/$lib $czAppBinPath
-	install_name_tool -change @rpath/$lib @executable_path/$lib $czAppBinPath/$lib
-	install_name_tool -change @rpath/$lib @executable_path/$lib $czAppBinPath/$czAppName
+	cp "$czLibPath/$lib" "$czAppBinPath"
+	install_name_tool -change @rpath/$lib @executable_path/$lib "$czAppBinPath/$lib"
+	install_name_tool -change @rpath/$lib @executable_path/$lib "$czAppBinPath/$czAppName"
 	strip $czAppBinPath/$lib
 done
-strip $czAppBinPath/$czAppName
+strip "$czAppBinPath/$czAppName"
 
-cp $czLibPath/libcuda.dylib $czAppBinPath
-install_name_tool -change $czLibPath/libcuda.dylib @executable_path/libcuda.dylib $czAppBinPath/libcuda.dylib
-strip $czAppBinPath/libcuda.dylib
+cp "$czLibPath/$czDylibName" "$czAppBinPath"
+install_name_tool -change "$czLibPath/$czDylibName" @executable_path/$czDylibName "$czAppBinPath/$czDylibName"
+strip "$czAppBinPath/$czDylibName"
 
 #Add copy of qt_menu.nib to Resource subdirectory!
-cp -R $czQtGuiResPath/qt_menu.nib $czAppResPath
+if [ -d "$czQtGuiResPath/$czQtMenuNib" ]; then
+	cp -R "$czQtGuiResPath/$czQtMenuNib" "$czAppResPath"
+else
+	echo "Can't find Qt Mac resources file $czQtGuiResPath/$czQtMenuNib!"
+	exit 1
+fi
 
-czVerMajor=`cat $czVerFile | grep "CZ_VER_MAJOR" | tr "\t" " "| sed -e "s/^.*MAJOR//" -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
+czVerMajor=`cat "$czVerFile" | grep "CZ_VER_MAJOR" | tr "\t" " "| sed -e "s/^.*MAJOR//" -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
 if test -z "$czVerMajor"; then
-	echo "Can't get \$czVerMajor!"; exit 1
+	echo "Can't get \$czVerMajor!"
+	exit 1
 fi
 
-czVerMinor=`cat $czVerFile | grep "CZ_VER_MINOR" | tr "\t" " "| sed -e "s/^.*MINOR//" -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
+czVerMinor=`cat "$czVerFile" | grep "CZ_VER_MINOR" | tr "\t" " "| sed -e "s/^.*MINOR//" -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
 if test -z "$czVerMinor"; then
-	echo "Can't get \$czVerMinor!"; exit 1
+	echo "Can't get \$czVerMinor!"
+	exit 1
 fi
 
-czBldNum=`cat $czBldFile | grep "CZ_VER_BUILD[^_]" | tr "\t" " "| sed -e "s/^.*BUILD//" -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
+czBldNum=`cat "$czBldFile" | grep "CZ_VER_BUILD[^_]" | tr "\t" " "| sed -e "s/^.*BUILD//" -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
 if test -z "$czBldNum"; then
-	echo "Can't get \$czBldNum! Assume 0!"; czBldNum=0
+	echo "Can't get \$czBldNum! Assume 0!"
+	czBldNum=0
 fi
 
 czVersion="$czVerMajor.$czVerMinor.$czBldNum"
 
-czNameShort=`cat $czVerFile | grep "CZ_NAME_SHORT" | tr "\t" " " | sed -e "s/^.*SHORT//" -e "s,/\*.*\*/,," -e "s/[ \t]//g" -e "s/\"//g"`
+czNameShort=`cat "$czVerFile" | grep "CZ_NAME_SHORT" | tr "\t" " " | sed -e "s/^.*SHORT//" -e "s,/\*.*\*/,," -e "s/[ \t]//g" -e "s/\"//g"`
 if test -z "$czNameShort"; then
-	echo "Can't get \$czNameShort!"; exit 1
+	echo "Can't get \$czNameShort!"
+	exit 1
 fi
 
 outFile="$czNameShort-$czVersion.dmg"
@@ -70,18 +92,18 @@ outVol="$czNameShort-$czVersion"
 tmpPlistPath="Info.plist"
 
 sed -e "s/\$czVersion/$czVersion/g" -e "s/\$czNameShort/$czNameShort/g" $czAppPlistPath > $tmpPlistPath
-mv -f $tmpPlistPath $czAppPlistPath
+mv -f "$tmpPlistPath" "$czAppPlistPath"
 
 tmpDmg="tmp.dmg"
 
 sudo -v
 
-dmgSize=`du -sk $czAppDir | tr "\t" " " | sed -e 's/ .*$//'`
+dmgSize=`du -sk "$czAppDir" | tr "\t" " " | sed -e 's/ .*$//'`
 dmgSize=$((${dmgSize}/1000+1))
 hdiutil create "$tmpDmg" -megabytes ${dmgSize} -ov -type UDIF
 dmgDisk=`hdid -nomount "$tmpDmg" | awk '/scheme/ {print substr ($1, 6, length)}'`
 newfs_hfs -v "$outVol" /dev/r${dmgDisk}s1
-hdiutil eject $dmgDisk
+hdiutil eject "$dmgDisk"
 
 hdid "$tmpDmg"
 cp $czVolumeIcon "/Volumes/$outVol/.VolumeIcon.icns"
@@ -90,7 +112,7 @@ mkdir "/Volumes/$outVol/$czAppName.app"
 sudo ditto -rsrcFork -v "$czAppDir" "/Volumes/$outVol/$czAppName.app"
 sudo chflags -R nouchg,noschg "/Volumes/$outVol/$czAppName.app"
 ls -l "/Volumes/$outVol"
-hdiutil eject $dmgDisk
+hdiutil eject "$dmgDisk"
 
 rm -f "$outFile"
 hdiutil convert "$tmpDmg" -format UDBZ -imagekey bzip2-level=9 -o "$outFile"
@@ -99,4 +121,3 @@ hdiutil convert "$tmpDmg" -format UDBZ -imagekey bzip2-level=9 -o "$outFile"
 rm -f "$tmpDmg"
 
 exit 0
-
