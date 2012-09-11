@@ -139,8 +139,8 @@ RCC_DIR = bld/rcc
 
 	win32:INCLUDEPATH += $$quote($$(CUDA_INC_PATH))
 	unix:INCLUDEPATH += /usr/local/cuda/include
-	unix:LIBPATH += /usr/local/cuda/lib
-	unix:LIBPATH += /usr/local/cuda/lib64
+	unix:QMAKE_LIBDIR += /usr/local/cuda/lib
+	unix:QMAKE_LIBDIR += /usr/local/cuda/lib64
 
 	QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS
 	DebugBuild:QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS_DEBUG
