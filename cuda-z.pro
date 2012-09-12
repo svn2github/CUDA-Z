@@ -65,31 +65,31 @@ QMAKE_EXTRA_TARGETS += build_h
 
 QCLEANFILES = \
 	Makefile \
-	Makefile.Debug \
-	Makefile.Release \
-	vc80.pdb \
-	cuda-z.ncb \
-	cudainfo.linkinfo \
 	version.nsi \
 	build.nsi
-win32:QCLEANFILES += bin\\cuda-z.exe
-unix:QCLEANFILES += bin/cuda-z
+win32:QCLEANFILES += \
+	Makefile.Debug \
+	Makefile.Release \
+	vc?0.pdb \
+	vc1?0.pdb \
+	bin\\cuda-z.exe \
+	bin\\cuda-z.pdb \
+	cuda-z.ncb \
+	cudainfo.linkinfo
+unix:!mac:QCLEANFILES += \
+	bin/cuda-z
+
 QMAKE_EXTRA_VARIABLES += QCLEANFILES
 
 qclean.target = qclean
 qclean.commands = -$(DEL_FILE) $(EXPORT_QCLEANFILES) #$(EXPORT_BUILD_H)
-mac:qclean.depends = clean appclean
-else:qclean.depends = clean
+qclean.depends = clean
 QMAKE_EXTRA_TARGETS += qclean
 
 mac: {
-	APPCLEANFILES += bin/CUDA-Z.app
-	QMAKE_EXTRA_VARIABLES += APPCLEANFILES
-
-	appclean.target = appclean
-	appclean.commands = -$(DEL_FILE) -fR $(EXPORT_APPCLEANFILES)
-	appclean.depends = clean
-	QMAKE_EXTRA_TARGETS += appclean
+	QCLEANDIRS += bin/CUDA-Z.app
+	QMAKE_EXTRA_VARIABLES += QCLEANDIRS
+	qclean.commands += -$(DEL_FILE) -fR $(EXPORT_QCLEANDIRS)
 }
 
 win32: {

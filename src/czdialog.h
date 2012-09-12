@@ -8,10 +8,16 @@
 #ifndef CZ_DIALOG_H
 #define CZ_DIALOG_H
 
+#define CZ_USE_QHTTP
+
 #include <QSplashScreen>
 #include <QTimer>
+#ifdef CZ_USE_QHTTP
+#include <QHttp>
+#else
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#endif /*CZ_USE_QHTTP*/
 #include <QUrl>
 
 #include "ui_czdialog.h"
@@ -57,9 +63,14 @@ public:
 private:
 	QList<CZCudaDeviceInfo*> deviceList;
 	QTimer *updateTimer;
-	QUrl url;
+#ifdef CZ_USE_QHTTP
+	QHttp *http;
+	int httpId;
+#else
 	QNetworkAccessManager qnam;
 	QNetworkReply *reply;
+#endif /*CZ_USE_QHTTP*/
+	QUrl url;
 	QString history;
 
 	void readCudaDevices();
@@ -117,8 +128,13 @@ private slots:
 	void slotUpdateTimer();
 	void slotExportToText();
 	void slotExportToHTML();
+#ifdef CZ_USE_QHTTP
+	void slotHttpRequestFinished(int id, bool error);
+	void slotHttpStateChanged(int state);
+#else
 	void slotHttpFinished();
 	void slotHttpReadyRead();
+#endif /*CZ_USE_QHTTP*/
 };
 
 #endif//CZ_DIALOG_H

@@ -17,6 +17,10 @@
 #include "czdialog.h"
 #include "version.h"
 
+/*!	\def CZ_USE_QHTTP
+	\brief Use QHttp code or QNetworkAccessManager code.
+*/
+
 #define CZ_TIMER_REFRESH	2000	/*!< Test results update timer period (ms). */
 
 /*!	\def CZ_OS_PLATFORM_STR
@@ -171,6 +175,14 @@ CZDialog::CZDialog(
 	QWidget *parent,	/*!<[in,out] Parent of widget. */
 	Qt::WFlags f		/*!<[in] Window flags. */
 )	: QDialog(parent, f /*| Qt::MSWindowsFixedSizeDialogHint*/ | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint) {
+
+#ifdef CZ_USE_QHTTP
+	http = new QHttp(this);
+	httpId = -1;
+	connect(http, SIGNAL(requestFinished(int,bool)), this, SLOT(slotHttpRequestFinished(int,bool)));
+	connect(http, SIGNAL(stateChanged(int)), this, SLOT(slotHttpStateChanged(int)));
+#else
+#endif /*CZ_USE_QHTTP*/
 
 	setupUi(this);
 	this->setWindowTitle(QString("%1 %2").arg(CZ_NAME_SHORT).arg(CZ_VERSION));
@@ -966,23 +978,91 @@ void CZDialog::startGetHistoryHttp() {
 	startHttpRequest(url);
 }
 
-/*!	\brief Clean up after version reading procedure.
-*/
-void CZDialog::cleanGetHistoryHttp() {
-
-}
-
 /*!	\brief Start a HTTP request with a given \a url.
 */
 void CZDialog::startHttpRequest(
 	QUrl url			/*!<[in] URL to be read out. */
 ) {
-	history = "";
+	history.clear();
+	CZLog(CZLogLevelLow, "Requesting %s!", url.toString().toLocal8Bit().data());
+#ifdef CZ_USE_QHTTP
+	QHttp::ConnectionMode mode = url.scheme() == "https"? QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp;
+	quint16 port = url.port() < 0 ? 0 : url.port();
+	http->setHost(url.host(), mode, port);
+	httpId = http->get(url.path());
+#else
 	reply = qnam.get(QNetworkRequest(url));
 	connect(reply, SIGNAL(finished()), this, SLOT(slotHttpFinished()));
 	connect(reply, SIGNAL(readyRead()), this, SLOT(slotHttpReadyRead()));
+#endif /*CZ_USE_QHTTP*/
 }
 
+/*!	\brief Clean up after version reading procedure.
+*/
+void CZDialog::cleanGetHistoryHttp() {
+
+#ifdef CZ_USE_QHTTP
+	http->abort();
+#endif /*CZ_USE_QHTTP*/
+
+}
+
+#ifdef CZ_USE_QHTTP
+/*!	\brief HTTP connection state change slot.
+*/
+void CZDialog::slotHttpStateChanged(
+	int state			/*!< Current state of HTTP link. */
+) {
+	CZLog(CZLogLevelLow, "Get version connection state changed to %d", state);
+
+	if(state == QHttp::Unconnected) {
+		CZLog(CZLogLevelLow, "Disconnected!");
+	}
+}
+
+/*!	\brief HTTP operation result slot.
+*/
+void CZDialog::slotHttpRequestFinished(
+	int id,				/*!<[in] HTTP request ID. */
+	bool error			/*!<[in] HTTP operation error state. */
+) {
+	if(id != httpId)
+		return;
+
+	QString errorString;
+
+	if(error || (!http->lastResponse().isValid())) {
+		errorString = http->errorString();
+report_error:
+		CZLog(CZLogLevelWarning, "Get version request done with error: %s", errorString.toLocal8Bit().data());
+		labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_ERROR));
+		labelAppUpdate->setText(tr("Can't load version information. ") + errorString);
+	} else {
+		int statusCode = http->lastResponse().statusCode();
+
+		if(statusCode == 200) { /* Ok */
+			CZLog(CZLogLevelModerate, "Get version request done successfully");
+			history = http->readAll().data();
+			parseHistoryTxt(history);
+
+		} else if((statusCode >= 300) && (statusCode < 400)) { /* Redirect */
+			if(!http->lastResponse().hasKey("Location")) {
+				CZLog(CZLogLevelModerate, "Can't redirect - no location.");
+				errorString = QString("%1 %2 %3.").arg(tr("Error")).arg(http->lastResponse().statusCode()).arg(tr("Can't redirect"));
+				goto report_error;
+			} else {
+				url = http->lastResponse().value("Location");
+				CZLog(CZLogLevelModerate, "Get version redirected to %s", url.toString().toLocal8Bit().data());
+				startHttpRequest(url);
+			}
+		} else { /* Error */
+			errorString = QString("%1 %2.").arg(tr("Error")).arg(http->lastResponse().statusCode());
+			goto report_error;
+		}
+	}
+}
+
+#else
 /*!	\brief HTTP requst status processing slot.
 */
 void CZDialog::slotHttpFinished() {
@@ -993,21 +1073,18 @@ void CZDialog::slotHttpFinished() {
 		QString errorString;
 		errorString = QString("%1 %2.").arg(tr("Error")).arg(reply->errorString());
 		CZLog(CZLogLevelWarning, "Get version request done with error: %s", errorString.toLocal8Bit().data());
-
 		labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_ERROR));
 		labelAppUpdate->setText(tr("Can't load version information. ") + errorString);
-	} else if (!redirectionTarget.isNull()) {
-		QUrl newUrl = url.resolved(redirectionTarget.toUrl());
-		CZLog(CZLogLevelModerate, "Get version redirected to %s", newUrl.toString().toLocal8Bit().data());
 
-		url = newUrl;
+	} else if (!redirectionTarget.isNull()) {
+		url = url.resolved(redirectionTarget.toUrl());
+		CZLog(CZLogLevelModerate, "Get version redirected to %s", url.toString().toLocal8Bit().data());
 		startHttpRequest(url);
+
 	} else {
 		CZLog(CZLogLevelModerate, "Get version request done successfully");
-
 		parseHistoryTxt(history);
 	}
-
 }
 
 /*!	\brief HTTP data processing slot.
@@ -1016,6 +1093,7 @@ void CZDialog::slotHttpReadyRead() {
 	CZLog(CZLogLevelLow, "Get potrion of data %d", reply->size());
 	history += reply->readAll().data();
 }
+#endif /*CZ_USE_QHTTP*/
 
 /*!	\brief Parse \a history.txt received over HTTP.
 */

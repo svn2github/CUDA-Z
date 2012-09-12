@@ -5,8 +5,6 @@
 	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-//#include <QDebug>
-
 #include "log.h"
 #include "czdeviceinfo.h"
 
