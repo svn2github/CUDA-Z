@@ -65,8 +65,18 @@ QMAKE_EXTRA_TARGETS += build_h
 
 QCLEANFILES = \
 	Makefile \
-	version.nsi \
-	build.nsi
+	*.fatbin \
+	*.fatbin.c \
+	*.hash \
+	*.ptx \
+	*.cpp.ii \
+	*.cpp?.ii \
+	*.cpp?.i \
+	*.cudafe?.c \
+	*.cudafe?.cpp \
+	*.cudafe?.gpu \
+	*.cudafe?.stub.c \
+	*.cubin
 win32:QCLEANFILES += \
 	Makefile.Debug \
 	Makefile.Release \
@@ -75,7 +85,9 @@ win32:QCLEANFILES += \
 	bin\\cuda-z.exe \
 	bin\\cuda-z.pdb \
 	cuda-z.ncb \
-	cudainfo.linkinfo
+	cudainfo.linkinfo \
+	version.nsi \
+	build.nsi
 unix:!mac:QCLEANFILES += \
 	bin/cuda-z
 
@@ -148,7 +160,7 @@ RCC_DIR = bld/rcc
 	QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS_RTTI_ON $$QMAKE_CXXFLAGS_WARN_ON $$QMAKE_CXXFLAGS_STL_ON
 #	message(QMAKE_CUFLAGS: $$QMAKE_CUFLAGS)
 
-#	QMAKE_CUEXTRAFLAGS += -Xcompiler \"$$QMAKE_CUFLAGS\" $$CUFLAGS
+#	QMAKE_CUEXTRAFLAGS += -Xcompiler $$join(QMAKE_CUFLAGS, ",") $$CUFLAGS
 	unix:QMAKE_CUEXTRAFLAGS += -Xcompiler $$join(QMAKE_CUFLAGS, ",") $$CUFLAGS
 	win32:QMAKE_CUEXTRAFLAGS += $$CUFLAGS
 	QMAKE_CUEXTRAFLAGS += $(DEFINES)
