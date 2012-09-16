@@ -101,7 +101,7 @@ QMAKE_EXTRA_TARGETS += qclean
 mac: {
 	QCLEANDIRS += bin/CUDA-Z.app
 	QMAKE_EXTRA_VARIABLES += QCLEANDIRS
-	qclean.commands += -$(DEL_FILE) -fR $(EXPORT_QCLEANDIRS)
+	qclean.commands += && $(DEL_FILE) -fR $(EXPORT_QCLEANDIRS)
 }
 
 win32: {
