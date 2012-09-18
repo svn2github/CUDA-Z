@@ -58,19 +58,19 @@ if [ -z "$czDllSum" ]; then
 	exit 1
 fi
 
-czVerMajor=`cat "$czVerFile" | grep "CZ_VER_MAJOR" | sed -e "s/^.*MAJOR//" -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
+czVerMajor=`cat "$czVerFile" | grep "CZ_VER_MAJOR" | sed -e "s/^.*MAJOR//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
 if [ -z "$czVerMajor" ]; then
 	echo "Can't get \$czVerMajor!"
 	exit 1
 fi
 
-czVerMinor=`cat "$czVerFile" | grep "CZ_VER_MINOR" | sed -e "s/^.*MINOR//" -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
+czVerMinor=`cat "$czVerFile" | grep "CZ_VER_MINOR" | sed -e "s/^.*MINOR//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
 if [ -z "$czVerMinor" ]; then
 	echo "Can't get \$czVerMinor!"
 	exit 1
 fi
 
-czBldNum=`cat "$czBldFile" | grep "CZ_VER_BUILD[^_]" | sed -e "s/^.*BUILD//" -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
+czBldNum=`cat "$czBldFile" | grep "CZ_VER_BUILD[^_]" | sed -e "s/^.*BUILD//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
 if [ -z "$czBldNum" ]; then
 	echo "Can't get \$czBldNum! Assume 0!"
 	czBldNum=0
@@ -78,13 +78,24 @@ fi
 
 czVersion="$czVerMajor.$czVerMinor.$czBldNum"
 
-czNameShort=`cat "$czVerFile" | grep "CZ_NAME_SHORT" | sed -e "s/^.*SHORT//" -e "s,/\*.*\*/,," -e "s/[ \t]//g" -e "s/\"//g"`
+czNameShort=`cat "$czVerFile" | grep "CZ_NAME_SHORT" | sed -e "s/^.*SHORT//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g" -e "s/\"//g"`
 if [ -z "$czNameShort" ]; then
 	echo "Can't get \$czNameShort!"
 	exit 1
 fi
 
-outFile="$czNameShort-$czVersion.run"
+czBldState=`cat "$czVerFile" | grep "CZ_VER_STATE" | sed -e "s/^.*STATE//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g" -e "s/\"//g"`
+if [ -z "$czBldState" ]; then
+	echo "Can't get \$czBldState! Assume empty!"
+	czBldState=""
+fi
+
+if [ ! -z "$czBldState" ]; then
+	outFile="$czNameShort-$czVersion-$czBldState.run"
+	czVersion="$czVersion $czBldState"
+else
+	outFile="$czNameShort-$czVersion.run"
+fi
 
 tmpDir="$HOME/tmp"
 randID=`head -c8 /dev/random | od -x | head -n1 | sed -e "s/^[0-9]* //g" | tr " " -`

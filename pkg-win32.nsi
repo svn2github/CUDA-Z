@@ -3,13 +3,13 @@
 #	\author Andriy Golovnya <andrew_golovnia@ukr.net> http://ag.embedded.org.ru/
 #	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
 #	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
+!verbose 5
 
 !define CZ_CUDART_DLL cudart32_42_9.dll
 !define CZ_CUDAZ_EXE cuda-z.exe
 
-!system "perl -pe $\"s/#/!/g$\" < src/build.h > build.nsi"
-!system "perl -pe $\"s/#/!/g$\" < src/version.h | perl -pe $\"s/build.h/build.nsi/g$\" > version.nsi"
-#!system "cd tmp\cert && signfile.bat ..\..\bin\${CZ_CUDAZ_EXE}"
+!system "perl -pe $\"s/#/!/g;s,http://,http:!!,;s,https://,https:!!,;s,svn://,svn:!!,;s,//.*$,,;s,/\*.*\*/,,;s,http:!!,http://,;s,https:!!,https://,;s,svn:!!,svn://,$\" < src/build.h > build.nsi"
+!system "perl -pe $\"s/#/!/g;s,http://,http:!!,;s,https://,https:!!,;s,svn://,svn:!!,;s,//.*$,,;s,/\*.*\*/,,;s,http:!!,http://,;s,https:!!,https://,;s,svn:!!,svn://,;s/build.h/build.nsi/g$\" < src/version.h > version.nsi"
 !include version.nsi
 !delfile build.nsi
 !delfile version.nsi
@@ -23,12 +23,19 @@
 !endif
 
 !define VERSION_NUM "${CZ_VER_STRING}.${CZ_VER_BUILD}"
-!define VERSION_STR "${CZ_VER_STRING}.${CZ_VER_BUILD} ${CZ_VER_STATE}"
 !define NAME "${CZ_NAME_SHORT} Container"
+
+!if "${CZ_VER_STATE}" != ""
+!define FILENAME "${CZ_NAME_SHORT}-${VERSION_NUM}-${CZ_VER_STATE}.exe"
+!define VERSION_STR "${CZ_VER_STRING}.${CZ_VER_BUILD} ${CZ_VER_STATE}"
+!else
+!define FILENAME "${CZ_NAME_SHORT}-${VERSION_NUM}.exe"
+!define VERSION_STR "${CZ_VER_STRING}.${CZ_VER_BUILD}"
+!endif
 
 Name "${NAME} ${VERSION_STR}"
 Icon res\img\icon.ico 
-OutFile "${CZ_NAME_SHORT}-${VERSION_NUM}.exe"
+OutFile "${FILENAME}"
 SetCompressor /SOLID lzma
 SetCompressorDictSize 8
 

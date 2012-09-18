@@ -14,6 +14,8 @@ CONFIG += static
 
 #message(CONFIG: $$CONFIG)
 
+# Compiling...
+
 FORMS = ui/czdialog.ui
 HEADERS = src/version.h \
 	src/czdialog.h \
@@ -63,6 +65,8 @@ build_h.target = build_h
 build_h.commands = perl ./make_build_svn.pl $(EXPORT_BUILD_H)
 QMAKE_EXTRA_TARGETS += build_h
 
+# Cleaning...
+
 QCLEANFILES = \
 	Makefile \
 	*.fatbin \
@@ -104,6 +108,8 @@ mac: {
 	qclean.commands += && $(DEL_FILE) -fR $(EXPORT_QCLEANDIRS)
 }
 
+# Packaging...
+
 win32: {
 	pkg-win32.target = pkg-win32
 	pkg-win32.commands = makensis.exe pkg-win32.nsi
@@ -124,6 +130,8 @@ mac: {
 	pkg-macosx.depends = all
 	QMAKE_EXTRA_TARGETS += pkg-macosx
 }
+
+# Outputs...
 
 DESTDIR = bin
 OBJECTS_DIR = bld/o
