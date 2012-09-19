@@ -60,19 +60,19 @@ else
 	exit 1
 fi
 
-czVerMajor=`cat "$czVerFile" | grep "CZ_VER_MAJOR" | tr "\t" " "| sed -e "s/^.*MAJOR//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
+czVerMajor=`cat "$czVerFile" | grep "^#define CZ_VER_MAJOR" | tr "\t" " "| sed -e "s/^.*MAJOR//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
 if test -z "$czVerMajor"; then
 	echo "Can't get \$czVerMajor!"
 	exit 1
 fi
 
-czVerMinor=`cat "$czVerFile" | grep "CZ_VER_MINOR" | tr "\t" " "| sed -e "s/^.*MINOR//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
+czVerMinor=`cat "$czVerFile" | grep "^#define CZ_VER_MINOR" | tr "\t" " "| sed -e "s/^.*MINOR//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
 if test -z "$czVerMinor"; then
 	echo "Can't get \$czVerMinor!"
 	exit 1
 fi
 
-czBldNum=`cat "$czBldFile" | grep "CZ_VER_BUILD[^_]" | tr "\t" " "| sed -e "s/^.*BUILD//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
+czBldNum=`cat "$czBldFile" | grep "^#define CZ_VER_BUILD[^_]" | tr "\t" " "| sed -e "s/^.*BUILD//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
 if test -z "$czBldNum"; then
 	echo "Can't get \$czBldNum! Assume 0!"
 	czBldNum=0
@@ -80,13 +80,13 @@ fi
 
 czVersion="$czVerMajor.$czVerMinor.$czBldNum"
 
-czNameShort=`cat "$czVerFile" | grep "CZ_NAME_SHORT" | tr "\t" " " | sed -e "s/^.*SHORT//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g" -e "s/\"//g"`
+czNameShort=`cat "$czVerFile" | grep "^#define CZ_NAME_SHORT" | tr "\t" " " | sed -e "s/^.*SHORT//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g" -e "s/\"//g"`
 if test -z "$czNameShort"; then
 	echo "Can't get \$czNameShort!"
 	exit 1
 fi
 
-czBldState=`cat "$czVerFile" | grep "CZ_VER_STATE" | tr "\t" " " | sed -e "s/^.*STATE//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g" -e "s/\"//g"`
+czBldState=`cat "$czVerFile" | grep "^#define CZ_VER_STATE" | tr "\t" " " | sed -e "s/^.*STATE//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g" -e "s/\"//g"`
 if [ -z "$czBldState" ]; then
 	echo "Can't get \$czBldState! Assume empty!"
 	czBldState=""
