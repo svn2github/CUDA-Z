@@ -95,6 +95,7 @@ static char rtDllVerStr[CZ_VER_STR_LEN] = "";
 #define CZ_DLL_LIST_LEN		64			/*!< Process dll list length. */
 #define CZ_DLL_BNAME_LEN	64			/*!< Dll base name length. */
 #define CZ_DLL_FNAME_LEN	256			/*!< Dll file name length. */
+#define CZ_DLL_FNAME		"nvcuda.dll"		/*!< CUDA dll file name. */
 
 #ifdef __cplusplus
 extern "C" {
@@ -221,7 +222,7 @@ static bool CZCudaIsInit(void) {
 
 	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
 
-		hDll = LoadLibraryA("nvcuda.dll");
+		hDll = LoadLibraryA(CZ_DLL_FNAME);
 		if(hDll == NULL) {
 			return false;
 		}
@@ -236,9 +237,9 @@ static bool CZCudaIsInit(void) {
 			return false;
 		}
 
-		CZGetDllVersion("nvcuda.dll", drvDllVerStr);
+		CZGetDllVersion(CZ_DLL_FNAME, drvDllVerStr);
 
-		if(CZGetDllDescription("nvcuda.dll", description) != NULL) {
+		if(CZGetDllDescription(CZ_DLL_FNAME, description) != NULL) {
 			char *p = NULL;
 			char *version = "version";
 			strlwr(description);
@@ -275,14 +276,17 @@ static bool CZCudaIsInit(void) {
 
 	return true;
 }
+
 #elif defined(Q_OS_LINUX)
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#define CZ_FILE_STR_LEN	256			/*!< Version file string length. */
+#define CZ_FILE_STR_LEN		256			/*!< Version file string length. */
 #define CZ_VER_FILE_NAME	"/proc/driver/nvidia/version"	/*!< Driver version file name. */
-#define CZ_PROC_MAP_NAME	"/proc/self/maps"		/*!< Process memory map file. */
+#define CZ_PROC_MAP_NAME	"/proc/self/maps"	/*!< Process memory map file. */
+#define CZ_DLL_FNAME		"libcuda.so"		/*!< CUDA dll file name. */
+#define CZ_DLL_FNAME_RT		"libcudart.so"		/*!< CUDA RT dll file name. */
 
 /*!	\brief Get version of shared library.
 */
@@ -356,22 +360,39 @@ static bool CZCudaIsInit(void) {
 	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
 
 		if(hDll == NULL) {
-			hDll = dlopen("/usr/lib/libcuda.so", RTLD_LAZY);
+			hDll = dlopen("/usr/lib/" CZ_DLL_FNAME, RTLD_LAZY);
 		}
 
 		if(hDll == NULL) {
-			hDll = dlopen("/usr/lib32/libcuda.so", RTLD_LAZY);
+			hDll = dlopen("/usr/lib/nvidia-current/" CZ_DLL_FNAME, RTLD_LAZY);
 		}
 
 		if(hDll == NULL) {
-			hDll = dlopen("/usr/lib64/libcuda.so", RTLD_LAZY);
+			hDll = dlopen("/usr/lib32/" CZ_DLL_FNAME, RTLD_LAZY);
 		}
 
 		if(hDll == NULL) {
-			hDll = dlopen("/usr/lib128/libcuda.so", RTLD_LAZY);
+			hDll = dlopen("/usr/lib32/nvidia-current/" CZ_DLL_FNAME, RTLD_LAZY);
 		}
 
 		if(hDll == NULL) {
+			hDll = dlopen("/usr/lib64/" CZ_DLL_FNAME, RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
+			hDll = dlopen("/usr/lib64/nvidia-current/" CZ_DLL_FNAME, RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
+			hDll = dlopen("/usr/lib128/" CZ_DLL_FNAME, RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
+			hDll = dlopen("/usr/lib128/nvidia-current/" CZ_DLL_FNAME, RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
+			CZLog(CZLogLevelError, "Can't load CUDA driver.");
 			return false;
 		}
 
@@ -385,8 +406,8 @@ static bool CZCudaIsInit(void) {
 			return false;
 		}
 
-		CZGetSoVersion("libcuda.so", drvDllVerStr);
-		CZGetSoVersion("libcudart.so", rtDllVerStr);
+		CZGetSoVersion(CZ_DLL_FNAME, drvDllVerStr);
+		CZGetSoVersion(CZ_DLL_FNAME_RT, rtDllVerStr);
 
 		if(access(CZ_VER_FILE_NAME, R_OK) == 0) {
 			FILE *fp = NULL;
@@ -416,6 +437,7 @@ static bool CZCudaIsInit(void) {
 	}
 	return true;
 }
+
 #elif defined(Q_OS_MAC)
 #include <dlfcn.h>
 #include <stdio.h>
@@ -424,8 +446,9 @@ static bool CZCudaIsInit(void) {
 #define CZ_PLIST_PATH		"/Contents/Info.plist"	/*!< Path to Info.plist inside of kext/app. */
 #define CZ_KEXT_SYSTEM_PATH	"/System/Library/Extensions/"	/*!< Main kext path. */
 #define CZ_KEXT_EXTRA_PATH	"/Extra/Extensions/"	/*!< Alternative kext path. */
-#define CZ_PLIST_GETINFOSTR		"CFBundleGetInfoString"	/*!< Most informative property name. */
+#define CZ_PLIST_GETINFOSTR	"CFBundleGetInfoString"	/*!< Most informative property name. */
 #define CZ_PLIST_SHORTVERSTR	"CFBundleShortVersionString"	/*!< Less informative property name. */
+#define CZ_DLL_FNAME		"libcuda.dylib"		/*!< CUDA dll file name. */
 
 #warning No full implementation for Mac OS X yet...
 
@@ -509,19 +532,19 @@ static bool CZCudaIsInit(void) {
 	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
 
 		if(hDll == NULL) {
-			hDll = dlopen("libcuda.dylib", RTLD_LAZY);
+			hDll = dlopen(CZ_DLL_FNAME, RTLD_LAZY);
 		}
 
 		if(hDll == NULL) {
-			hDll = dlopen("@rpath/libcuda.dylib", RTLD_LAZY);
+			hDll = dlopen("@rpath/" CZ_DLL_FNAME, RTLD_LAZY);
 		}
 
 		if(hDll == NULL) {
-			hDll = dlopen("@executable_path/libcuda.dylib", RTLD_LAZY);
+			hDll = dlopen("@executable_path/" CZ_DLL_FNAME, RTLD_LAZY);
 		}
 
 		if(hDll == NULL) {
-			hDll = dlopen("/usr/local/cuda/lib/libcuda.dylib", RTLD_LAZY);
+			hDll = dlopen("/usr/local/cuda/lib/" CZ_DLL_FNAME, RTLD_LAZY);
 		}
 
 		if(hDll == NULL) {
