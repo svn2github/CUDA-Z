@@ -602,8 +602,8 @@ QString CZDialog::getOSVersion() {
 #error Function getOSVersion() is not implemented for your platform!
 #endif//Q_WS_WIN
 
-#define CZ_TXT_EXPORT(label)	out << label ## ->text() << ": " << label ## Text->text() << endl
-#define CZ_TXT_EXPORT_TAB(label)	out << "\t" << label ## ->text() << ": " << label ## Text->text() << endl
+#define CZ_TXT_EXPORT(label)	out << label->text() << ": " << label ## Text->text() << endl
+#define CZ_TXT_EXPORT_TAB(label)	out << "\t" << label->text() << ": " << label ## Text->text() << endl
 #define CZ_TXT_EXPORT_TAB_TITLE(title, label)	out << "\t" << tr(title) << ": " << label ## Text->text() << endl
 
 /*!	\brief Export information to plane text file.
@@ -713,8 +713,8 @@ void CZDialog::slotExportToText() {
 	time(&t);
 	out << QString("%1: %2").arg(tr("Generated")).arg(ctime(&t)) << endl;
 }
-#define CZ_HTML_EXPORT(label)	out << "<b>" << label ## ->text() << "</b>: " << label ## Text->text() << "<br/>" << endl
-#define CZ_HTML_EXPORT_TAB(label)	out << "<tr><th>" << label ## ->text() << "</th><td>" << label ## Text->text() << "</td></tr>" << endl
+#define CZ_HTML_EXPORT(label)	out << "<b>" << label->text() << "</b>: " << label ## Text->text() << "<br/>" << endl
+#define CZ_HTML_EXPORT_TAB(label)	out << "<tr><th>" << label->text() << "</th><td>" << label ## Text->text() << "</td></tr>" << endl
 #define CZ_HTML_EXPORT_TAB_TITLE(title, label)	out << "<tr><th>" << tr(title) << "</th><td>" << label ## Text->text() << "</td></tr>" << endl
 
 /*!	\brief Export information to HTML file.
