@@ -10,8 +10,8 @@
 #include <host_defines.h>
 #include <string.h>
 
-#if CUDA_VERSION < 3000
-#error CUDA 1.x and 2.x are not supported any more! Please use CUDA Toolkit 3.0+ instead.
+#if CUDA_VERSION < 4000
+#error CUDA 1.x, 2.x and 3.x are not supported any more! Please use CUDA Toolkit 4.0+ instead.
 #endif
 
 #include "log.h"
@@ -608,6 +608,17 @@ int CZCudaDeviceFound(void) {
 	return count;
 }
 
+#define ConvertSMVer2Cores(major, minor) \
+	(((major) == 1)? 8: /* G80, G8x, G9x */ \
+	((major) == 2)? \
+		(((minor) == 0)? 32: /* GT200 */ \
+		((minor) == 1)? 48: /* GF100 */ \
+		0): \
+	((major) == 3)? \
+		(((minor) == 0)? 192: /* GK10x */ \
+		0): \
+	0)
+
 /*!	\brief Read information about a CUDA-device.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
@@ -616,7 +627,7 @@ int CZCudaReadDeviceInfo(
 	int num				/*!<[in] Number (index) of CUDA-device. */
 ) {
 	cudaDeviceProp prop;
-	int ecc;
+//	int ecc;
 
 	if(info == NULL)
 		return -1;
@@ -639,6 +650,7 @@ int CZCudaReadDeviceInfo(
 	info->drvDllVerStr = drvDllVerStr;
 	info->rtDllVer = rtDllVer;
 	info->rtDllVerStr = rtDllVerStr;
+	info->tccDriver = prop.tccDriver;
 
 	info->core.regsPerBlock = prop.regsPerBlock;
 	info->core.SIMDWidth = prop.warpSize;
@@ -659,6 +671,11 @@ int CZCudaReadDeviceInfo(
 		(prop.computeMode == cudaComputeModeExclusive)? CZComputeModeExclusive:
 		(prop.computeMode == cudaComputeModeProhibited)? CZComputeModeProhibited:
 		CZComputeModeUnknown;
+	info->core.pciBusID = prop.pciBusID;
+	info->core.pciDeviceID = prop.pciDeviceID;
+	info->core.pciDomainID = prop.pciDomainID;
+	info->core.maxThreadsPerMultiProcessor = prop.maxThreadsPerMultiProcessor;
+	info->core.cudaCores = ConvertSMVer2Cores(prop.major, prop.minor) * prop.multiProcessorCount;
 
 	info->mem.totalGlobal = prop.totalGlobalMem;
 	info->mem.sharedPerBlock = prop.sharedMemPerBlock;
@@ -673,10 +690,16 @@ int CZCudaReadDeviceInfo(
 	info->mem.texture3D[2] = prop.maxTexture3D[2];
 	info->mem.gpuOverlap = prop.deviceOverlap;
 	info->mem.mapHostMemory = prop.canMapHostMemory;
+        info->mem.errorCorrection = prop.ECCEnabled;
+	info->mem.asyncEngineCount = prop.asyncEngineCount;
+	info->mem.unifiedAddressing = prop.unifiedAddressing;
+	info->mem.memoryClockRate = prop.memoryClockRate;
+	info->mem.memoryBusWidth = prop.memoryBusWidth;
+	info->mem.l2CacheSize = prop.l2CacheSize;
 
-	if(p_cuDeviceGetAttribute(&ecc, CU_DEVICE_ATTRIBUTE_ECC_ENABLED, num) != CUDA_SUCCESS)
+/*	if(p_cuDeviceGetAttribute(&ecc, CU_DEVICE_ATTRIBUTE_ECC_ENABLED, num) != CUDA_SUCCESS)
 		return -1;
-	info->mem.errorCorrection = ecc;
+	info->mem.errorCorrection = ecc;*/
 
 	return 0;
 }

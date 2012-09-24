@@ -338,14 +338,21 @@ void CZDialog::setupCoreTab(
 	labelCapabilityText->setText(QString("%1.%2").arg(info.major).arg(info.minor));
 	labelClockText->setText(getValue1000(info.core.clockRate, prefixKilo, tr("Hz")));
 	if(info.core.muliProcCount == 0)
-		labelMultiProcText->setText("<i>" + tr("Unknown") + "</i>");
-	else
-		labelMultiProcText->setNum(info.core.muliProcCount);
+		labelMultiProcText->setText(tr("Unknown"));
+	else {
+		if(info.core.cudaCores == 0)
+			labelMultiProcText->setNum(info.core.muliProcCount);
+		else
+			labelMultiProcText->setText(tr("%1 (%2 Cores)")
+				.arg(info.core.muliProcCount)
+				.arg(info.core.cudaCores));
+	}
+	labelThreadsMultiText->setNum(info.core.maxThreadsPerMultiProcessor);
 	labelWarpText->setNum(info.core.SIMDWidth);
-	labelRegsText->setNum(info.core.regsPerBlock);
-	labelThreadsText->setNum(info.core.maxThreadsPerBlock);
+	labelRegsBlockText->setNum(info.core.regsPerBlock);
+	labelThreadsBlockText->setNum(info.core.maxThreadsPerBlock);
 	if(info.core.watchdogEnabled == -1)
-		labelWatchdogText->setText("<i>" + tr("Unknown") + "</i>");
+		labelWatchdogText->setText(tr("Unknown"));
 	else
 		labelWatchdogText->setText(info.core.watchdogEnabled? tr("Yes"): tr("No"));
 	labelIntegratedText->setText(info.core.integratedGpu? tr("Yes"): tr("No"));
@@ -357,7 +364,7 @@ void CZDialog::setupCoreTab(
 	} else if(info.core.computeMode == CZComputeModeProhibited) {
 		labelComputeModeText->setText(tr("Compute-prohibited"));
 	} else {
-		labelComputeModeText->setText("<i>" + tr("Unknown") + "</i>");
+		labelComputeModeText->setText(tr("Unknown"));
 	}
 
 	labelThreadsDimText->setText(QString("%1 x %2 x %3").arg(info.core.maxThreadsDim[0]).arg(info.core.maxThreadsDim[1]).arg(info.core.maxThreadsDim[2]));
@@ -377,16 +384,22 @@ void CZDialog::setupCoreTab(
 		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-geforce.png"));
 	}
 
+	labelPCIInfoText->setText(tr("%1:%2:%3")
+		.arg(info.core.pciDomainID)
+		.arg(info.core.pciBusID)
+		.arg(info.core.pciDeviceID));
+
 	QString version;
 	if(strlen(info.drvVersion) != 0) {
-		version = " (" + QString(info.drvVersion) + ")";
+		version = QString(info.drvVersion);
+		version += info.tccDriver? " (TCC)": "";
 	} else {
-		version = "<i>" + tr("Unknown") + "</i>";
+		version = tr("Unknown");
 	}
-	labelDrvVersionText->setText(info.drvVersion);
+	labelDrvVersionText->setText(version);
 
 	if(info.drvDllVer == 0) {
-		version = "<i>" + tr("Unknown") + "</i>";
+		version = tr("Unknown");
 	} else {
 		version = QString("%1.%2")
 			.arg(info.drvDllVer / 1000)
@@ -398,7 +411,7 @@ void CZDialog::setupCoreTab(
 	labelDrvDllVersionText->setText(version);
 
 	if(info.rtDllVer == 0) {
-		version = "<i>" + tr("Unknown") + "</i>";
+		version = tr("Unknown");
 	} else {
 		version = QString("%1.%2")
 			.arg(info.rtDllVer / 1000)
@@ -416,10 +429,14 @@ void CZDialog::setupMemoryTab(
 	struct CZDeviceInfo &info	/*!<[in] Information about CUDA-device. */
 ) {
 	labelTotalGlobalText->setText(getValue1024(info.mem.totalGlobal, prefixNothing, tr("B")));
+	labelBusWidthText->setText(tr("%1 bits").arg(info.mem.memoryBusWidth));
+	labelMemClockText->setText(getValue1000(info.mem.memoryClockRate, prefixKilo, tr("Hz")));
+	labelErrorCorrectionText->setText(info.mem.errorCorrection? tr("Yes"): tr("No"));
+	labelL2CasheSizeText->setText(info.mem.l2CacheSize?getValue1024(info.mem.sharedPerBlock, prefixNothing, tr("B")): tr("No"));
 	labelSharedText->setText(getValue1024(info.mem.sharedPerBlock, prefixNothing, tr("B")));
 	labelPitchText->setText(getValue1024(info.mem.maxPitch, prefixNothing, tr("B")));
 	labelTotalConstText->setText(getValue1024(info.mem.totalConst, prefixNothing, tr("B")));
-	labelTextureAlignmentText->setText(getValue1024(info.mem.textureAlignment, prefixNothing, tr("B")));
+	labelTextureAlignText->setText(getValue1024(info.mem.textureAlignment, prefixNothing, tr("B")));
 	labelTexture1DText->setText(QString("%1")
 		.arg((double)info.mem.texture1D[0]));
 	labelTexture2DText->setText(QString("%1 x %2")
@@ -431,7 +448,11 @@ void CZDialog::setupMemoryTab(
 		.arg((double)info.mem.texture3D[2]));
 	labelGpuOverlapText->setText(info.mem.gpuOverlap? tr("Yes"): tr("No"));
 	labelMapHostMemoryText->setText(info.mem.mapHostMemory? tr("Yes"): tr("No"));
-	labelErrorCorrectionText->setText(info.mem.errorCorrection? tr("Yes"): tr("No"));
+	labelUnifiedAddressingText->setText(info.mem.unifiedAddressing? tr("Yes"): tr("No"));
+	labelAsyncEngineText->setText(
+		(info.mem.asyncEngineCount == 2)? tr("Yes, Bidirectional"):
+		(info.mem.asyncEngineCount == 1)? tr("Yes, Unidirectional"):
+		tr("No"));
 }
 
 /*!	\brief Fill tab "Performance" with CUDA devices information.
@@ -477,7 +498,7 @@ void CZDialog::setupPerformanceTab(
 		else
 			labelDoubleRateText->setText(getValue1000(info.perf.calcDouble, prefixKilo, tr("flop/s")));
 	} else {
-		labelDoubleRateText->setText("<i>" + tr("Not Supported") + "</i>");
+		labelDoubleRateText->setText(tr("Not Supported"));
 	}
 
 	if(info.perf.calcInteger32 == 0)
@@ -581,11 +602,13 @@ QString CZDialog::getOSVersion() {
 #error Function getOSVersion() is not implemented for your platform!
 #endif//Q_WS_WIN
 
+#define CZ_TXT_EXPORT(label)	out << label ## ->text() << ": " << label ## Text->text() << endl
+#define CZ_TXT_EXPORT_TAB(label)	out << "\t" << label ## ->text() << ": " << label ## Text->text() << endl
+#define CZ_TXT_EXPORT_TAB_TITLE(title, label)	out << "\t" << tr(title) << ": " << label ## Text->text() << endl
+
 /*!	\brief Export information to plane text file.
 */
 void CZDialog::slotExportToText() {
-
-	struct CZDeviceInfo info = deviceList[comboDevice->currentIndex()]->info();
 
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Text Report as..."),
 		QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation) + QDir::separator() + tr("%1.txt").arg(tr(CZ_NAME_SHORT)),
@@ -611,45 +634,16 @@ void CZDialog::slotExportToText() {
 	for(int i = 0; i < title.size(); i++)
 		out << "=";
 	out << endl;
-	out << QString("%1: %2").arg(tr("Version")).arg(CZ_VERSION);
+	out << tr("Version") << ": " CZ_VERSION;
 #ifdef CZ_VER_STATE
-	out << QString(" %1 %2 %3 ").arg("Built").arg(CZ_DATE).arg(CZ_TIME);
+	out << " " << tr("Built") << " " CZ_DATE " " CZ_TIME;
 #endif//CZ_VER_STATE
-	out << endl;
-	out << CZ_ORG_URL_MAINPAGE << endl;
-	out << QString("%1: %2").arg(tr("OS Version")).arg(getOSVersion()) << endl;
+	out << " " CZ_ORG_URL_MAINPAGE << endl;
+	out << tr("OS Version") << ": " << getOSVersion() << endl;
 
-	QString version;
-	if(info.drvDllVer == 0) {
-		version = tr("Unknown");
-	} else {
-		version = QString("%1").arg(info.drvVersion);
-	}
-	out << QString("%1: %2").arg(tr("Driver Version")).arg(version) << endl;
-
-	if(info.drvDllVer == 0) {
-		version = tr("Unknown");
-	} else {
-		version = QString("%1.%2")
-			.arg(info.drvDllVer / 1000)
-			.arg(info.drvDllVer % 1000);
-	}
-	if(strlen(info.drvDllVerStr) != 0) {
-		version += " (" + QString(info.drvDllVerStr) + ")";
-	}
-	out << QString("%1: %2").arg(tr("Driver Dll Version")).arg(version) << endl;
-
-	if(info.rtDllVer == 0) {
-		version = tr("Unknown");
-	} else {
-		version = QString("%1.%2")
-			.arg(info.rtDllVer / 1000)
-			.arg(info.rtDllVer % 1000);
-	}
-	if(strlen(info.rtDllVerStr) != 0) {
-		version += " (" + QString(info.rtDllVerStr) + ")";
-	}
-	out << QString("%1: %2").arg(tr("Runtime Dll Version")).arg(version) << endl;
+	CZ_TXT_EXPORT(labelDrvVersion);
+	CZ_TXT_EXPORT(labelDrvDllVersion);
+	CZ_TXT_EXPORT(labelRtDllVersion);
 	out << endl;
 
 	subtitle = tr("Core Information");
@@ -657,27 +651,21 @@ void CZDialog::slotExportToText() {
 	for(int i = 0; i < subtitle.size(); i++)
 		out << "-";
 	out << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Name")).arg(info.deviceName) << endl;
-	out << "\t" << QString("%1: %2.%3").arg(tr("Compute Capability")).arg(info.major).arg(info.minor) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Clock Rate")).arg(getValue1000(info.core.clockRate, prefixKilo, tr("Hz"))) << endl;
-	out << "\t" << tr("Multiprocessors") << ": ";
-	if(info.core.muliProcCount == 0)
-		out << tr("Unknown") << endl;
-	else
-		out << info.core.muliProcCount << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Warp Size")).arg(info.core.SIMDWidth) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Regs Per Block")).arg(info.core.regsPerBlock) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Threads Per Block")).arg(info.core.maxThreadsPerBlock) << endl;
-	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Threads Dimensions")).arg(info.core.maxThreadsDim[0]).arg(info.core.maxThreadsDim[1]).arg(info.core.maxThreadsDim[2]) << endl;
-	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Grid Dimensions")).arg(info.core.maxGridSize[0]).arg(info.core.maxGridSize[1]).arg(info.core.maxGridSize[2]) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Watchdog Enabled")).arg(info.core.watchdogEnabled? tr("Yes"): tr("No")) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Integrated GPU")).arg(info.core.integratedGpu? tr("Yes"): tr("No")) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Concurrent Kernels")).arg(info.core.concurrentKernels? tr("Yes"): tr("No")) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Compute Mode")).arg(
-		(info.core.computeMode == CZComputeModeDefault)? tr("Default"):
-		(info.core.computeMode == CZComputeModeExclusive)? tr("Compute-exclusive"):
-		(info.core.computeMode == CZComputeModeProhibited)? tr("Compute-prohibited"):
-		tr("Unknown")) << endl;
+	CZ_TXT_EXPORT_TAB(labelName);
+	CZ_TXT_EXPORT_TAB(labelCapability);
+	CZ_TXT_EXPORT_TAB(labelClock);
+	CZ_TXT_EXPORT_TAB(labelPCIInfo);
+	CZ_TXT_EXPORT_TAB(labelMultiProc);
+	CZ_TXT_EXPORT_TAB(labelThreadsMulti);
+	CZ_TXT_EXPORT_TAB(labelWarp);
+	CZ_TXT_EXPORT_TAB(labelRegsBlock);
+	CZ_TXT_EXPORT_TAB(labelThreadsBlock);
+	CZ_TXT_EXPORT_TAB(labelThreadsDim);
+	CZ_TXT_EXPORT_TAB(labelGridDim);
+	CZ_TXT_EXPORT_TAB(labelWatchdog);
+	CZ_TXT_EXPORT_TAB(labelIntegrated);
+	CZ_TXT_EXPORT_TAB(labelConcurrentKernels);
+	CZ_TXT_EXPORT_TAB(labelComputeMode);
 	out << endl;
 
 	subtitle = tr("Memory Information");
@@ -685,17 +673,22 @@ void CZDialog::slotExportToText() {
 	for(int i = 0; i < subtitle.size(); i++)
 		out << "-";
 	out << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Total Global")).arg(getValue1024(info.mem.totalGlobal, prefixNothing, tr("B"))) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Shared Per Block")).arg(getValue1024(info.mem.sharedPerBlock, prefixNothing, tr("B"))) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Pitch")).arg(getValue1024(info.mem.maxPitch, prefixNothing, tr("B"))) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Total Constant")).arg(getValue1024(info.mem.totalConst, prefixNothing, tr("B"))) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Texture Alignment")).arg(getValue1024(info.mem.textureAlignment, prefixNothing, tr("B"))) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Texture 1D Size")).arg((double)info.mem.texture1D[0]) << endl;
-	out << "\t" << QString("%1: %2 x %3").arg(tr("Texture 2D Size")).arg((double)info.mem.texture2D[0]).arg((double)info.mem.texture2D[1]) << endl;
-	out << "\t" << QString("%1: %2 x %3 x %4").arg(tr("Texture 3D Size")).arg((double)info.mem.texture3D[0]).arg((double)info.mem.texture3D[1]).arg((double)info.mem.texture3D[2]) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("GPU Overlap")).arg(info.mem.gpuOverlap? tr("Yes"): tr("No")) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Map Host Memory")).arg(info.mem.mapHostMemory? tr("Yes"): tr("No")) << endl;
-	out << "\t" << QString("%1: %2").arg(tr("Error Correction")).arg(info.mem.errorCorrection? tr("Yes"): tr("No")) << endl;
+	CZ_TXT_EXPORT_TAB(labelTotalGlobal);
+	CZ_TXT_EXPORT_TAB(labelBusWidth);
+	CZ_TXT_EXPORT_TAB(labelMemClock);
+	CZ_TXT_EXPORT_TAB(labelErrorCorrection);
+	CZ_TXT_EXPORT_TAB(labelL2CasheSize);
+	CZ_TXT_EXPORT_TAB(labelShared);
+	CZ_TXT_EXPORT_TAB(labelPitch);
+	CZ_TXT_EXPORT_TAB(labelTotalConst);
+	CZ_TXT_EXPORT_TAB(labelTextureAlign);
+	CZ_TXT_EXPORT_TAB(labelTexture1D);
+	CZ_TXT_EXPORT_TAB(labelTexture2D);
+	CZ_TXT_EXPORT_TAB(labelTexture3D);
+	CZ_TXT_EXPORT_TAB(labelGpuOverlap);
+	CZ_TXT_EXPORT_TAB(labelMapHostMemory);
+	CZ_TXT_EXPORT_TAB(labelUnifiedAddressing);
+	CZ_TXT_EXPORT_TAB(labelAsyncEngine);
 	out << endl;
 
 	subtitle = tr("Performance Information");
@@ -704,70 +697,29 @@ void CZDialog::slotExportToText() {
 		out << "-";
 	out << endl;
 	out << tr("Memory Copy") << endl;
-	out << "\t" << tr("Host Pinned to Device") << ": ";
-	if(info.band.copyHDPin == 0)
-		out << "--" << endl;
-	else
-		out << getValue1024(info.band.copyHDPin, prefixKibi, tr("B/s")) << endl;
-	out << "\t" << tr("Host Pageable to Device") << ": ";
-	if(info.band.copyHDPage == 0)
-		out << "--" << endl;
-	else
-		out << getValue1024(info.band.copyHDPage, prefixKibi, tr("B/s")) << endl;
-
-	out << "\t" << tr("Device to Host Pinned") << ": ";
-	if(info.band.copyDHPin == 0)
-		out << "--" << endl;
-	else
-		out << getValue1024(info.band.copyDHPin, prefixKibi, tr("B/s")) << endl;
-	out << "\t" << tr("Device to Host Pageable") << ": ";
-	if(info.band.copyDHPage == 0)
-		out << "--" << endl;
-	else
-		out << getValue1024(info.band.copyDHPage, prefixKibi, tr("B/s")) << endl;
-	out << "\t" << tr("Device to Device") << ": ";
-	if(info.band.copyDD == 0)
-		out << "--" << endl;
-	else
-		out << getValue1024(info.band.copyDD, prefixKibi, tr("B/s")) << endl;
+	CZ_TXT_EXPORT_TAB_TITLE("Host Pinned to Device", labelHDRatePin);
+	CZ_TXT_EXPORT_TAB_TITLE("Host Pageable to Device", labelHDRatePage);
+	CZ_TXT_EXPORT_TAB_TITLE("Device to Host Pinned", labelDHRatePin);
+	CZ_TXT_EXPORT_TAB_TITLE("Device to Host Pageable", labelDHRatePage);
+	CZ_TXT_EXPORT_TAB(labelDDRate);
 	out << tr("GPU Core Performance") << endl;
-	out << "\t" << tr("Single-precision Float") << ": ";
-	if(info.perf.calcFloat == 0)
-		out << "--" << endl;
-	else
-		out << getValue1000(info.perf.calcFloat, prefixKilo, tr("flop/s")) << endl;
-	out << "\t" << tr("Double-precision Float") << ": ";
-	if(((info.major > 1)) ||
-		((info.major == 1) && (info.minor >= 3))) {
-		if(info.perf.calcDouble == 0)
-			out << "--" << endl;
-		else
-			out << getValue1000(info.perf.calcDouble, prefixKilo, tr("flop/s")) << endl;
-	} else {
-		out << tr("Not Supported") << endl;
-	}
-	out << "\t" << tr("32-bit Integer") << ": ";
-	if(info.perf.calcInteger32 == 0)
-		out << "--" << endl;
-	else
-		out << getValue1000(info.perf.calcInteger32, prefixKilo, tr("iop/s")) << endl;
-	out << "\t" << tr("24-bit Integer") << ": ";
-	if(info.perf.calcInteger24 == 0)
-		out << "--" << endl;
-	else
-		out << getValue1000(info.perf.calcInteger24, prefixKilo, tr("iop/s")) << endl;
+	CZ_TXT_EXPORT_TAB(labelFloatRate);
+	CZ_TXT_EXPORT_TAB(labelDoubleRate);
+	CZ_TXT_EXPORT_TAB(labelInt32Rate);
+	CZ_TXT_EXPORT_TAB(labelInt24Rate);
 	out << endl;
 
 	time_t t;
 	time(&t);
 	out << QString("%1: %2").arg(tr("Generated")).arg(ctime(&t)) << endl;
 }
+#define CZ_HTML_EXPORT(label)	out << "<b>" << label ## ->text() << "</b>: " << label ## Text->text() << "<br/>" << endl
+#define CZ_HTML_EXPORT_TAB(label)	out << "<tr><th>" << label ## ->text() << "</th><td>" << label ## Text->text() << "</td></tr>" << endl
+#define CZ_HTML_EXPORT_TAB_TITLE(title, label)	out << "<tr><th>" << tr(title) << "</th><td>" << label ## Text->text() << "</td></tr>" << endl
 
 /*!	\brief Export information to HTML file.
 */
 void CZDialog::slotExportToHTML() {
-
-	struct CZDeviceInfo info = deviceList[comboDevice->currentIndex()]->info();
 
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save HTML Report as..."),
 		QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation) + QDir::separator() + tr("%1.html").arg(tr(CZ_NAME_SHORT)),
@@ -788,7 +740,7 @@ void CZDialog::slotExportToHTML() {
 	QTextStream out(&file);
 	QString title = tr(CZ_NAME_SHORT " Report");
 
-	out << 	"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+	out << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
 		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n"
 		"<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"mul\" lang=\"mul\" dir=\"ltr\">\n"
 		"<head>\n"
@@ -812,157 +764,77 @@ void CZDialog::slotExportToHTML() {
 		"</head>\n"
 		"<body style=\"background: #fff;\">\n";
 
-	out <<	"<h1>" << title << "</h1>\n";
-	out <<	"<p><small>";
-	out <<	tr("<b>%1:</b> %2").arg(tr("Version")).arg(CZ_VERSION);
+	out << "<h1>" << title << "</h1>\n";
+	out << "<p><small>";
+	out << "<b>" << tr("Version")<< ":</b> " CZ_VERSION;
 #ifdef CZ_VER_STATE
-	out <<	tr(" <b>%1</b> %2 %3 ").arg(tr("Built")).arg(CZ_DATE).arg(CZ_TIME);
+	out << " <b>" << tr("Built") << "</b> " CZ_DATE " " CZ_TIME;
 #endif//CZ_VER_STATE
-	out <<	QString("<a href=\"%1\">%1</a><br/>\n").arg(CZ_ORG_URL_MAINPAGE);
-	out <<	tr("<b>%1:</b> %2<br/>").arg(tr("OS Version")).arg(getOSVersion());
+	out << " <a href=\"" CZ_ORG_URL_MAINPAGE "\">" CZ_ORG_URL_MAINPAGE "</a><br/>" << endl;
+	out << "<b>" << tr("OS Version") << ":</b> " << getOSVersion() << "<br/>" << endl;
 
-	QString version;
-	if(info.drvDllVer == 0) {
-		version = "<i>" + tr("Unknown") + "</i>";
-	} else {
-		version = QString("%1").arg(info.drvVersion);
-	}
-	out <<	QString("<b>%1</b>: %2<br/>").arg(tr("Driver Version")).arg(version) << endl;
+	CZ_HTML_EXPORT(labelDrvVersion);
+	CZ_HTML_EXPORT(labelDrvDllVersion);
+	CZ_HTML_EXPORT(labelRtDllVersion);
+	out << "</small></p>" << endl;
 
-	if(info.drvDllVer == 0) {
-		version = "<i>" + tr("Unknown") + "</i>";
-	} else {
-		version = QString("%1.%2")
-			.arg(info.drvDllVer / 1000)
-			.arg(info.drvDllVer % 1000);
-	}
-	if(strlen(info.drvDllVerStr) != 0) {
-		version += " (" + QString(info.drvDllVerStr) + ")";
-	}
-	out <<	QString("<b>%1</b>: %2<br/>").arg(tr("Driver Dll Version")).arg(version) << endl;
+	out << "<h2>" << tr("Core Information") << "</h2>" << endl;
+	out << "<table border=\"1\">" << endl;
+	CZ_HTML_EXPORT_TAB(labelName);
+	CZ_HTML_EXPORT_TAB(labelCapability);
+	CZ_HTML_EXPORT_TAB(labelClock);
+	CZ_HTML_EXPORT_TAB(labelPCIInfo);
+	CZ_HTML_EXPORT_TAB(labelMultiProc);
+	CZ_HTML_EXPORT_TAB(labelThreadsMulti);
+	CZ_HTML_EXPORT_TAB(labelWarp);
+	CZ_HTML_EXPORT_TAB(labelRegsBlock);
+	CZ_HTML_EXPORT_TAB(labelThreadsBlock);
+	CZ_HTML_EXPORT_TAB(labelThreadsDim);
+	CZ_HTML_EXPORT_TAB(labelGridDim);
+	CZ_HTML_EXPORT_TAB(labelWatchdog);
+	CZ_HTML_EXPORT_TAB(labelIntegrated);
+	CZ_HTML_EXPORT_TAB(labelConcurrentKernels);
+	CZ_HTML_EXPORT_TAB(labelComputeMode);
+	out << "</table>" << endl;
 
-	if(info.rtDllVer == 0) {
-		version = "<i>" + tr("Unknown") + "</i>";
-	} else {
-		version = QString("%1.%2")
-			.arg(info.rtDllVer / 1000)
-			.arg(info.rtDllVer % 1000);
-	}
-	if(strlen(info.rtDllVerStr) != 0) {
-		version += " (" + QString(info.rtDllVerStr) + ")";
-	}
-	out <<	QString("<b>%1</b>: %2<br/>").arg(tr("Runtime Dll Version")).arg(version) << endl;
-	out <<	"</small></p>\n";
+	out << "<h2>" << tr("Memory Information") << "</h2>" << endl;
+	out << "<table border=\"1\">" << endl;
+	CZ_HTML_EXPORT_TAB(labelTotalGlobal);
+	CZ_HTML_EXPORT_TAB(labelBusWidth);
+	CZ_HTML_EXPORT_TAB(labelMemClock);
+	CZ_HTML_EXPORT_TAB(labelErrorCorrection);
+	CZ_HTML_EXPORT_TAB(labelL2CasheSize);
+	CZ_HTML_EXPORT_TAB(labelShared);
+	CZ_HTML_EXPORT_TAB(labelPitch);
+	CZ_HTML_EXPORT_TAB(labelTotalConst);
+	CZ_HTML_EXPORT_TAB(labelTextureAlign);
+	CZ_HTML_EXPORT_TAB(labelTexture1D);
+	CZ_HTML_EXPORT_TAB(labelTexture2D);
+	CZ_HTML_EXPORT_TAB(labelTexture3D);
+	CZ_HTML_EXPORT_TAB(labelGpuOverlap);
+	CZ_HTML_EXPORT_TAB(labelMapHostMemory);
+	CZ_HTML_EXPORT_TAB(labelUnifiedAddressing);
+	CZ_HTML_EXPORT_TAB(labelAsyncEngine);
+	out << "</table>" << endl;
 
-	out << 	"<h2>" << tr("Core Information") << "</h2>\n"
-		"<table border=\"1\">\n"
-		"<tr><th>" << tr("Name") << "</th><td>" << info.deviceName << "</td></tr>\n"
-		"<tr><th>" << tr("Compute Capability") << "</th><td>" << info.major << "." << info.minor << "</td></tr>\n"
-		"<tr><th>" << tr("Clock Rate") << "</th><td>" << getValue1000(info.core.clockRate, prefixKilo, tr("Hz")) << "</td></tr>\n";
-	out <<	"<tr><th>" << tr("Multiprocessors") << "</th><td>";
-	if(info.core.muliProcCount == 0)
-		out << "<i>" << tr("Unknown") << "</i>";
-	else
-		out << info.core.muliProcCount;
-	out <<	"</td></tr>\n"
-		"<tr><th>" << tr("Warp Size") << "</th><td>" << info.core.SIMDWidth << "</td></tr>\n"
-		"<tr><th>" << tr("Regs Per Block") << "</th><td>" << info.core.regsPerBlock << "</td></tr>\n"
-		"<tr><th>" << tr("Threads Per Block") << "</th><td>" << info.core.maxThreadsPerBlock << "</td></tr>\n"
-		"<tr><th>" << tr("Threads Dimensions") << "</th><td>" << info.core.maxThreadsDim[0] << " x " << info.core.maxThreadsDim[1] << " x " << info.core.maxThreadsDim[2] << "</td></tr>\n"
-		"<tr><th>" << tr("Grid Dimensions") << "</th><td>" << info.core.maxGridSize[0] << " x " << info.core.maxGridSize[1] << " x " << info.core.maxGridSize[2] << "</td></tr>\n"
-		"<tr><th>" << tr("Watchdog Enabled") << "</th><td>" << (info.core.watchdogEnabled? tr("Yes"): tr("No")) << "</td></tr>\n"
-		"<tr><th>" << tr("Integrated GPU") << "</th><td>" << (info.core.integratedGpu? tr("Yes"): tr("No")) << "</td></tr>\n"
-		"<tr><th>" << tr("Concurrent Kernels") << "</th><td>" << (info.core.concurrentKernels? tr("Yes"): tr("No")) << "</td></tr>\n"
-		"<tr><th>" << tr("Compute Mode") << "</th><td>" << (
-			(info.core.computeMode == CZComputeModeDefault)? tr("Default"):
-			(info.core.computeMode == CZComputeModeExclusive)? tr("Compute-exclusive"):
-			(info.core.computeMode == CZComputeModeProhibited)? tr("Compute-prohibited"):
-			tr("Unknown")) << "</td></tr>\n"
-		"</table>\n";
-
-	out << 	"<h2>" << tr("Memory Information") << "</h2>\n"
-		"<table border=\"1\">\n"
-		"<tr><th>" << tr("Total Global") << "</th><td>" << getValue1024(info.mem.totalGlobal, prefixNothing, tr("B")) << "</td></tr>\n"
-		"<tr><th>" << tr("Shared Per Block") << "</th><td>" << getValue1024(info.mem.sharedPerBlock, prefixNothing, tr("B")) << "</td></tr>\n"
-		"<tr><th>" << tr("Pitch") << "</th><td>" << getValue1024(info.mem.maxPitch, prefixNothing, tr("B")) << "</td></tr>\n"
-		"<tr><th>" << tr("Total Constant") << "</th><td>" << getValue1024(info.mem.totalConst, prefixNothing, tr("B")) << "</td></tr>\n"
-		"<tr><th>" << tr("Texture Alignment") << "</th><td>" << getValue1024(info.mem.textureAlignment, prefixNothing, tr("B")) << "</td></tr>\n"
-		"<tr><th>" << tr("Texture 1D Size") << "</th><td>" << info.mem.texture1D[0] << "</td></tr>\n"
-		"<tr><th>" << tr("Texture 2D Size") << "</th><td>" << info.mem.texture2D[0] << " x " << info.mem.texture2D[1] << "</td></tr>\n"
-		"<tr><th>" << tr("Texture 3D Size") << "</th><td>" << info.mem.texture3D[0] << " x " << info.mem.texture3D[1] << " x " << info.mem.texture3D[2] << "</td></tr>\n"
-		"<tr><th>" << tr("GPU Overlap") << "</th><td>" << (info.mem.gpuOverlap? tr("Yes"): tr("No")) << "</td></tr>\n"
-		"<tr><th>" << tr("Map Host Memory") << "</th><td>" << (info.mem.mapHostMemory? tr("Yes"): tr("No")) << "</td></tr>\n"
-		"<tr><th>" << tr("Error Correction") << "</th><td>" << (info.mem.errorCorrection? tr("Yes"): tr("No")) << "</td></tr>\n"
-		"</table>\n";
-
-	out << 	"<h2>" << tr("Performance Information") << "</h2>\n"
-		"<table border=\"1\">\n"
-		"<tr><th colspan=\"2\">" << tr("Memory Copy") << "</th></tr>\n"
-		"<tr><th>" << tr("Host Pinned to Device") << "</th><td>";
-		if(info.band.copyHDPin == 0)
-			out << "--";
-		else
-			out << getValue1024(info.band.copyHDPin, prefixKibi, tr("B/s"));
-		out << "</td></tr>\n"
-		"<tr><th>" << tr("Host Pageable to Device") << "</th><td>";
-		if(info.band.copyHDPage == 0)
-			out << "--";
-		else
-			out << getValue1024(info.band.copyHDPage, prefixKibi, tr("B/s"));
-		out << "</td></tr>\n"
-		"<tr><th>" << tr("Device to Host Pinned") << "</th><td>";
-		if(info.band.copyDHPin == 0)
-			out << "--";
-		else
-			out << getValue1024(info.band.copyDHPin, prefixKibi, tr("B/s"));
-		out << "</td></tr>\n"
-		"<tr><th>" << tr("Device to Host Pageable") << "</th><td>";
-		if(info.band.copyDHPage == 0)
-			out << "--";
-		else
-			out << getValue1024(info.band.copyDHPage, prefixKibi, tr("B/s"));
-		out << "</td></tr>\n"
-		"<tr><th>" << tr("Device to Device") << "</th><td>";
-		if(info.band.copyDD == 0)
-			out << "--";
-		else
-			out << getValue1024(info.band.copyDD, prefixKibi, tr("B/s"));
-		out << "</td></tr>\n"
-		"<tr><th colspan=\"2\">" << tr("GPU Core Performance") << "</th></tr>\n"
-		"<tr><th>" << tr("Single-precision Float") << "</th><td>";
-		if(info.perf.calcFloat == 0)
-			out << "--";
-		else
-			out << getValue1000(info.perf.calcFloat, prefixKilo, tr("flop/s"));
-		out << "</td></tr>\n"
-		"<tr><th>" << tr("Double-precision Float") << "</th><td>";
-		if(((info.major > 1)) ||
-			((info.major == 1) && (info.minor >= 3))) {
-			if(info.perf.calcDouble == 0)
-				out << "--";
-			else
-				out << getValue1000(info.perf.calcDouble, prefixKilo, tr("flop/s"));
-		} else {
-			out << "<i>" << tr("Not Supported") << "</i>";
-		}
-		out << "</td></tr>\n"
-		"<tr><th>" << tr("32-bit Integer") << "</th><td>";
-		if(info.perf.calcInteger32 == 0)
-			out << "--";
-		else
-			out << getValue1000(info.perf.calcInteger32, prefixKilo, tr("iop/s"));
-		out << "</td></tr>\n"
-		"<tr><th>" << tr("24-bit Integer") << "</th><td>";
-		if(info.perf.calcInteger24 == 0)
-			out << "--";
-		else
-			out << getValue1000(info.perf.calcInteger24, prefixKilo, tr("iop/s"));
-		out << "</td></tr>\n"
-		"</table>\n";
+	out << "<h2>" << tr("Performance Information") << "</h2>" << endl;
+	out << "<table border=\"1\">" << endl;
+	out << "<tr><th colspan=\"2\">" << tr("Memory Copy") << "</th></tr>" << endl;
+	CZ_HTML_EXPORT_TAB_TITLE("Host Pinned to Device", labelHDRatePin);
+	CZ_HTML_EXPORT_TAB_TITLE("Host Pageable to Device", labelHDRatePage);
+	CZ_HTML_EXPORT_TAB_TITLE("Device to Host Pinned", labelDHRatePin);
+	CZ_HTML_EXPORT_TAB_TITLE("Device to Host Pageable", labelDHRatePage);
+	CZ_HTML_EXPORT_TAB(labelDDRate);
+	out << "<tr><th colspan=\"2\">" << tr("GPU Core Performance") << "</th></tr>" << endl;
+	CZ_HTML_EXPORT_TAB(labelFloatRate);
+	CZ_HTML_EXPORT_TAB(labelDoubleRate);
+	CZ_HTML_EXPORT_TAB(labelInt32Rate);
+	CZ_HTML_EXPORT_TAB(labelInt24Rate);
+	out << "</table>" << endl;
 
 	time_t t;
 	time(&t);
-	out <<	"<p><small><b>" << tr("Generated") << ":</b> " << ctime(&t) << "</small></p>\n";
+	out <<	"<p><small><b>" << tr("Generated") << ":</b> " << ctime(&t) << "</small></p>" << endl;
 
 	out <<	"<p><a href=\"http://cuda-z.sourceforge.net/\"><img src=\"http://cuda-z.sourceforge.net/img/web-button.png\" border=\"0\" alt=\"CUDA-Z\" title=\"CUDA-Z\" /></a></p>\n";
 
