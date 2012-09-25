@@ -608,16 +608,33 @@ int CZCudaDeviceFound(void) {
 	return count;
 }
 
+/*!	\def ConvertSMVer2Cores(major, minor)
+	\brief Get number of CUDA cores per multiprocessor.
+	\arg[in] major GPU Architecture major version.
+	\arg[in] minor GPU Architecture minor version.
+	\returns 0 if GPU Architecture is unknown, or number of CUDA cores per multiprocessor.
+*/
 #define ConvertSMVer2Cores(major, minor) \
-	(((major) == 1)? 8: /* G80, G8x, G9x */ \
+	(((major) == 1)? \
+		(((minor) == 0)? 8: /* G80*/ \
+		((minor) == 1)? 8: /* G8x */ \
+		((minor) == 2)? 8: /* G9x */ \
+		((minor) == 3)? 8: /* GT200 */ \
+		0): \
 	((major) == 2)? \
-		(((minor) == 0)? 32: /* GT200 */ \
-		((minor) == 1)? 48: /* GF100 */ \
+		(((minor) == 0)? 32: /* GF100 */ \
+		((minor) == 1)? 48: /* GF10x */ \
 		0): \
 	((major) == 3)? \
 		(((minor) == 0)? 192: /* GK10x */ \
 		0): \
 	0)
+
+/*!	\def COMPILE_ASSERT(cond)
+	\arg[in] cond Static condition.
+	\brief Compile time assert() for constant conditions.
+*/
+#define COMPILE_ASSERT(cond)	{typedef char compile_assert_error[(cond)? 1: -1];}
 
 /*!	\brief Read information about a CUDA-device.
 	\return \a 0 in case of success, \a -1 in case of error.
@@ -628,6 +645,19 @@ int CZCudaReadDeviceInfo(
 ) {
 	cudaDeviceProp prop;
 //	int ecc;
+
+	COMPILE_ASSERT(ConvertSMVer2Cores(0, 0) == 0);
+	COMPILE_ASSERT(ConvertSMVer2Cores(1, 0) == 8);
+	COMPILE_ASSERT(ConvertSMVer2Cores(1, 1) == 8);
+	COMPILE_ASSERT(ConvertSMVer2Cores(1, 2) == 8);
+	COMPILE_ASSERT(ConvertSMVer2Cores(1, 3) == 8);
+	COMPILE_ASSERT(ConvertSMVer2Cores(1, 4) == 0);
+	COMPILE_ASSERT(ConvertSMVer2Cores(2, 0) == 32);
+	COMPILE_ASSERT(ConvertSMVer2Cores(2, 1) == 48);
+	COMPILE_ASSERT(ConvertSMVer2Cores(2, 2) == 0);
+	COMPILE_ASSERT(ConvertSMVer2Cores(3, 0) == 192);
+	COMPILE_ASSERT(ConvertSMVer2Cores(3, 1) == 0);
+	COMPILE_ASSERT(ConvertSMVer2Cores(4, 0) == 0);
 
 	if(info == NULL)
 		return -1;
