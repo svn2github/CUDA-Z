@@ -3,10 +3,18 @@
 #	\author Andriy Golovnya <andrew_golovnia@ukr.net> http://ag.embedded.org.ru/
 #	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
 #	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
-!verbose 5
 
 !define CZ_CUDART_DLL cudart32_42_9.dll
 !define CZ_CUDAZ_EXE cuda-z.exe
+
+!define CZ_CUDA_PATH "%CUDA_PATH%"
+!define CZ_CUDA_PATH_VALUE "$%CUDA_PATH%"
+
+!if "${CZ_CUDA_PATH_VALUE}" != "$${CZ_CUDA_PATH}"
+!define CZ_CUDART_DLL_PATH "$%CUDA_PATH%\bin"
+!else
+!define CZ_CUDART_DLL_PATH "bin"
+!endif
 
 !system "perl -pe $\"s/#/!/g;s,http://,http:!!,;s,https://,https:!!,;s,svn://,svn:!!,;s,//.*$,,;s,/\*.*\*/,,;s,http:!!,http://,;s,https:!!,https://,;s,svn:!!,svn://,$\" < src/build.h > build.nsi"
 !system "perl -pe $\"s/#/!/g;s,http://,http:!!,;s,https://,https:!!,;s,svn://,svn:!!,;s,//.*$,,;s,/\*.*\*/,,;s,http:!!,http://,;s,https:!!,https://,;s,svn:!!,svn://,;s/build.h/build.nsi/g$\" < src/version.h > version.nsi"
@@ -37,7 +45,7 @@ Name "${NAME} ${VERSION_STR}"
 Icon res\img\icon.ico 
 OutFile "${FILENAME}"
 SetCompressor /SOLID lzma
-SetCompressorDictSize 8
+SetCompressorDictSize 16
 
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
 VIProductVersion "${VERSION_NUM}.0"
@@ -58,8 +66,8 @@ Section "-Go"
 	Delete $OUTDIR
 	CreateDirectory $OUTDIR
 	SetOutPath $OUTDIR
-	File /oname=${CZ_CUDAZ_EXE} bin\${CZ_CUDAZ_EXE}
-	File /oname=${CZ_CUDART_DLL} bin\${CZ_CUDART_DLL}
+	File "/oname=${CZ_CUDAZ_EXE}" "bin\${CZ_CUDAZ_EXE}"
+	File "/oname=${CZ_CUDART_DLL}" "${CZ_CUDART_DLL_PATH}\${CZ_CUDART_DLL}"
 
 	ExecWait '"$OUTDIR\${CZ_CUDAZ_EXE}"'
 
