@@ -450,8 +450,6 @@ static bool CZCudaIsInit(void) {
 #define CZ_PLIST_SHORTVERSTR	"CFBundleShortVersionString"	/*!< Less informative property name. */
 #define CZ_DLL_FNAME		"libcuda.dylib"		/*!< CUDA dll file name. */
 
-#warning No full implementation for Mac OS X yet...
-
 /*!	\brief Get version of Kext driver.
 */
 static char *CZGetKextVersion(
