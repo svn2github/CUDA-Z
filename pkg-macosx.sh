@@ -12,7 +12,7 @@ czAppDir="bin/$czAppName.app"
 czAppPlistPath="$czAppDir/Contents/Info.plist"
 czAppBinPath="$czAppDir/Contents/MacOS"
 czAppResPath="$czAppDir/Contents/Resources"
-czAppLibs="libcudart.dylib"
+czAppLibs= #libcudart.dylib # check this with otool!
 czLibPath="/usr/local/cuda/lib"
 czImgDir="res/img"
 czVolumeIcon="$czImgDir/VolumeIcon.icns"
@@ -39,18 +39,32 @@ fi
 czVerFile="src/version.h"
 czBldFile="src/build.h"
 
+if [ -z "$czAppLibs" ]; then
+	czAppLibs=`LANG=C otool -L "$czAppBinPath/$czAppName" | grep @rpath | sed -e "s/ *(.*$//" -e "s/^.*@rpath\///"`
+fi
+
 for lib in $czAppLibs
 do
-	cp "$czLibPath/$lib" "$czAppBinPath"
-	install_name_tool -change @rpath/$lib @executable_path/$lib "$czAppBinPath/$lib"
-	install_name_tool -change @rpath/$lib @executable_path/$lib "$czAppBinPath/$czAppName"
-	strip $czAppBinPath/$lib
+	if [ -f "$czLibPath/$lib" ]; then
+		cp "$czLibPath/$lib" "$czAppBinPath"
+		install_name_tool -change @rpath/$lib @executable_path/$lib "$czAppBinPath/$lib"
+		install_name_tool -change @rpath/$lib @executable_path/$lib "$czAppBinPath/$czAppName"
+		strip "$czAppBinPath/$lib"
+	else
+		echo "Can't find $lib library!"
+		exit 1
+	fi
 done
 strip "$czAppBinPath/$czAppName"
 
-cp "$czLibPath/$czDylibName" "$czAppBinPath"
-install_name_tool -change "$czLibPath/$czDylibName" @executable_path/$czDylibName "$czAppBinPath/$czDylibName"
-strip "$czAppBinPath/$czDylibName"
+if [ -f "$czLibPath/$czDylibName" ]; then
+	cp "$czLibPath/$czDylibName" "$czAppBinPath"
+	install_name_tool -change "$czLibPath/$czDylibName" @executable_path/$czDylibName "$czAppBinPath/$czDylibName"
+	strip "$czAppBinPath/$czDylibName"
+else
+	echo "Can't find $czDylibName library!"
+	exit 1
+fi
 
 #Add copy of qt_menu.nib to Resource subdirectory!
 if [ -d "$czQtGuiResPath/$czQtMenuNib" ]; then
