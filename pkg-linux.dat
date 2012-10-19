@@ -18,21 +18,21 @@ randID=`head -c8 /dev/random | od -x | head -n1 | sed -e "s/^[0-9]* //g" | tr " 
 outDir="$tmpDir/$czNameShort-$randID"
 if [ ! -d "$tmpDir" ]; then mkdir "$tmpDir"; sync; rmTmpDir=1; fi
 mkdir "$outDir"; sync
-if [ ! -d "$outDir" ]; then echo "Cannot create temp directory."; if [ -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi; exit 1; fi
+if [ ! -d "$outDir" ]; then echo "Cannot create temp directory."; if [ ! -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi; exit 1; fi
 case "$czPackSuffix" in
 gz) czUnPack="gzip -dc" ;;
 bz2) czUnPack="bzip2 -dc" ;;
-*) echo "Unknown packer suffix!"; rm -Rf "$outDir"; if [ -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi; exit 1
+*) echo "Unknown packer suffix!"; rm -Rf "$outDir"; if [ ! -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi; exit 1
 esac
 czAllSize=$(echo "$czExeSize + $czDllSize" | bc -l)
 tail -c$czAllSize $0 | head -c$czExeSize | $czUnPack > "$outDir/$czExeName"
 czExeSumNew=`md5sum "$outDir/$czExeName" | sed -e "s/ .*$//"`
-if [ x"$czExeSum" != x"$czExeSumNew" ]; then echo "$errMsgSum $czExeName!"; rm -Rf "$outDir"; if [ -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi; exit 1; fi
+if [ x"$czExeSum" != x"$czExeSumNew" ]; then echo "$errMsgSum $czExeName!"; rm -Rf "$outDir"; if [ ! -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi; exit 1; fi
 tail -c$czDllSize $0 | $czUnPack > "$outDir/$czDllName"
 czDllSumNew=`md5sum "$outDir/$czDllName" | sed -e "s/ .*$//"`
-if [ x"$czDllSum" != x"$czDllSumNew" ]; then echo "$errMsgSum $czDllName!"; rm -Rf "$outDir"; if [ -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi; exit 1; fi
+if [ x"$czDllSum" != x"$czDllSumNew" ]; then echo "$errMsgSum $czDllName!"; rm -Rf "$outDir"; if [ ! -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi; exit 1; fi
 chmod +x "$outDir/$czExeName" "$outDir/$czDllName"
 echo "Starting CUDA-Z..."
 LD_LIBRARY_PATH=$outDir:$LD_LIBRARY_PATH $outDir/$czExeName
-rm -Rf "$outDir"; if [ -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi
+rm -Rf "$outDir"; if [ ! -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi
 exit 0
