@@ -360,6 +360,10 @@ static bool CZCudaIsInit(void) {
 	if((p_cuInit == NULL) || (p_cuDeviceGetAttribute == NULL)) {
 
 		if(hDll == NULL) {
+			hDll = dlopen(CZ_DLL_FNAME, RTLD_LAZY);
+		}
+
+		if(hDll == NULL) {
 			hDll = dlopen("/usr/lib/" CZ_DLL_FNAME, RTLD_LAZY);
 		}
 
