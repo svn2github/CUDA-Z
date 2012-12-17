@@ -15,5 +15,6 @@
 		<file>img/upd-error.png</file>
 		<file>img/upd-info.png</file>
 		<file>img/upd-warning.png</file>
+		<file>img/upd-update.png</file>
 	</qresource>
 </RCC>

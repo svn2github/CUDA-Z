@@ -128,6 +128,7 @@ private slots:
 	void slotUpdateTimer();
 	void slotExportToText();
 	void slotExportToHTML();
+	void slotUpdateVersion();
 #ifdef CZ_USE_QHTTP
 	void slotHttpRequestFinished(int id, bool error);
 	void slotHttpStateChanged(int state);

@@ -188,6 +188,8 @@ CZDialog::CZDialog(
 	this->setWindowTitle(QString("%1 %2").arg(CZ_NAME_SHORT).arg(CZ_VERSION));
 	connect(comboDevice, SIGNAL(activated(int)), SLOT(slotShowDevice(int)));
 
+	connect(pushUpdate, SIGNAL(clicked()), SLOT(slotUpdateVersion()));
+
 	QMenu *exportMenu = new QMenu(pushExport);
 	exportMenu->addAction(tr("to &Text"), this, SLOT(slotExportToText()));
 	exportMenu->addAction(tr("to &HTML"), this, SLOT(slotExportToHTML()));
@@ -202,9 +204,7 @@ CZDialog::CZDialog(
 	connect(updateTimer, SIGNAL(timeout()), SLOT(slotUpdateTimer()));
 	updateTimer->start(CZ_TIMER_REFRESH);
 
-	labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_INFO));
-	labelAppUpdate->setText(tr("Looking for new version..."));
-	startGetHistoryHttp();
+	slotUpdateVersion();
 }
 
 /*!	\brief Class destructor.
@@ -842,10 +842,19 @@ void CZDialog::slotExportToHTML() {
 		"</html>\n";
 }
 
+/*!	\brief Resend a version request.
+*/
+void CZDialog::slotUpdateVersion() {
+	startGetHistoryHttp();
+}
+
 /*!	\brief Start version reading procedure.
 */
 void CZDialog::startGetHistoryHttp() {
 
+	labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_INFO));
+	labelAppUpdate->setText(tr("Looking for new version..."));
+	pushUpdate->setEnabled(false);
 	url = QString(CZ_ORG_URL_MAINPAGE) + "/history.txt";
 	startHttpRequest(url);
 }
@@ -901,6 +910,8 @@ void CZDialog::slotHttpRequestFinished(
 	if(id != httpId)
 		return;
 
+	pushUpdate->setEnabled(true);
+
 	QString errorString;
 
 	if(error || (!http->lastResponse().isValid())) {
@@ -938,6 +949,8 @@ report_error:
 /*!	\brief HTTP requst status processing slot.
 */
 void CZDialog::slotHttpFinished() {
+
+	pushUpdate->setEnabled(true);
 
 	QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
 

@@ -47,7 +47,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;name&gt;</string>
+          <string notr="true">&lt;name&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -128,7 +128,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;capability&gt;</string>
+          <string notr="true">&lt;capability&gt;</string>
          </property>
         </widget>
        </item>
@@ -151,7 +151,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;clock MHz&gt;</string>
+          <string notr="true">&lt;clock MHz&gt;</string>
          </property>
         </widget>
        </item>
@@ -174,7 +174,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;procs/cores&gt;</string>
+          <string notr="true">&lt;procs/cores&gt;</string>
          </property>
         </widget>
        </item>
@@ -197,7 +197,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;threads&gt;</string>
+          <string notr="true">&lt;threads&gt;</string>
          </property>
         </widget>
        </item>
@@ -220,7 +220,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;size&gt;</string>
+          <string notr="true">&lt;size&gt;</string>
          </property>
         </widget>
        </item>
@@ -243,7 +243,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;regs&gt;</string>
+          <string notr="true">&lt;regs&gt;</string>
          </property>
         </widget>
        </item>
@@ -266,7 +266,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;threads&gt;</string>
+          <string notr="true">&lt;threads&gt;</string>
          </property>
         </widget>
        </item>
@@ -289,7 +289,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;X&gt;x&lt;Y&gt;x&lt;Z&gt;</string>
+          <string notr="true">&lt;X&gt;x&lt;Y&gt;x&lt;Z&gt;</string>
          </property>
         </widget>
        </item>
@@ -322,7 +322,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;X&gt;x&lt;Y&gt;x&lt;Z&gt;</string>
+          <string notr="true">&lt;X&gt;x&lt;Y&gt;x&lt;Z&gt;</string>
          </property>
         </widget>
        </item>
@@ -335,7 +335,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;ver/TCC&gt;</string>
+          <string notr="true">&lt;ver/TCC&gt;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -361,7 +361,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;yes/no&gt;</string>
+          <string notr="true">&lt;yes/no&gt;</string>
          </property>
         </widget>
        </item>
@@ -394,7 +394,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;yes/no&gt;</string>
+          <string notr="true">&lt;yes/no&gt;</string>
          </property>
         </widget>
        </item>
@@ -407,7 +407,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;ver&gt;</string>
+          <string notr="true">&lt;ver&gt;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -433,7 +433,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;yes/no&gt;</string>
+          <string notr="true">&lt;yes/no&gt;</string>
          </property>
         </widget>
        </item>
@@ -466,7 +466,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;mode&gt;</string>
+          <string notr="true">&lt;mode&gt;</string>
          </property>
         </widget>
        </item>
@@ -479,7 +479,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;ver&gt;</string>
+          <string notr="true">&lt;ver&gt;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -557,7 +557,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;Domain:ID:Loc&gt;</string>
+          <string notr="true">&lt;Domain:ID:Loc&gt;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -590,7 +590,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;size MB&gt;</string>
+          <string notr="true">&lt;size MB&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -616,7 +616,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;clock MHz&gt;</string>
+          <string notr="true">&lt;clock MHz&gt;</string>
          </property>
         </widget>
        </item>
@@ -639,7 +639,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;size KB&gt;</string>
+          <string notr="true">&lt;size KB&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -665,7 +665,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;size KB&gt;</string>
+          <string notr="true">&lt;size KB&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -691,7 +691,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;size KB&gt;</string>
+          <string notr="true">&lt;size KB&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -717,7 +717,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;size&gt;</string>
+          <string notr="true">&lt;size&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -743,7 +743,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;size&gt;</string>
+          <string notr="true">&lt;size&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -769,7 +769,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;size&gt;x&lt;size&gt;</string>
+          <string notr="true">&lt;size&gt;x&lt;size&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -795,7 +795,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;size&gt;x&lt;size&gt;x&lt;size&gt;</string>
+          <string notr="true">&lt;size&gt;x&lt;size&gt;x&lt;size&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -821,7 +821,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;yes/no&gt;</string>
+          <string notr="true">&lt;yes/no&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -860,7 +860,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;size KB&gt;</string>
+          <string notr="true">&lt;size KB&gt;</string>
          </property>
         </widget>
        </item>
@@ -883,7 +883,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;bits&gt;</string>
+          <string notr="true">&lt;bits&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -909,7 +909,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;yes/no&gt;</string>
+          <string notr="true">&lt;yes/no&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -935,7 +935,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;yes/no/type&gt;</string>
+          <string notr="true">&lt;yes/no/type&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -961,7 +961,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;yes/no&gt;</string>
+          <string notr="true">&lt;yes/no&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -987,7 +987,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;yes/no&gt;</string>
+          <string notr="true">&lt;yes/no&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -1066,7 +1066,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;rate MB/s&gt;</string>
+          <string notr="true">&lt;rate MB/s&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -1092,7 +1092,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;rate MB/s&gt;</string>
+          <string notr="true">&lt;rate MB/s&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -1108,7 +1108,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;rate MB/s&gt;</string>
+          <string notr="true">&lt;rate MB/s&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -1134,7 +1134,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;rate MB/s&gt;</string>
+          <string notr="true">&lt;rate MB/s&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -1170,7 +1170,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;rate Mflop/s&gt;</string>
+          <string notr="true">&lt;rate Mflop/s&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -1196,7 +1196,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;rate Mflop/s&gt;</string>
+          <string notr="true">&lt;rate Mflop/s&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -1222,7 +1222,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;rate Miop/s&gt;</string>
+          <string notr="true">&lt;rate Miop/s&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -1248,7 +1248,7 @@
           <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
-          <string>&lt;rate Miop/s&gt;</string>
+          <string notr="true">&lt;rate Miop/s&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
@@ -1339,21 +1339,21 @@
        <item>
         <widget class="QLabel" name="labelAppName">
          <property name="text">
-          <string>&lt;name&gt;</string>
+          <string notr="true">&lt;name&gt;</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="labelAppVersion">
          <property name="text">
-          <string>&lt;version&gt;</string>
+          <string notr="true">&lt;version&gt;</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="labelAppURL">
          <property name="text">
-          <string>&lt;urls&gt;</string>
+          <string notr="true">&lt;urls&gt;</string>
          </property>
          <property name="openExternalLinks">
           <bool>true</bool>
@@ -1363,7 +1363,7 @@
        <item>
         <widget class="QLabel" name="labelAppAuthor">
          <property name="text">
-          <string>&lt;author&gt;</string>
+          <string notr="true">&lt;author&gt;</string>
          </property>
         </widget>
        </item>
@@ -1388,7 +1388,7 @@
             </size>
            </property>
            <property name="text">
-            <string/>
+            <string notr="true"/>
            </property>
            <property name="pixmap">
             <pixmap resource="../res/cuda-z.qrc">:/img/upd-info.png</pixmap>
@@ -1398,13 +1398,33 @@
          <item>
           <widget class="QLabel" name="labelAppUpdate">
            <property name="text">
-            <string>&lt;update&gt;</string>
+            <string notr="true">&lt;update&gt;</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
            </property>
            <property name="openExternalLinks">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushUpdate">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string notr="true"/>
+           </property>
+           <property name="icon">
+            <iconset resource="../res/cuda-z.qrc">
+             <normaloff>:/img/upd-update.png</normaloff>:/img/upd-update.png</iconset>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -1481,8 +1501,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>331</x>
-     <y>345</y>
+     <x>343</x>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>247</x>
@@ -1497,12 +1517,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>105</x>
-     <y>265</y>
+     <x>118</x>
+     <y>351</y>
     </hint>
     <hint type="destinationlabel">
-     <x>105</x>
-     <y>289</y>
+     <x>118</x>
+     <y>374</y>
     </hint>
    </hints>
   </connection>
