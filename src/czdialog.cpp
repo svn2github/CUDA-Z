@@ -9,7 +9,13 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextStream>
+#if QT_VERSION < 0x050000
 #include <QDesktopServices>
+#else
+#include <QStandardPaths>
+#define QDesktopServices QStandardPaths
+#define storageLocation StandardLocation
+#endif//QT_VERSION
 
 #include <time.h>
 
@@ -173,7 +179,7 @@ CZSplashScreen *splash;
 */
 CZDialog::CZDialog(
 	QWidget *parent,	/*!<[in,out] Parent of widget. */
-	Qt::WFlags f		/*!<[in] Window flags. */
+	Qt::WindowFlags f	/*!<[in] Window flags. */
 )	: QDialog(parent, f /*| Qt::MSWindowsFixedSizeDialogHint*/ | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint) {
 
 #ifdef CZ_USE_QHTTP

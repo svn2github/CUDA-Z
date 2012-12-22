@@ -50,5 +50,10 @@ void CZLog(
 		break;
 	}
 
+#if QT_VERSION < 0x050000
 	qt_message_output(type, buf.toLocal8Bit().constData());
+#else
+	QMessageLogContext context;
+	qt_message_output(type, context, buf.toLocal8Bit().constData());
+#endif//QT_VERSION 
 }

@@ -8,7 +8,9 @@
 #ifndef CZ_DIALOG_H
 #define CZ_DIALOG_H
 
+#if QT_VERSION < 0x050000
 #define CZ_USE_QHTTP
+#endif//QT_VERSION
 
 #include <QSplashScreen>
 #include <QTimer>
@@ -57,7 +59,7 @@ class CZDialog: public QDialog, public Ui::CZDialog {
 	Q_OBJECT
 
 public:
-	CZDialog(QWidget *parent = 0, Qt::WFlags f = 0);
+	CZDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
 	~CZDialog();
 
 private:

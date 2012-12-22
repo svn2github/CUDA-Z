@@ -5,7 +5,7 @@
 #	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
 
 TEMPLATE = app
-QT = gui core network
+QT = widgets gui core network
 CONFIG += qt warn_on
 CONFIG += release
 #CONFIG += debug
