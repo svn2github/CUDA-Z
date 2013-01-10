@@ -5,12 +5,16 @@
 #	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
 
 TEMPLATE = app
-QT = widgets gui core network
+QT = gui core network
 CONFIG += qt warn_on
 CONFIG += release
 #CONFIG += debug
 #CONFIG += console
 CONFIG += static
+
+isEqual(QT_MAJOR_VERSION, 5) {
+QT += widgets
+}
 
 #message(CONFIG: $$CONFIG)
 

@@ -527,6 +527,10 @@ void CZDialog::setupAboutTab() {
 	QString version = QString("<b>%1</b> %2").arg(tr("Version")).arg(CZ_VERSION);
 #ifdef CZ_VER_STATE
 	version += QString("<br /><b>%1</b> %2 %3").arg(tr("Built")).arg(CZ_DATE).arg(CZ_TIME);
+	version += tr("<br /><b>%1</b> %2").arg(tr("Based on Qt")).arg(QT_VERSION_STR);
+#ifdef CZ_VER_BUILD_URL
+	version += tr("<br /><b>%1</b> %2:%3").arg(tr("SVN URL")).arg(CZ_VER_BUILD_URL).arg(CZ_VER_BUILD_STRING);
+#endif//CZ_VER_BUILD_URL
 #endif//CZ_VER_STATE
 	labelAppVersion->setText(version);
 	labelAppURL->setText(QString("<b>%1:</b> <a href=\"%2\">%2</a><br /><b>%3:</b> <a href=\"%4\">%4</a>")
