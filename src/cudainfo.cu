@@ -287,6 +287,9 @@ static bool CZCudaIsInit(void) {
 #define CZ_PROC_MAP_NAME	"/proc/self/maps"	/*!< Process memory map file. */
 #define CZ_DLL_FNAME		"libcuda.so"		/*!< CUDA dll file name. */
 #define CZ_DLL_FNAME_RT		"libcudart.so"		/*!< CUDA RT dll file name. */
+#define CZ_LD_SO_CONF		"/etc/ld.do.conf"	/*!< ld.so configuration file. */
+#define CZ_LD_SO_DIR		"/etc/ld.do.conf.d/"	/*!< ld.so configuration directory. */
+#define CZ_LD_SO_LINE_MAX	100			/*!< ld.so configuration line length. */
 
 /*!	\brief Get version of shared library.
 */
@@ -393,6 +396,28 @@ static bool CZCudaIsInit(void) {
 
 		if(hDll == NULL) {
 			hDll = dlopen("/usr/lib128/nvidia-current/" CZ_DLL_FNAME, RTLD_LAZY);
+		}
+
+		// Try to check ld.so.conf & Co
+		if(hDll == NULL) {
+			char buf[CZ_LD_SO_LINE_MAX + sizeof(CZ_DLL_FNAME) + 1];
+			char *p;
+			FILE *f;
+
+			f = popen("cat " CZ_LD_SO_CONF " " CZ_LD_SO_DIR "/*", "r");
+			if(f != NULL) {
+				while(fgets(buf, CZ_LD_SO_LINE_MAX, f) != NULL) {
+					if((p = strchr(buf, '\n')) != NULL) *p = 0;
+					if((p = strchr(buf, '#')) != NULL) *p = 0;
+					if(strlen(buf) > 0) {
+						strcat(buf, "/" CZ_DLL_FNAME);
+						if(hDll == NULL) {
+							hDll = dlopen(buf, RTLD_LAZY);
+						}
+					}
+				}
+				pclose(f);
+			}
 		}
 
 		if(hDll == NULL) {
