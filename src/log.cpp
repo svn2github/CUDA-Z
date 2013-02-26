@@ -12,6 +12,7 @@
 #include "log.h"
 
 #define CZ_LOG_BUFFER_LENGTH		4096	/*!< Log bufer size. */
+#define CZ_LOG_DEFAULT_LEVEL		CZLogLevelHigh	/*!< Default logging level. */
 
 /*!	\brief Logging function.
 */
@@ -23,7 +24,7 @@ void CZLog(
 	QString buf;
 
 #ifdef QT_NO_DEBUG
-	if(level <= CZLogLevelHigh) {
+	if(level > CZ_LOG_DEFAULT_LEVEL) {
 		return;
 	}
 #endif
