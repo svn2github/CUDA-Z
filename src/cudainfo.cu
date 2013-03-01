@@ -47,7 +47,7 @@
 	{ \
 		cudaError_t errCode; \
 		if((errCode = (funcCall)) != cudaSuccess) { \
-			CZLog(CZLogLevelError, "CUDA Error: %s", cudaGetErrorString(errCode)); \
+			CZLog(CZLogLevelError, "CUDA Error: %08x %s", errCode, cudaGetErrorString(errCode)); \
 			errProc; \
 		} \
 	}
@@ -642,18 +642,19 @@ int CZCudaDeviceFound(void) {
 	\returns 0 if GPU Architecture is unknown, or number of CUDA cores per multiprocessor.
 */
 #define ConvertSMVer2Cores(major, minor) \
-	(((major) == 1)? \
-		(((minor) == 0)? 8: /* G80*/ \
+	(((major) == 1)? ( \
+		((minor) == 0)? 8: /* G80*/ \
 		((minor) == 1)? 8: /* G8x */ \
 		((minor) == 2)? 8: /* G9x */ \
 		((minor) == 3)? 8: /* GT200 */ \
 		0): \
-	((major) == 2)? \
-		(((minor) == 0)? 32: /* GF100 */ \
+	((major) == 2)? ( \
+		((minor) == 0)? 32: /* GF100 */ \
 		((minor) == 1)? 48: /* GF10x */ \
 		0): \
-	((major) == 3)? \
-		(((minor) == 0)? 192: /* GK10x */ \
+	((major) == 3)? ( \
+		((minor) == 0)? 192: /* GK10x */ \
+		((minor) == 5)? 192: /* GK11x */ \
 		0): \
 	0)
 
@@ -684,6 +685,8 @@ int CZCudaReadDeviceInfo(
 	COMPILE_ASSERT(ConvertSMVer2Cores(2, 2) == 0);
 	COMPILE_ASSERT(ConvertSMVer2Cores(3, 0) == 192);
 	COMPILE_ASSERT(ConvertSMVer2Cores(3, 1) == 0);
+	COMPILE_ASSERT(ConvertSMVer2Cores(3, 5) == 192);
+	COMPILE_ASSERT(ConvertSMVer2Cores(3, 6) == 0);
 	COMPILE_ASSERT(ConvertSMVer2Cores(4, 0) == 0);
 
 	if(info == NULL)
