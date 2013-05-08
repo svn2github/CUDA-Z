@@ -18,7 +18,7 @@ czImgDir="res/img"
 czVolumeIcon="$czImgDir/VolumeIcon.icns"
 czMakefile="Makefile"
 czQtMenuNib="qt_menu.nib"
-czDylibName="libcuda.dylib"
+#czDylibName="libcuda.dylib" # should be a part of CUDA driver package
 
 czQmake=`grep "QMAKE *=" $czMakefile | sed -e "s/^.*=//"`
 czQtPath=`$czQmake --version | tail -n1 | sed -e "s/^Using .* in //"`
@@ -41,30 +41,46 @@ czBldFile="src/build.h"
 
 if [ -z "$czAppLibs" ]; then
 	czAppLibs=`LANG=C otool -L "$czAppBinPath/$czAppName" | grep @rpath | sed -e "s/ *(.*$//" -e "s/^.*@rpath\///"`
+
+	for lib in $czAppLibs; do
+		if [ -f "$czLibPath/$lib" ]; then
+			czAppLibsTemp=`LANG=C otool -L "$czLibPath/$lib" | grep @rpath | sed -e "s/ *(.*$//" -e "s/^.*@rpath\///"`
+			czAppLibs="$czAppLibs $czAppLibsTemp"
+		else
+			echo "Can't find $lib library!"
+			exit 1
+		fi
+	done
 fi
 
-for lib in $czAppLibs
-do
+czAppLibs=`echo $czAppLibs | tr " " "\n" | sort | uniq`
+
+for lib in $czAppLibs; do
 	if [ -f "$czLibPath/$lib" ]; then
 		cp "$czLibPath/$lib" "$czAppBinPath"
-		install_name_tool -change @rpath/$lib @executable_path/$lib "$czAppBinPath/$lib"
-		install_name_tool -change @rpath/$lib @executable_path/$lib "$czAppBinPath/$czAppName"
-		strip "$czAppBinPath/$lib"
 	else
 		echo "Can't find $lib library!"
 		exit 1
 	fi
 done
+
+for lib in $czAppLibs; do
+	for lib2 in $czAppLibs; do
+		install_name_tool -change @rpath/$lib2 @executable_path/$lib2 "$czAppBinPath/$lib"
+	done
+	install_name_tool -change @rpath/$lib @executable_path/$lib "$czAppBinPath/$czAppName"
+	strip "$czAppBinPath/$lib"
+done
 strip "$czAppBinPath/$czAppName"
 
-if [ -f "$czLibPath/$czDylibName" ]; then
-	cp "$czLibPath/$czDylibName" "$czAppBinPath"
-	install_name_tool -change "$czLibPath/$czDylibName" @executable_path/$czDylibName "$czAppBinPath/$czDylibName"
-	strip "$czAppBinPath/$czDylibName"
-else
-	echo "Can't find $czDylibName library!"
-	exit 1
-fi
+#if [ -f "$czLibPath/$czDylibName" ]; then
+#	cp "$czLibPath/$czDylibName" "$czAppBinPath"
+#	install_name_tool -change "$czLibPath/$czDylibName" @executable_path/$czDylibName "$czAppBinPath/$czDylibName"
+#	strip "$czAppBinPath/$czDylibName"
+#else
+#	echo "Can't find $czDylibName library!"
+#	exit 1
+#fi
 
 #Add copy of qt_menu.nib to Resource subdirectory!
 if [ -d "$czQtGuiResPath/$czQtMenuNib" ]; then
@@ -106,8 +122,8 @@ if [ -z "$czBldState" ]; then
 	czBldState=""
 fi
 
-outFile="$czNameShort-$czVersion.dmg"
-outVol="$czNameShort-$czVersion"
+#outFile="$czNameShort-$czVersion.dmg"
+#outVol="$czNameShort-$czVersion"
 
 if [ ! -z "$czBldState" ]; then
 	outFile="$czNameShort-$czVersion-$czBldState.dmg"
