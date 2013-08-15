@@ -1029,7 +1029,7 @@ static float CZCudaCalcDeviceBandwidthTestCommon (
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
 
-	return (int)bandwidthKiBs;
+	return bandwidthKiBs;
 }
 
 /*!	\brief Run several bandwidth tests.
@@ -1468,7 +1468,7 @@ static float CZCudaCalcDevicePerformanceTest(
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
 
-	return (int)performanceKOPs;
+	return performanceKOPs;
 }
 
 /*!	\brief Calculate performance information about CUDA-device.
