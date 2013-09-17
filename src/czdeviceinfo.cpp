@@ -214,13 +214,6 @@ struct CZDeviceInfo &CZCudaDeviceInfo::info() {
 	return _info;
 }
 
-/*!	\brief Returns pointer to update thread.
-*/
-//CZUpdateThread *CZCudaDeviceInfo::thread() {
-//	return _thread;
-//}
-
-
 /*!	\brief Push performance test in thread.
 */
 void CZCudaDeviceInfo::testPerformance(

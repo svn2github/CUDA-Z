@@ -59,7 +59,6 @@ public:
 	int cleanDevice();
 
 	struct CZDeviceInfo &info();
-//	CZUpdateThread *thread();
 
 	void testPerformance(int index);
 	void waitPerformance();
