@@ -25,10 +25,10 @@ bz2) czUnPack="bzip2 -dc" ;;
 *) echo "Unknown packer suffix!"; rm -Rf "$outDir"; if [ ! -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi; exit 1
 esac
 czAllSize=$(echo "$czExeSize + $czDllSize" | bc -l)
-tail -c$czAllSize $0 | head -c$czExeSize | $czUnPack > "$outDir/$czExeName"
+tail -c$czAllSize "$0" | head -c$czExeSize | $czUnPack > "$outDir/$czExeName"
 czExeSumNew=`md5sum "$outDir/$czExeName" | sed -e "s/ .*$//"`
 if [ x"$czExeSum" != x"$czExeSumNew" ]; then echo "$errMsgSum $czExeName!"; rm -Rf "$outDir"; if [ ! -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi; exit 1; fi
-tail -c$czDllSize $0 | $czUnPack > "$outDir/$czDllName"
+tail -c$czDllSize "$0" | $czUnPack > "$outDir/$czDllName"
 czDllSumNew=`md5sum "$outDir/$czDllName" | sed -e "s/ .*$//"`
 if [ x"$czDllSum" != x"$czDllSumNew" ]; then echo "$errMsgSum $czDllName!"; rm -Rf "$outDir"; if [ ! -z "$rmTmpDir" ]; then rm -Rf "$tmpDir"; fi; exit 1; fi
 chmod +x "$outDir/$czExeName" "$outDir/$czDllName"
