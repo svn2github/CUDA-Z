@@ -114,7 +114,11 @@ mac: {
 
 # Packaging...
 
+pkg.target = pkg
+QMAKE_EXTRA_TARGETS += pkg
+
 win32: {
+	pkg.depends = pkg-win32
 	pkg-win32.target = pkg-win32
 	pkg-win32.commands = makensis.exe pkg-win32.nsi
 	pkg-win32.depends = release
@@ -122,6 +126,7 @@ win32: {
 }
 
 unix: {
+	pkg.depends = pkg-linux
 	pkg-linux.target = pkg-linux
 	pkg-linux.commands = sh pkg-linux.sh
 	pkg-linux.depends = all
@@ -129,6 +134,7 @@ unix: {
 }
 
 mac: {
+	pkg.depends = pkg-macosx
 	pkg-macosx.target = pkg-macosx
 	pkg-macosx.commands = sh pkg-macosx.sh
 	pkg-macosx.depends = all
