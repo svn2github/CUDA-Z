@@ -10,7 +10,7 @@
 #include <host_defines.h>
 #include <string.h>
 
-#if CUDA_VERSION < 5500
+#if CUDA_VERSION < 5050
 #error CUDA 1.x - 5.x are not supported any more! Please use CUDA Toolkit 5.5+ instead.
 #endif
 
