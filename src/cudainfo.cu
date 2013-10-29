@@ -10,8 +10,8 @@
 #include <host_defines.h>
 #include <string.h>
 
-#if CUDA_VERSION < 4000
-#error CUDA 1.x, 2.x and 3.x are not supported any more! Please use CUDA Toolkit 4.0+ instead.
+#if CUDA_VERSION < 5500
+#error CUDA 1.x - 5.x are not supported any more! Please use CUDA Toolkit 5.5+ instead.
 #endif
 
 #include "log.h"
@@ -736,6 +736,7 @@ int CZCudaReadDeviceInfo(
 	info->core.pciDomainID = prop.pciDomainID;
 	info->core.maxThreadsPerMultiProcessor = prop.maxThreadsPerMultiProcessor;
 	info->core.cudaCores = ConvertSMVer2Cores(prop.major, prop.minor) * prop.multiProcessorCount;
+	info->core.streamPrioritiesSupported = prop.streamPrioritiesSupported;
 
 	info->mem.totalGlobal = prop.totalGlobalMem;
 	info->mem.sharedPerBlock = prop.sharedMemPerBlock;

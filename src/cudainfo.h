@@ -40,6 +40,7 @@ struct CZDeviceInfoCore {
 	int		pciDomainID;		/*!< PCI domain identifier of the device. */
 	int		maxThreadsPerMultiProcessor;	/*!< Number of maximum resident threads per multiprocessor. */
 	int		cudaCores;		/*!< Number of CUDA cores. */
+	int		streamPrioritiesSupported;	/*!< Stream priorities supported. */
 };
 
 /*!	\brief Information about CUDA-device memory.

@@ -372,6 +372,7 @@ void CZDialog::setupCoreTab(
 	} else {
 		labelComputeModeText->setText(tr("Unknown"));
 	}
+	labelStreamPrioritiesText->setText(info.core.streamPrioritiesSupported? tr("Yes"): tr("No"));
 
 	labelThreadsDimText->setText(QString("%1 x %2 x %3").arg(info.core.maxThreadsDim[0]).arg(info.core.maxThreadsDim[1]).arg(info.core.maxThreadsDim[2]));
 	labelGridDimText->setText(QString("%1 x %2 x %3").arg(info.core.maxGridSize[0]).arg(info.core.maxGridSize[1]).arg(info.core.maxGridSize[2]));
@@ -676,6 +677,7 @@ void CZDialog::slotExportToText() {
 	CZ_TXT_EXPORT_TAB(labelIntegrated);
 	CZ_TXT_EXPORT_TAB(labelConcurrentKernels);
 	CZ_TXT_EXPORT_TAB(labelComputeMode);
+	CZ_TXT_EXPORT_TAB(labelStreamPriorities);
 	out << endl;
 
 	subtitle = tr("Memory Information");
@@ -805,6 +807,7 @@ void CZDialog::slotExportToHTML() {
 	CZ_HTML_EXPORT_TAB(labelIntegrated);
 	CZ_HTML_EXPORT_TAB(labelConcurrentKernels);
 	CZ_HTML_EXPORT_TAB(labelComputeMode);
+	CZ_HTML_EXPORT_TAB(labelStreamPriorities);
 	out << "</table>" << endl;
 
 	out << "<h2>" << tr("Memory Information") << "</h2>" << endl;
