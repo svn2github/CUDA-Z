@@ -287,8 +287,8 @@ static bool CZCudaIsInit(void) {
 #define CZ_PROC_MAP_NAME	"/proc/self/maps"	/*!< Process memory map file. */
 #define CZ_DLL_FNAME		"libcuda.so"		/*!< CUDA dll file name. */
 #define CZ_DLL_FNAME_RT		"libcudart.so"		/*!< CUDA RT dll file name. */
-#define CZ_LD_SO_CONF		"/etc/ld.do.conf"	/*!< ld.so configuration file. */
-#define CZ_LD_SO_DIR		"/etc/ld.do.conf.d/"	/*!< ld.so configuration directory. */
+#define CZ_LD_SO_CONF		"/etc/ld.so.conf"	/*!< ld.so configuration file. */
+#define CZ_LD_SO_DIR		"/etc/ld.so.conf.d/"	/*!< ld.so configuration directory. */
 #define CZ_LD_SO_LINE_MAX	100			/*!< ld.so configuration line length. */
 
 /*!	\brief Get version of shared library.
