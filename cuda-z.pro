@@ -57,10 +57,10 @@ CUFLAGS = \
 
 #	-Xcompiler "-nologo"
 
-unix:LIBS += -lcudart
+unix:LIBS += -lcudart_static
 win32:LIBS += \
 	$$quote($$(CUDA_LIB_PATH)\\cuda.lib) \
-	$$quote($$(CUDA_LIB_PATH)\\cudart.lib) \
+	$$quote($$(CUDA_LIB_PATH)\\cudart_static.lib) \
 	Version.lib \
 	Kernel32.lib \
 	Psapi.lib
