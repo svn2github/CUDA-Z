@@ -57,6 +57,8 @@ CUFLAGS = \
 
 #	-Xcompiler "-nologo"
 
+QMAKE_CUEXTRAFLAGS += -m32
+
 unix:LIBS += -lcudart_static
 win32:LIBS += \
 	$$quote($$(CUDA_LIB_PATH)\\cuda.lib) \
