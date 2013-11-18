@@ -4,6 +4,8 @@
 #	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
 #	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
 
+!cd ..\..
+
 !define CZ_CUDART_DLL cudart32_55.dll
 !define CZ_CUDAZ_EXE cuda-z.exe
 

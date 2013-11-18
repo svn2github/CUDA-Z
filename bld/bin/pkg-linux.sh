@@ -7,7 +7,7 @@
 
 #set -x
 
-czPkgHeader="pkg-linux.dat"
+czPkgHeader="bld/bin/pkg-linux.dat"
 
 # Script $czPkgHeader expects variables:
 # - czNameShort - short name of cuda-z
