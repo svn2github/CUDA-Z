@@ -126,7 +126,7 @@ QMAKE_EXTRA_TARGETS += pkg
 win32: {
 	pkg.depends = pkg-win32
 	pkg-win32.target = pkg-win32
-	pkg-win32.commands = makensis.exe bld/bin/pkg-win32.nsi
+	pkg-win32.commands = cmd /C bld\\bin\\pkg-win32.cmd
 	pkg-win32.depends = release
 	QMAKE_EXTRA_TARGETS += pkg-win32
 }
