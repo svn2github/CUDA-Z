@@ -18,7 +18,7 @@ czImgDir="res/img"
 czVolumeIcon="$czImgDir/VolumeIcon.icns"
 czMakefile="Makefile"
 czQtMenuNib="qt_menu.nib"
-#czDylibName="libcuda.dylib" # should be a part of CUDA driver package
+czUpx="bld/bin/upx-macosx"
 
 czQmake=`grep "QMAKE *=" $czMakefile | sed -e "s/^.*=//"`
 czQtPath=`$czQmake --version | tail -n1 | sed -e "s/^Using .* in //"`
@@ -56,6 +56,7 @@ fi
 czAppLibs=`echo $czAppLibs | tr " " "\n" | sort | uniq`
 
 for lib in $czAppLibs; do
+		echo "Warning: library $lib is required and will be added to image!"
 	if [ -f "$czLibPath/$lib" ]; then
 		cp "$czLibPath/$lib" "$czAppBinPath"
 	else
@@ -73,14 +74,7 @@ for lib in $czAppLibs; do
 done
 strip "$czAppBinPath/$czAppName"
 
-#if [ -f "$czLibPath/$czDylibName" ]; then
-#	cp "$czLibPath/$czDylibName" "$czAppBinPath"
-#	install_name_tool -change "$czLibPath/$czDylibName" @executable_path/$czDylibName "$czAppBinPath/$czDylibName"
-#	strip "$czAppBinPath/$czDylibName"
-#else
-#	echo "Can't find $czDylibName library!"
-#	exit 1
-#fi
+$czUpx --ultra-brute "$czAppBinPath/$czAppName"
 
 #Add copy of qt_menu.nib to Resource subdirectory!
 if [ -d "$czQtGuiResPath/$czQtMenuNib" ]; then
@@ -122,9 +116,6 @@ if [ -z "$czBldState" ]; then
 	czBldState=""
 fi
 
-#outFile="$czNameShort-$czVersion.dmg"
-#outVol="$czNameShort-$czVersion"
-
 if [ ! -z "$czBldState" ]; then
 	outFile="$czNameShort-$czVersion-$czBldState.dmg"
 	outVol="$czNameShort-$czVersion-$czBldState"
@@ -162,7 +153,6 @@ hdiutil eject "$dmgDisk"
 rm -f "$outFile"
 hdiutil convert "$tmpDmg" -format UDBZ -imagekey bzip2-level=9 -o "$outFile"
 #hdiutil convert "$tmpDmg" -format UDZO -imagekey zlib-level=9 -o "$outFile"
-#cp "$tmpDmg" "$outFile"
 rm -f "$tmpDmg"
 
 exit 0
