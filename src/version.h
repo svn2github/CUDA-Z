@@ -1,8 +1,8 @@
 /*!	\file version.h
 	\brief Version definitions header.
-	\author Andriy Golovnya <andrew_golovnia@ukr.net> http://ag.embedded.org.ru/
+	\author Andriy Golovnya <andriy.golovnya@gmail.com> http://ag.embedded.org.ru/
 	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
-	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
+	\license GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
 */
 
 #ifndef CZ_VERSION_H
@@ -57,8 +57,11 @@
 #define CZ_ORG_URL_PROJECT	"http://sf.net/projects/cuda-z/"
 						/*!< URL of project page. */
 
-#define CZ_COPY_INFO		"This software is distributed under the terms of the GNU General Public License Version 2."
+#define CZ_COPY_INFO		"This software is distributed under the terms of the GNU General Public License Version 3."
 						/*!< Program's copyright information. */
+
+#define CZ_COPY_URL		"http://www.gnu.org/licenses/gpl-3.0.html"
+						/*!< Copyright URL. */
 /*@}*/
 
 #endif /*CZ_VERSION_H*/

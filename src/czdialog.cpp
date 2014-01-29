@@ -1,8 +1,8 @@
 /*!	\file czdialog.cpp
 	\brief Main window implementation source file.
-	\author Andriy Golovnya <andrew_golovnia@ukr.net> http://ag.embedded.org.ru/
+	\author Andriy Golovnya <andriy.golovnya@gmail.com> http://ag.embedded.org.ru/
 	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
-	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
+	\license GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
 */
 
 #include <QMenu>
@@ -538,7 +538,7 @@ void CZDialog::setupAboutTab() {
 		.arg(tr("Main page")).arg(CZ_ORG_URL_MAINPAGE)
 		.arg(tr("Project page")).arg(CZ_ORG_URL_PROJECT));
 	labelAppAuthor->setText(QString("<b>%1</b> %2").arg(tr("Author")).arg(CZ_ORG_NAME));
-	labelAppCopy->setText(CZ_COPY_INFO);
+	labelAppCopy->setText(QString("%1 <a href=\"%2\">%2</a>").arg(CZ_COPY_INFO).arg(CZ_COPY_URL));
 }
 
 /*!	\fn CZDialog::getOSVersion

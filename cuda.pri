@@ -1,8 +1,8 @@
 #	\file cuda.pri
 #	\brief CUDA compiler configuration.
-#	\author Andriy Golovnya <andrew_golovnia@ukr.net> http://ag.embedded.org.ru/
+#	\author Andriy Golovnya <andriy.golovnya@gmail.com> http://ag.embedded.org.ru/
 #	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
-#	\license GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
+#	\license GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
 
 #
 # Cuda extra-compiler for handling files specified in the CUSOURCES variable

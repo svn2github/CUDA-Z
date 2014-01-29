@@ -129,6 +129,16 @@ General build process for Mac OS X is identical to linux version.
 
 Happy hacking!
 
+What CUDA-Z's license?
+----------------------
+
+License GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+
+Who is an author?
+-----------------
+
+Andriy Golovnya <andriy.golovnya@gmail.com> http://ag.embedded.org.ru/
+
 --
 WBR,
 AG
