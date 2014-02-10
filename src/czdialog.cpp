@@ -250,6 +250,8 @@ void CZDialog::readCudaDevices() {
 			
 			connect(info, SIGNAL(testedPerformance(int)), SLOT(slotUpdatePerformance(int)));
 			deviceList.append(info);
+		} else {
+			delete info;
 		}
 	}
 }
