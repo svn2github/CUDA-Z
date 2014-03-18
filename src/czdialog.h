@@ -26,8 +26,6 @@
 #include "czdeviceinfo.h"
 #include "cudainfo.h"
 
-extern void wait(int n); // implemented in main.cpp
-
 class CZSplashScreen: public QSplashScreen {
 	Q_OBJECT
 

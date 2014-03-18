@@ -244,8 +244,6 @@ void CZDialog::readCudaDevices() {
 				Qt::AlignLeft | Qt::AlignBottom);
 			qApp->processEvents();
 
-//			wait(10000000);
-
 			info->waitPerformance();
 			
 			connect(info, SIGNAL(testedPerformance(int)), SLOT(slotUpdatePerformance(int)));

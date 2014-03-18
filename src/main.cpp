@@ -45,19 +45,16 @@ int getCudaDeviceNum() {
 	return res;
 }
 
-/*!	\brief Busy loop wait function (brutal hack for testing).
-	Actually, I don't know how to call sleep() function from Qt code :).
+#ifdef Q_OS_WIN
+#include <Windows.h>
+/*!	\brief Sleep function.
 */
-void wait(
-	int n			/*!<[in] Number of times to tun this busy loop to. */
+static inline void sleep(
+	unsigned sec		/*!<[in] Number of seconds to wait */
 ) {
-	char str[256];
-	int i;
-
-	for(i = 0; i < n; i++) {
-		sprintf(str, "loop%d", i);
-	}
+	::Sleep(sec * 1000);
 }
+#endif
 
 /*!	\brief Main initialization function.
 */
@@ -87,7 +84,7 @@ int main(
 		exit(1);
 	}
 
-//	wait(10000000);
+//	sleep(5);
 
 	int devs = getCudaDeviceNum();
 	if(devs == 0) {
@@ -102,7 +99,7 @@ int main(
 		Qt::AlignLeft | Qt::AlignBottom);
 	app.processEvents();
 
-//	wait(10000000);
+//	sleep(5);
 
 	splash->setPixmap(pixmap3);
 	CZDialog window;
