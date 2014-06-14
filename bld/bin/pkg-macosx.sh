@@ -77,12 +77,12 @@ strip "$czAppBinPath/$czAppName"
 $czUpx --ultra-brute "$czAppBinPath/$czAppName"
 
 #Add copy of qt_menu.nib to Resource subdirectory!
-if [ -d "$czQtGuiResPath/$czQtMenuNib" ]; then
-	cp -R "$czQtGuiResPath/$czQtMenuNib" "$czAppResPath"
-else
-	echo "Can't find Qt Mac resources file $czQtGuiResPath/$czQtMenuNib!"
-	exit 1
-fi
+#if [ -d "$czQtGuiResPath/$czQtMenuNib" ]; then
+#	cp -R "$czQtGuiResPath/$czQtMenuNib" "$czAppResPath"
+#else
+#	echo "Can't find Qt Mac resources file $czQtGuiResPath/$czQtMenuNib!"
+#	exit 1
+#fi
 
 czVerMajor=`cat "$czVerFile" | grep "^#define CZ_VER_MAJOR" | tr "\t" " "| sed -e "s/^.*MAJOR//" -e "s,//.*$,," -e "s,/\*.*\*/,," -e "s/[ \t]//g"`
 if test -z "$czVerMajor"; then
