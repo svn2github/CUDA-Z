@@ -10,7 +10,8 @@ CONFIG += qt warn_on
 CONFIG += release
 #CONFIG += debug
 #CONFIG += console
-CONFIG += static
+#CONFIG += static
+#CONFIG += sm_all
 
 isEqual(QT_MAJOR_VERSION, 5) {
 QT += widgets
@@ -41,29 +42,38 @@ mac: {
 	QMAKE_INFO_PLIST = res/Info.plist
 }
 
-CUFLAGS = \
-	-gencode=arch=compute_10,code=sm_10 \
-	-gencode=arch=compute_10,code=compute_10 \
-	-gencode=arch=compute_11,code=sm_11 \
-	-gencode=arch=compute_11,code=compute_11 \
-	-gencode=arch=compute_13,code=sm_13 \
-	-gencode=arch=compute_13,code=compute_13 \
-	-gencode=arch=compute_20,code=sm_20 \
-	-gencode=arch=compute_20,code=compute_20 \
-	-gencode=arch=compute_30,code=sm_30 \
-	-gencode=arch=compute_30,code=compute_30 \
-	-gencode arch=compute_32,code=sm_32 \
-	-gencode arch=compute_32,code=compute_32 \
-	-gencode=arch=compute_35,code=sm_35 \
-	-gencode=arch=compute_35,code=compute_35 \
-	-gencode arch=compute_50,code=sm_50 \
-	-gencode arch=compute_50,code=compute_50 \
+sm_all:CONFIG += sm_10 sm_11 sm_13 sm_20 sm_30 sm_32 sm_35 sm_50
+
+sm_10:CUFLAGS += -gencode=arch=compute_10,code=sm_10 \
+	-gencode=arch=compute_10,code=compute_10
+
+sm_11:CUFLAGS += -gencode=arch=compute_11,code=sm_11 \
+	-gencode=arch=compute_11,code=compute_11
+
+sm_13:CUFLAGS += -gencode=arch=compute_13,code=sm_13 \
+	-gencode=arch=compute_13,code=compute_13
+
+sm_20:CUFLAGS += -gencode=arch=compute_20,code=sm_20 \
+	-gencode=arch=compute_20,code=compute_20
+
+sm_30:CUFLAGS += -gencode=arch=compute_30,code=sm_30 \
+	-gencode=arch=compute_30,code=compute_30
+
+sm_32:CUFLAGS += -gencode arch=compute_32,code=sm_32 \
+	-gencode arch=compute_32,code=compute_32
+
+sm_35:CUFLAGS += -gencode=arch=compute_35,code=sm_35 \
+	-gencode=arch=compute_35,code=compute_35
+
+sm_50:CUFLAGS += -gencode arch=compute_50,code=sm_50 \
+	-gencode arch=compute_50,code=compute_50
 
 #	-Xcompiler "-nologo"
 
 #QMAKE_CUEXTRAFLAGS += -m32
 
 unix:LIBS += -lcudart_static
+unix:!static:LIBS += -ldl -lm -lrt
 win32:LIBS += \
 	$$quote($$(CUDA_LIB_PATH)\\cuda.lib) \
 	$$quote($$(CUDA_LIB_PATH)\\cudart_static.lib) \
