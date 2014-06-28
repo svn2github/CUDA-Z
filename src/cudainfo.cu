@@ -642,19 +642,23 @@ int CZCudaDeviceFound(void) {
 	\returns 0 if GPU Architecture is unknown, or number of CUDA cores per multiprocessor.
 */
 #define ConvertSMVer2Cores(major, minor) \
-	(((major) == 1)? ( \
+	(((major) == 1)? ( /* Tesla */ \
 		((minor) == 0)? 8: /* G80*/ \
 		((minor) == 1)? 8: /* G8x */ \
 		((minor) == 2)? 8: /* G9x */ \
 		((minor) == 3)? 8: /* GT200 */ \
 		0): \
-	((major) == 2)? ( \
+	((major) == 2)? ( /* Fermi */ \
 		((minor) == 0)? 32: /* GF100 */ \
 		((minor) == 1)? 48: /* GF10x */ \
 		0): \
-	((major) == 3)? ( \
+	((major) == 3)? ( /* Kepler */ \
 		((minor) == 0)? 192: /* GK10x */ \
+		((minor) == 2)? 192: /* GK10x */ \
 		((minor) == 5)? 192: /* GK11x */ \
+		0): \
+	((major) == 5)? ( /* Maxwell */ \
+		((minor) == 0)? 128: /* GM10X */ \
 		0): \
 	0)
 
