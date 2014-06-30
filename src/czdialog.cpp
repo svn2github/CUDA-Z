@@ -183,10 +183,10 @@ CZDialog::CZDialog(
 )	: QDialog(parent, f /*| Qt::MSWindowsFixedSizeDialogHint*/ | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint) {
 
 #ifdef CZ_USE_QHTTP
-	http = new QHttp(this);
-	httpId = -1;
-	connect(http, SIGNAL(requestFinished(int,bool)), this, SLOT(slotHttpRequestFinished(int,bool)));
-	connect(http, SIGNAL(stateChanged(int)), this, SLOT(slotHttpStateChanged(int)));
+	m_http = new QHttp(this);
+	m_httpId = -1;
+	connect(m_http, SIGNAL(requestFinished(int,bool)), this, SLOT(slotHttpRequestFinished(int,bool)));
+	connect(m_http, SIGNAL(stateChanged(int)), this, SLOT(slotHttpStateChanged(int)));
 #else
 #endif /*CZ_USE_QHTTP*/
 
@@ -206,9 +206,9 @@ CZDialog::CZDialog(
 	setupDeviceInfo(comboDevice->currentIndex());
 	setupAboutTab();
 
-	updateTimer = new QTimer(this);
-	connect(updateTimer, SIGNAL(timeout()), SLOT(slotUpdateTimer()));
-	updateTimer->start(CZ_TIMER_REFRESH);
+	m_updateTimer = new QTimer(this);
+	connect(m_updateTimer, SIGNAL(timeout()), SLOT(slotUpdateTimer()));
+	m_updateTimer->start(CZ_TIMER_REFRESH);
 
 	slotUpdateVersion();
 }
@@ -217,8 +217,8 @@ CZDialog::CZDialog(
 	This function makes class data cleanup actions.
 */
 CZDialog::~CZDialog() {
-	updateTimer->stop();
-	delete updateTimer;
+	m_updateTimer->stop();
+	delete m_updateTimer;
 	freeCudaDevices();
 	cleanGetHistoryHttp();
 }
@@ -247,7 +247,7 @@ void CZDialog::readCudaDevices() {
 			info->waitPerformance();
 			
 			connect(info, SIGNAL(testedPerformance(int)), SLOT(slotUpdatePerformance(int)));
-			deviceList.append(info);
+			m_deviceList.append(info);
 		} else {
 			delete info;
 		}
@@ -258,9 +258,9 @@ void CZDialog::readCudaDevices() {
 */
 void CZDialog::freeCudaDevices() {
 
-	while(deviceList.size() > 0) {
-		CZCudaDeviceInfo *info = deviceList[0];
-		deviceList.removeFirst();
+	while(m_deviceList.size() > 0) {
+		CZCudaDeviceInfo *info = m_deviceList[0];
+		m_deviceList.removeFirst();
 		delete info;
 	}
 }
@@ -277,8 +277,8 @@ int CZDialog::getCudaDeviceNumber() {
 void CZDialog::setupDeviceList() {
 	comboDevice->clear();
 
-	for(int i = 0; i < deviceList.size(); i++) {
-		comboDevice->addItem(QString("%1: %2").arg(i).arg(deviceList[i]->info().deviceName));
+	for(int i = 0; i < m_deviceList.size(); i++) {
+		comboDevice->addItem(QString("%1: %2").arg(i).arg(m_deviceList[i]->info().deviceName));
 	}
 }
 
@@ -290,7 +290,7 @@ void CZDialog::slotShowDevice(
 	setupDeviceInfo(index);
 	if(checkUpdateResults->checkState() == Qt::Checked) {
 		CZLog(CZLogLevelModerate, "Switch device -> update performance for device %d", index);
-		deviceList[index]->testPerformance(index);
+		m_deviceList[index]->testPerformance(index);
 	}
 }
 
@@ -301,7 +301,7 @@ void CZDialog::slotUpdatePerformance(
 	int index			/*!<[in] Index of device in list. */
 ) {
 	if(index == comboDevice->currentIndex())
-	setupPerformanceTab(deviceList[index]->info());
+	setupPerformanceTab(m_deviceList[index]->info());
 }
 
 /*!	\brief This slot updates performance information of current device
@@ -312,12 +312,12 @@ void CZDialog::slotUpdateTimer() {
 	int index = comboDevice->currentIndex();
 	if(checkUpdateResults->checkState() == Qt::Checked) {
 		if(checkHeavyMode->checkState() == Qt::Checked) {
-			deviceList[index]->info().heavyMode = 1;
+			m_deviceList[index]->info().heavyMode = 1;
 		} else {
-			deviceList[index]->info().heavyMode = 0;
+			m_deviceList[index]->info().heavyMode = 0;
 		}
-		CZLog(CZLogLevelModerate, "Timer shot -> update performance for device %d in mode %d", index, deviceList[index]->info().heavyMode);
-		deviceList[index]->testPerformance(index);
+		CZLog(CZLogLevelModerate, "Timer shot -> update performance for device %d in mode %d", index, m_deviceList[index]->info().heavyMode);
+		m_deviceList[index]->testPerformance(index);
 	} else {
 		CZLog(CZLogLevelModerate, "Timer shot -> update ignored");
 	}
@@ -328,9 +328,9 @@ void CZDialog::slotUpdateTimer() {
 void CZDialog::setupDeviceInfo(
 	int dev				/*!<[in] Number/index of CUDA-device. */
 ) {
-	setupCoreTab(deviceList[dev]->info());
-	setupMemoryTab(deviceList[dev]->info());
-	setupPerformanceTab(deviceList[dev]->info());
+	setupCoreTab(m_deviceList[dev]->info());
+	setupMemoryTab(m_deviceList[dev]->info());
+	setupPerformanceTab(m_deviceList[dev]->info());
 }
 
 /*!	\brief Fill tab "Core" with CUDA devices information.
@@ -609,9 +609,9 @@ QString CZDialog::getOSVersion() {
 	
 	return OSVersion.remove('\n');
 }
-#else//!Q_WS_WIN
+#else
 #error Function getOSVersion() is not implemented for your platform!
-#endif//Q_WS_WIN
+#endif//Q_OS_WIN
 
 #define CZ_TXT_EXPORT(label)	out << label->text() << ": " << label ## Text->text() << endl
 #define CZ_TXT_EXPORT_TAB(label)	out << "\t" << label->text() << ": " << label ## Text->text() << endl
@@ -725,6 +725,7 @@ void CZDialog::slotExportToText() {
 	time(&t);
 	out << QString("%1: %2").arg(tr("Generated")).arg(ctime(&t)) << endl;
 }
+
 #define CZ_HTML_EXPORT(label)	out << "<b>" << label->text() << "</b>: " << label ## Text->text() << "<br/>" << endl
 #define CZ_HTML_EXPORT_TAB(label)	out << "<tr><th>" << label->text() << "</th><td>" << label ## Text->text() << "</td></tr>" << endl
 #define CZ_HTML_EXPORT_TAB_TITLE(title, label)	out << "<tr><th>" << tr(title) << "</th><td>" << label ## Text->text() << "</td></tr>" << endl
@@ -868,8 +869,8 @@ void CZDialog::startGetHistoryHttp() {
 	labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_INFO));
 	labelAppUpdate->setText(tr("Looking for new version..."));
 	pushUpdate->setEnabled(false);
-	url = QString(CZ_ORG_URL_MAINPAGE) + "/history.txt";
-	startHttpRequest(url);
+	m_url = QString(CZ_ORG_URL_MAINPAGE) + "history.txt";
+	startHttpRequest(m_url);
 }
 
 /*!	\brief Start a HTTP request with a given \a url.
@@ -877,17 +878,21 @@ void CZDialog::startGetHistoryHttp() {
 void CZDialog::startHttpRequest(
 	QUrl url			/*!<[in] URL to be read out. */
 ) {
-	history.clear();
+	m_history.clear();
 	CZLog(CZLogLevelLow, "Requesting %s!", url.toString().toLocal8Bit().data());
 #ifdef CZ_USE_QHTTP
-	QHttp::ConnectionMode mode = url.scheme() == "https"? QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp;
-	quint16 port = url.port() < 0 ? 0 : url.port();
-	http->setHost(url.host(), mode, port);
-	httpId = http->get(url.path());
+	QHttp::ConnectionMode mode = (url.scheme() == "https")? QHttp::ConnectionModeHttps: QHttp::ConnectionModeHttp;
+	quint16 port = (url.port() < 0)? 0: url.port();
+	m_http->setHost(url.host(), mode, port);
+	m_httpId = m_http->get(url.path());
 #else
-	reply = qnam.get(QNetworkRequest(url));
-	connect(reply, SIGNAL(finished()), this, SLOT(slotHttpFinished()));
-	connect(reply, SIGNAL(readyRead()), this, SLOT(slotHttpReadyRead()));
+	QNetworkRequest request;
+	request.setUrl(url);
+	request.setRawHeader("User-Agent", (QString("Mozilla/5.0 (%1) " CZ_NAME_SHORT " " CZ_VERSION " " CZ_OS_PLATFORM_STR).arg(getOSVersion()).toLocal8Bit()));
+	request.setRawHeader("Accept-Encoding", "gzip, deflate");
+	m_reply = m_qnam.get(request);
+	connect(m_reply, SIGNAL(finished()), this, SLOT(slotHttpFinished()));
+	connect(m_reply, SIGNAL(readyRead()), this, SLOT(slotHttpReadyRead()));
 #endif /*CZ_USE_QHTTP*/
 }
 
@@ -896,7 +901,7 @@ void CZDialog::startHttpRequest(
 void CZDialog::cleanGetHistoryHttp() {
 
 #ifdef CZ_USE_QHTTP
-	http->abort();
+	m_http->abort();
 #endif /*CZ_USE_QHTTP*/
 
 }
@@ -920,39 +925,38 @@ void CZDialog::slotHttpRequestFinished(
 	int id,				/*!<[in] HTTP request ID. */
 	bool error			/*!<[in] HTTP operation error state. */
 ) {
-	if(id != httpId)
+	if(id != m_httpId)
 		return;
-
-	pushUpdate->setEnabled(true);
 
 	QString errorString;
 
-	if(error || (!http->lastResponse().isValid())) {
-		errorString = http->errorString();
+	if(error || (!m_http->lastResponse().isValid())) {
+		errorString = m_http->errorString();
 report_error:
 		CZLog(CZLogLevelWarning, "Get version request done with error: %s", errorString.toLocal8Bit().data());
 		labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_ERROR));
 		labelAppUpdate->setText(tr("Can't load version information. ") + errorString);
+		pushUpdate->setEnabled(true);
 	} else {
-		int statusCode = http->lastResponse().statusCode();
+		int statusCode = m_http->lastResponse().statusCode();
 
 		if(statusCode == 200) { /* Ok */
 			CZLog(CZLogLevelModerate, "Get version request done successfully");
-			history = http->readAll().data();
-			parseHistoryTxt(history);
-
+			m_history = m_http->readAll().data();
+			parseHistoryTxt(m_history);
+			pushUpdate->setEnabled(true);
 		} else if((statusCode >= 300) && (statusCode < 400)) { /* Redirect */
-			if(!http->lastResponse().hasKey("Location")) {
+			if(!m_http->lastResponse().hasKey("Location")) {
 				CZLog(CZLogLevelModerate, "Can't redirect - no location.");
-				errorString = QString("%1 %2 %3.").arg(tr("Error")).arg(http->lastResponse().statusCode()).arg(tr("Can't redirect"));
+				errorString = QString("%1 %2 %3.").arg(tr("Error")).arg(m_http->lastResponse().statusCode()).arg(tr("Can't redirect"));
 				goto report_error;
 			} else {
-				url = http->lastResponse().value("Location");
-				CZLog(CZLogLevelModerate, "Get version redirected to %s", url.toString().toLocal8Bit().data());
-				startHttpRequest(url);
+				m_url = m_http->lastResponse().value("Location");
+				CZLog(CZLogLevelModerate, "Get version redirected to %s", m_url.toString().toLocal8Bit().data());
+				startHttpRequest(m_url);
 			}
 		} else { /* Error */
-			errorString = QString("%1 %2.").arg(tr("Error")).arg(http->lastResponse().statusCode());
+			errorString = QString("%1 %2.").arg(tr("Error")).arg(m_http->lastResponse().statusCode());
 			goto report_error;
 		}
 	}
@@ -963,33 +967,35 @@ report_error:
 */
 void CZDialog::slotHttpFinished() {
 
-	pushUpdate->setEnabled(true);
+	QVariant redirectionTarget = m_reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
 
-	QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
-
-	if(reply->error()) {
-		QString errorString;
-		errorString = QString("%1 %2.").arg(tr("Error")).arg(reply->errorString());
+	if(m_reply->error()) {
+		QString errorString = m_reply->errorString();
 		CZLog(CZLogLevelWarning, "Get version request done with error: %s", errorString.toLocal8Bit().data());
 		labelAppUpdateImg->setPixmap(QPixmap(CZ_UPD_ICON_ERROR));
-		labelAppUpdate->setText(tr("Can't load version information. ") + errorString);
-
-	} else if (!redirectionTarget.isNull()) {
-		url = url.resolved(redirectionTarget.toUrl());
+		labelAppUpdate->setText(tr("Can't load version information.") + " " + errorString);
+		m_reply->deleteLater();
+		pushUpdate->setEnabled(true);
+	} else if(!redirectionTarget.isNull()) {
+		QUrl url = m_url.resolved(redirectionTarget.toUrl());
 		CZLog(CZLogLevelModerate, "Get version redirected to %s", url.toString().toLocal8Bit().data());
+		m_reply->deleteLater();
 		startHttpRequest(url);
-
 	} else {
 		CZLog(CZLogLevelModerate, "Get version request done successfully");
-		parseHistoryTxt(history);
+		parseHistoryTxt(m_history);
+		m_reply->deleteLater();
+		pushUpdate->setEnabled(true);
 	}
+
 }
 
 /*!	\brief HTTP data processing slot.
 */
 void CZDialog::slotHttpReadyRead() {
-	CZLog(CZLogLevelLow, "Get potrion of data %d", reply->size());
-	history += reply->readAll().data();
+	CZLog(CZLogLevelLow, "Get potrion of data %d", m_reply->size());
+	m_history += m_reply->readAll().data();
+//	CZLog(CZLogLevelLow, "history: %s", m_history.toLocal8Bit().data());
 }
 #endif /*CZ_USE_QHTTP*/
 
@@ -1016,10 +1022,10 @@ void CZDialog::parseHistoryTxt(
 	bool criticalVersion = false;
 	QString url;
 
-	QString nameVersion("version ");
-	QString nameNotes("release-notes ");
-	QString nameCritical("release-critical");
-	QString nameDownload = QString("download-") + CZ_OS_PLATFORM_STR + " ";
+	static const QString nameVersion("version ");
+	static const QString nameNotes("release-notes ");
+	static const QString nameCritical("release-critical");
+	static const QString nameDownload("download-" CZ_OS_PLATFORM_STR " ");
 
 	for(int i = 0; i < historyStrings.size(); i++) {
 

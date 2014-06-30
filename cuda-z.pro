@@ -14,7 +14,7 @@ CONFIG += release
 #CONFIG += sm_all
 
 isEqual(QT_MAJOR_VERSION, 5) {
-QT += widgets
+	QT += widgets
 }
 
 #message(CONFIG: $$CONFIG)
@@ -67,8 +67,6 @@ sm_35:CUFLAGS += -gencode=arch=compute_35,code=sm_35 \
 
 sm_50:CUFLAGS += -gencode arch=compute_50,code=sm_50 \
 	-gencode arch=compute_50,code=compute_50
-
-#	-Xcompiler "-nologo"
 
 #QMAKE_CUEXTRAFLAGS += -m32
 

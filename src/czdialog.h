@@ -8,9 +8,11 @@
 #ifndef CZ_DIALOG_H
 #define CZ_DIALOG_H
 
-#if QT_VERSION < 0x050000
-#define CZ_USE_QHTTP
-#endif//QT_VERSION
+#include "qglobal.h"
+
+//#if QT_VERSION < 0x050000
+//#define CZ_USE_QHTTP
+//#endif//QT_VERSION
 
 #include <QSplashScreen>
 #include <QTimer>
@@ -61,17 +63,17 @@ public:
 	~CZDialog();
 
 private:
-	QList<CZCudaDeviceInfo*> deviceList;
-	QTimer *updateTimer;
+	QList<CZCudaDeviceInfo*> m_deviceList;
+	QTimer *m_updateTimer;
 #ifdef CZ_USE_QHTTP
-	QHttp *http;
-	int httpId;
+	QHttp *m_http;
+	int m_httpId;
 #else
-	QNetworkAccessManager qnam;
-	QNetworkReply *reply;
+	QNetworkAccessManager m_qnam;
+	QNetworkReply *m_reply;
 #endif /*CZ_USE_QHTTP*/
-	QUrl url;
-	QString history;
+	QUrl m_url;
+	QString m_history;
 
 	void readCudaDevices();
 	void freeCudaDevices();
