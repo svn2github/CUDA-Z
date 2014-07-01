@@ -1,7 +1,7 @@
 @echo off
 ::	\file pkg-win32.cmd
 ::	\brief Windows package generator.
-::	\author Andriy Golovnya <andriy.golovnya@gmail.com> http://ag.embedded.org.ru/
+::	\author Andriy Golovnya <andriy.golovnya@gmail.com> http://redscorp.net/
 ::	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
 ::	\license GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
 

@@ -137,7 +137,7 @@ License GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
 Who is an author?
 -----------------
 
-Andriy Golovnya <andriy.golovnya@gmail.com> http://ag.embedded.org.ru/
+Andriy Golovnya <andriy.golovnya@gmail.com> http://redscorp.net/
 
 --
 WBR,
