@@ -25,7 +25,7 @@
 	win32:INCLUDEPATH += $$quote($$(CUDA_INC_PATH))
 	unix:INCLUDEPATH += /usr/local/cuda/include
 	unix:QMAKE_LIBDIR += /usr/local/cuda/lib
-	unix:QMAKE_LIBDIR += /usr/local/cuda/lib64
+	linux:QMAKE_LIBDIR += /usr/local/cuda/lib64
 
 	QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS
 	mac:QMAKE_CUFLAGS += -stdlib=libstdc++

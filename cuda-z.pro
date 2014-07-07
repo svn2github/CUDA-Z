@@ -86,7 +86,7 @@ win32:isEqual(QT_MAJOR_VERSION, 4) {
 }
 
 unix:LIBS += -lcudart_static
-unix:!static:LIBS += -ldl -lm -lrt
+linux:!static:LIBS += -ldl -lm -lrt
 win32:LIBS += \
 	$$quote($$(CUDA_LIB_PATH)\\cuda.lib) \
 	$$quote($$(CUDA_LIB_PATH)\\cudart_static.lib) \
