@@ -16,7 +16,11 @@ if(@ARGV < 1) {
 	$outfile = $ARGV[0];
 }
 
-open(OUT, '>'.$outfile) or die 'Unable to open output file'.$outfile.'!';
+if(@ARGV > 1) {
+	$projectroot = $ARGV[1];
+}
+
+open(OUT, '>'.$outfile) or die 'Unable to open output file '.$outfile.'!';
 open(VER, '-|', 'svnversion -c -n '.$projectroot) or die 'Can\'t get SVN revision value!';
 open(INFO, '-|', 'svn info '.$projectroot) or die 'Can\'t get SVN information!';
 

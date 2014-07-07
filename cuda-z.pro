@@ -19,6 +19,10 @@ isEqual(QT_MAJOR_VERSION, 5) {
 
 #message(CONFIG: $$CONFIG)
 
+CZ_SOURCE_DIR = $$PWD
+CZ_BUILD_DIR = $$OUT_PWD
+CZ_BUILD_SRC_DIR = $$CZ_BUILD_DIR/src
+
 # Compiling...
 
 FORMS = ui/czdialog.ui
@@ -70,6 +74,17 @@ sm_50:CUFLAGS += -gencode arch=compute_50,code=sm_50 \
 
 #QMAKE_CUEXTRAFLAGS += -m32
 
+win32:INCLUDEPATH += $$quote($$replace(CZ_BUILD_SRC_DIR, /, \\))
+else:INCLUDEPATH += $$CZ_BUILD_SRC_DIR
+
+win32:RC_INCLUDEPATH += $$quote($$replace(CZ_SOURCE_DIR, /, \\))
+win32:RC_INCLUDEPATH += $$quote($$replace(CZ_SOURCE_DIR, /, \\)\\src)
+win32:RC_INCLUDEPATH += $$quote($$replace(CZ_BUILD_SRC_DIR, /, \\))
+
+win32:isEqual(QT_MAJOR_VERSION, 4) {
+	QMAKE_RC = rc $$join(RC_INCLUDEPATH, " -I ", "-I ")
+}
+
 unix:LIBS += -lcudart_static
 unix:!static:LIBS += -ldl -lm -lrt
 win32:LIBS += \
@@ -79,12 +94,18 @@ win32:LIBS += \
 	Kernel32.lib \
 	Psapi.lib
 
-BUILD_H = src/build.h
+make_src_dir.target = $$CZ_BUILD_SRC_DIR
+win32:make_src_dir.commands = $(MKDIR) $$replace(CZ_BUILD_SRC_DIR, /, \\)
+else:make_src_dir.commands = $(MKDIR) $$CZ_BUILD_SRC_DIR
+QMAKE_EXTRA_TARGETS += make_src_dir
+
+BUILD_H = $$CZ_BUILD_SRC_DIR/build.h
 QMAKE_EXTRA_VARIABLES += BUILD_H
 PRE_TARGETDEPS += build_h
 
 build_h.target = build_h
-build_h.commands = perl bld/bin/make_build_svn.pl $(EXPORT_BUILD_H)
+build_h.commands = perl $$CZ_SOURCE_DIR/bld/bin/make_build_svn.pl $(EXPORT_BUILD_H) $$CZ_SOURCE_DIR
+build_h.depends = make_src_dir
 QMAKE_EXTRA_TARGETS += build_h
 
 # Cleaning...
@@ -138,7 +159,7 @@ QMAKE_EXTRA_TARGETS += pkg
 win32: {
 	pkg.depends = pkg-win32
 	pkg-win32.target = pkg-win32
-	pkg-win32.commands = cmd /C bld\\bin\\pkg-win32.cmd
+	pkg-win32.commands = cmd /C $$CZ_SOURCE_DIR\\bld\\bin\\pkg-win32.cmd $$quote($$replace(CZ_SOURCE_DIR, /, \\)) $$quote($$replace(CZ_BUILD_DIR, /, \\))
 	pkg-win32.depends = release
 	QMAKE_EXTRA_TARGETS += pkg-win32
 }
@@ -146,7 +167,7 @@ win32: {
 unix: {
 	pkg.depends = pkg-linux
 	pkg-linux.target = pkg-linux
-	pkg-linux.commands = sh bld/bin/pkg-linux.sh
+	pkg-linux.commands = sh $$CZ_SOURCE_DIR/bld/bin/pkg-linux.sh $$CZ_SOURCE_DIR $$CZ_BUILD_DIR
 	pkg-linux.depends = all
 	QMAKE_EXTRA_TARGETS += pkg-linux
 }
@@ -154,17 +175,17 @@ unix: {
 mac: {
 	pkg.depends = pkg-macosx
 	pkg-macosx.target = pkg-macosx
-	pkg-macosx.commands = sh bld/bin/pkg-macosx.sh
+	pkg-macosx.commands = sh $$CZ_SOURCE_DIR/bld/bin/pkg-macosx.sh $$CZ_SOURCE_DIR $$CZ_BUILD_DIR
 	pkg-macosx.depends = all
 	QMAKE_EXTRA_TARGETS += pkg-macosx
 }
 
 # Outputs...
 
-DESTDIR = bin
-OBJECTS_DIR = bld/o
-MOC_DIR = bld/moc
-UI_DIR = bld/ui
-RCC_DIR = bld/rcc
+DESTDIR = $$CZ_BUILD_DIR/bin
+OBJECTS_DIR = $$CZ_BUILD_DIR/bld/o
+MOC_DIR = $$CZ_BUILD_DIR/bld/moc
+UI_DIR = $$CZ_BUILD_DIR/bld/ui
+RCC_DIR = $$CZ_BUILD_DIR/bld/rcc
 
 include(cuda.pri)

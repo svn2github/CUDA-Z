@@ -6,7 +6,7 @@
 */
 
 #include <WinVer.h>
-#include "../src/version.h"
+#include "version.h"
 #include <winnt.h>
 
 #ifdef DEBUG
