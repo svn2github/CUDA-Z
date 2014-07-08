@@ -46,6 +46,9 @@ mac: {
 	QMAKE_INFO_PLIST = res/Info.plist
 }
 
+SM_CONFIG = $$find(CONFIG, sm_.*)
+isEmpty(SM_CONFIG): CONFIG += sm_all
+
 sm_all:CONFIG += sm_10 sm_11 sm_13 sm_20 sm_30 sm_32 sm_35 sm_50
 
 sm_10:CUFLAGS += -gencode=arch=compute_10,code=sm_10 \
