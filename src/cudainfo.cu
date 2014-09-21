@@ -1134,10 +1134,10 @@ static int CZCudaCalcDevicePerformanceReset(
 /*!	\brief 16 MAD instructions for float point test.
 */
 #define CZ_CALC_FMAD_16(a, b) \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
 
 /*!	\brief 256 MAD instructions for float point test.
 */
@@ -1154,15 +1154,15 @@ static int CZCudaCalcDevicePerformanceReset(
 /*!	\brief 16 DMAD instructions for double-precision test.
 */
 #define CZ_CALC_DFMAD_16(a, b) \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
 
-/*	a = fma(b, a, b); b = fma(a, b, a); a = fma(b, a, b); b = fma(a, b, a); \
-	a = fma(b, a, b); b = fma(a, b, a); a = fma(b, a, b); b = fma(a, b, a); \
-	a = fma(b, a, b); b = fma(a, b, a); a = fma(b, a, b); b = fma(a, b, a); \
-	a = fma(b, a, b); b = fma(a, b, a); a = fma(b, a, b); b = fma(a, b, a); \*/
+/*	a = fma(a, a, a); b = fma(b, b, b); a = fma(a, a, a); b = fma(b, b, b); \
+	a = fma(a, a, a); b = fma(b, b, b); a = fma(a, a, a); b = fma(b, b, b); \
+	a = fma(a, a, a); b = fma(b, b, b); a = fma(a, a, a); b = fma(b, b, b); \
+	a = fma(a, a, a); b = fma(b, b, b); a = fma(a, a, a); b = fma(b, b, b); \*/
 
 /*!	\brief 256 MAD instructions for float point test.
 */
@@ -1179,10 +1179,10 @@ static int CZCudaCalcDevicePerformanceReset(
 /*!	\brief 16 MAD instructions for 32-bit integer test.
 */
 #define CZ_CALC_IMAD32_16(a, b) \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
-	a = b * a + b; b = a * b + a; a = b * a + b; b = a * b + a; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
 
 /*!	\brief 256 MAD instructions for 32-bit integer test.
 */
@@ -1199,14 +1199,14 @@ static int CZCudaCalcDevicePerformanceReset(
 /*!	\brief 16 MAD instructions for 24-bit integer test.
 */
 #define CZ_CALC_IMAD24_16(a, b) \
-	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
-	a = __umul24(b, a) + b; b = __umul24(a, b) + a; \
+	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
+	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
+	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
+	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
+	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
+	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
+	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
+	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
 
 /*!	\brief 256 MAD instructions for 24-bit integer test.
 */
