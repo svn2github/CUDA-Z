@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextStream>
+#include <QClipboard>
 #if QT_VERSION < 0x050000
 #include <QDesktopServices>
 #else
@@ -199,6 +200,7 @@ CZDialog::CZDialog(
 	QMenu *exportMenu = new QMenu(pushExport);
 	exportMenu->addAction(tr("to &Text"), this, SLOT(slotExportToText()));
 	exportMenu->addAction(tr("to &HTML"), this, SLOT(slotExportToHTML()));
+	exportMenu->addAction(tr("to &Clipboard"), this, SLOT(slotExportToClipboard()));
 	pushExport->setMenu(exportMenu);
 	
 	readCudaDevices();
@@ -613,9 +615,9 @@ QString CZDialog::getOSVersion() {
 #error Function getOSVersion() is not implemented for your platform!
 #endif//Q_OS_WIN
 
-#define CZ_TXT_EXPORT(label)	out << label->text() << ": " << label ## Text->text() << endl
-#define CZ_TXT_EXPORT_TAB(label)	out << "\t" << label->text() << ": " << label ## Text->text() << endl
-#define CZ_TXT_EXPORT_TAB_TITLE(title, label)	out << "\t" << tr(title) << ": " << label ## Text->text() << endl
+#define CZ_TXT_EXPORT(label)	out += label->text() + ": " + label ## Text->text() + "\n"
+#define CZ_TXT_EXPORT_TAB(label)	out += "\t" + label->text() + ": " + label ## Text->text() + "\n"
+#define CZ_TXT_EXPORT_TAB_TITLE(title, label)	out += "\t" + tr(title) + ": " + label ## Text->text() + "\n"
 
 /*!	\brief Export information to plane text file.
 */
@@ -637,31 +639,49 @@ void CZDialog::slotExportToText() {
 		return;
 	}
 
-	QTextStream out(&file);
+	QTextStream stream(&file);
+	stream << generateTextReport();
+}
+
+/*!	\brief Export information to clipboard as a plane text.
+*/
+void CZDialog::slotExportToClipboard() {
+
+	QClipboard *clipboard = QApplication::clipboard();
+
+	clipboard->setText(generateTextReport());
+}
+
+/*!	\brief Generate plane text report.
+*/
+QString CZDialog::generateTextReport() {
+
+	QString out;
 	QString title = tr(CZ_NAME_SHORT " Report");
 	QString subtitle;
 
-	out << title << endl;
+	out += title;
+	out += "\n";
 	for(int i = 0; i < title.size(); i++)
-		out << "=";
-	out << endl;
-	out << tr("Version") << ": " CZ_VERSION;
+		out += "=";
+	out += "\n";
+	out += tr("Version") + ": " CZ_VERSION;
 #ifdef CZ_VER_STATE
-	out << " " << tr("Built") << " " CZ_DATE " " CZ_TIME;
+	out += " " + tr("Built") + " " CZ_DATE " " CZ_TIME;
 #endif//CZ_VER_STATE
-	out << " " CZ_ORG_URL_MAINPAGE << endl;
-	out << tr("OS Version") << ": " << getOSVersion() << endl;
+	out += " " CZ_ORG_URL_MAINPAGE "\n";
+	out += tr("OS Version") + ": " + getOSVersion() + "\n";
 
 	CZ_TXT_EXPORT(labelDrvVersion);
 	CZ_TXT_EXPORT(labelDrvDllVersion);
 	CZ_TXT_EXPORT(labelRtDllVersion);
-	out << endl;
+	out += "\n";
 
 	subtitle = tr("Core Information");
-	out << subtitle << endl;
+	out += subtitle + "\n";
 	for(int i = 0; i < subtitle.size(); i++)
-		out << "-";
-	out << endl;
+		out += "-";
+	out += "\n";
 	CZ_TXT_EXPORT_TAB(labelName);
 	CZ_TXT_EXPORT_TAB(labelCapability);
 	CZ_TXT_EXPORT_TAB(labelClock);
@@ -678,13 +698,13 @@ void CZDialog::slotExportToText() {
 	CZ_TXT_EXPORT_TAB(labelConcurrentKernels);
 	CZ_TXT_EXPORT_TAB(labelComputeMode);
 	CZ_TXT_EXPORT_TAB(labelStreamPriorities);
-	out << endl;
+	out += "\n";
 
 	subtitle = tr("Memory Information");
-	out << subtitle << endl;
+	out += subtitle + "\n";
 	for(int i = 0; i < subtitle.size(); i++)
-		out << "-";
-	out << endl;
+		out += "-";
+	out += "\n";
 	CZ_TXT_EXPORT_TAB(labelTotalGlobal);
 	CZ_TXT_EXPORT_TAB(labelBusWidth);
 	CZ_TXT_EXPORT_TAB(labelMemClock);
@@ -701,34 +721,36 @@ void CZDialog::slotExportToText() {
 	CZ_TXT_EXPORT_TAB(labelMapHostMemory);
 	CZ_TXT_EXPORT_TAB(labelUnifiedAddressing);
 	CZ_TXT_EXPORT_TAB(labelAsyncEngine);
-	out << endl;
+	out += "\n";
 
 	subtitle = tr("Performance Information");
-	out << subtitle << endl;
+	out += subtitle + "\n";
 	for(int i = 0; i < subtitle.size(); i++)
-		out << "-";
-	out << endl;
-	out << tr("Memory Copy") << endl;
+		out += "-";
+	out += "\n";
+	out += tr("Memory Copy") + "\n";
 	CZ_TXT_EXPORT_TAB_TITLE("Host Pinned to Device", labelHDRatePin);
 	CZ_TXT_EXPORT_TAB_TITLE("Host Pageable to Device", labelHDRatePage);
 	CZ_TXT_EXPORT_TAB_TITLE("Device to Host Pinned", labelDHRatePin);
 	CZ_TXT_EXPORT_TAB_TITLE("Device to Host Pageable", labelDHRatePage);
 	CZ_TXT_EXPORT_TAB(labelDDRate);
-	out << tr("GPU Core Performance") << endl;
+	out += tr("GPU Core Performance") + "\n";
 	CZ_TXT_EXPORT_TAB(labelFloatRate);
 	CZ_TXT_EXPORT_TAB(labelDoubleRate);
 	CZ_TXT_EXPORT_TAB(labelInt32Rate);
 	CZ_TXT_EXPORT_TAB(labelInt24Rate);
-	out << endl;
+	out += "\n";
 
 	time_t t;
 	time(&t);
-	out << QString("%1: %2").arg(tr("Generated")).arg(ctime(&t)) << endl;
+	out += QString("%1: %2").arg(tr("Generated")).arg(ctime(&t)) + "\n";
+
+	return out;
 }
 
-#define CZ_HTML_EXPORT(label)	out << "<b>" << label->text() << "</b>: " << label ## Text->text() << "<br/>" << endl
-#define CZ_HTML_EXPORT_TAB(label)	out << "<tr><th>" << label->text() << "</th><td>" << label ## Text->text() << "</td></tr>" << endl
-#define CZ_HTML_EXPORT_TAB_TITLE(title, label)	out << "<tr><th>" << tr(title) << "</th><td>" << label ## Text->text() << "</td></tr>" << endl
+#define CZ_HTML_EXPORT(label)	out += "<b>" + label->text() + "</b>: " + label ## Text->text() + "<br/>\n"
+#define CZ_HTML_EXPORT_TAB(label)	out += "<tr><th>" + label->text() + "</th><td>" + label ## Text->text() + "</td></tr>\n"
+#define CZ_HTML_EXPORT_TAB_TITLE(title, label)	out += "<tr><th>" + tr(title) + "</th><td>" + label ## Text->text() + "</td></tr>\n"
 
 /*!	\brief Export information to HTML file.
 */
@@ -750,14 +772,23 @@ void CZDialog::slotExportToHTML() {
 		return;
 	}
 
-	QTextStream out(&file);
+	QTextStream stream(&file);
+	stream << generateHTMLReport();
+}
+
+/*!	\brief Generate HTML v4 report.
+	\todo Use HTML v5 insteand of v4.
+*/
+QString CZDialog::generateHTMLReport() {
+
+	QString out;
 	QString title = tr(CZ_NAME_SHORT " Report");
 
-	out << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+	out += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
 		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n"
 		"<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"mul\" lang=\"mul\" dir=\"ltr\">\n"
 		"<head>\n"
-		"<title>" << title << "</title>\n"
+		"<title>" + title + "</title>\n"
 		"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n"
 		"<style type=\"text/css\">\n"
 
@@ -777,22 +808,22 @@ void CZDialog::slotExportToHTML() {
 		"</head>\n"
 		"<body style=\"background: #fff;\">\n";
 
-	out << "<h1>" << title << "</h1>\n";
-	out << "<p><small>";
-	out << "<b>" << tr("Version")<< ":</b> " CZ_VERSION;
+	out += "<h1>" + title + "</h1>\n";
+	out += "<p><small>";
+	out += "<b>" + tr("Version")+ ":</b> " CZ_VERSION;
 #ifdef CZ_VER_STATE
-	out << " <b>" << tr("Built") << "</b> " CZ_DATE " " CZ_TIME;
+	out += " <b>" + tr("Built") + "</b> " CZ_DATE " " CZ_TIME;
 #endif//CZ_VER_STATE
-	out << " <a href=\"" CZ_ORG_URL_MAINPAGE "\">" CZ_ORG_URL_MAINPAGE "</a><br/>" << endl;
-	out << "<b>" << tr("OS Version") << ":</b> " << getOSVersion() << "<br/>" << endl;
+	out += " <a href=\"" CZ_ORG_URL_MAINPAGE "\">" CZ_ORG_URL_MAINPAGE "</a><br/>\n";
+	out += "<b>" + tr("OS Version") + ":</b> " + getOSVersion() + "<br/>\n";
 
 	CZ_HTML_EXPORT(labelDrvVersion);
 	CZ_HTML_EXPORT(labelDrvDllVersion);
 	CZ_HTML_EXPORT(labelRtDllVersion);
-	out << "</small></p>" << endl;
+	out += "</small></p>\n";
 
-	out << "<h2>" << tr("Core Information") << "</h2>" << endl;
-	out << "<table border=\"1\">" << endl;
+	out += "<h2>" + tr("Core Information") + "</h2>\n";
+	out += "<table border=\"1\">\n";
 	CZ_HTML_EXPORT_TAB(labelName);
 	CZ_HTML_EXPORT_TAB(labelCapability);
 	CZ_HTML_EXPORT_TAB(labelClock);
@@ -809,10 +840,10 @@ void CZDialog::slotExportToHTML() {
 	CZ_HTML_EXPORT_TAB(labelConcurrentKernels);
 	CZ_HTML_EXPORT_TAB(labelComputeMode);
 	CZ_HTML_EXPORT_TAB(labelStreamPriorities);
-	out << "</table>" << endl;
+	out += "</table>\n";
 
-	out << "<h2>" << tr("Memory Information") << "</h2>" << endl;
-	out << "<table border=\"1\">" << endl;
+	out += "<h2>" + tr("Memory Information") + "</h2>\n";
+	out += "<table border=\"1\">\n";
 	CZ_HTML_EXPORT_TAB(labelTotalGlobal);
 	CZ_HTML_EXPORT_TAB(labelBusWidth);
 	CZ_HTML_EXPORT_TAB(labelMemClock);
@@ -829,31 +860,33 @@ void CZDialog::slotExportToHTML() {
 	CZ_HTML_EXPORT_TAB(labelMapHostMemory);
 	CZ_HTML_EXPORT_TAB(labelUnifiedAddressing);
 	CZ_HTML_EXPORT_TAB(labelAsyncEngine);
-	out << "</table>" << endl;
+	out += "</table>\n";
 
-	out << "<h2>" << tr("Performance Information") << "</h2>" << endl;
-	out << "<table border=\"1\">" << endl;
-	out << "<tr><th colspan=\"2\">" << tr("Memory Copy") << "</th></tr>" << endl;
+	out += "<h2>" + tr("Performance Information") + "</h2>\n";
+	out += "<table border=\"1\">\n";
+	out += "<tr><th colspan=\"2\">" + tr("Memory Copy") + "</th></tr>\n";
 	CZ_HTML_EXPORT_TAB_TITLE("Host Pinned to Device", labelHDRatePin);
 	CZ_HTML_EXPORT_TAB_TITLE("Host Pageable to Device", labelHDRatePage);
 	CZ_HTML_EXPORT_TAB_TITLE("Device to Host Pinned", labelDHRatePin);
 	CZ_HTML_EXPORT_TAB_TITLE("Device to Host Pageable", labelDHRatePage);
 	CZ_HTML_EXPORT_TAB(labelDDRate);
-	out << "<tr><th colspan=\"2\">" << tr("GPU Core Performance") << "</th></tr>" << endl;
+	out += "<tr><th colspan=\"2\">" + tr("GPU Core Performance") + "</th></tr>\n";
 	CZ_HTML_EXPORT_TAB(labelFloatRate);
 	CZ_HTML_EXPORT_TAB(labelDoubleRate);
 	CZ_HTML_EXPORT_TAB(labelInt32Rate);
 	CZ_HTML_EXPORT_TAB(labelInt24Rate);
-	out << "</table>" << endl;
+	out += "</table>\n";
 
 	time_t t;
 	time(&t);
-	out <<	"<p><small><b>" << tr("Generated") << ":</b> " << ctime(&t) << "</small></p>" << endl;
+	out +=	"<p><small><b>" + tr("Generated") + ":</b> " + ctime(&t) + "</small></p>\n";
 
-	out <<	"<p><a href=\"http://cuda-z.sourceforge.net/\"><img src=\"http://cuda-z.sourceforge.net/img/web-button.png\" border=\"0\" alt=\"CUDA-Z\" title=\"CUDA-Z\" /></a></p>\n";
+	out +=	"<p><a href=\"http://cuda-z.sourceforge.net/\"><img src=\"http://cuda-z.sourceforge.net/img/web-button.png\" border=\"0\" alt=\"CUDA-Z\" title=\"CUDA-Z\" /></a></p>\n";
 
-	out <<	"</body>\n"
+	out +=	"</body>\n"
 		"</html>\n";
+
+	return out;
 }
 
 /*!	\brief Resend a version request.

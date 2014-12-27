@@ -124,12 +124,16 @@ private:
 	QString getValue1000(double value, int valuePrefix, QString unitBase);
 	QString getValue1024(double value, int valuePrefix, QString unitBase);
 
+	QString generateTextReport();
+	QString generateHTMLReport();
+
 private slots:
 	void slotShowDevice(int index);
 	void slotUpdatePerformance(int index);
 	void slotUpdateTimer();
 	void slotExportToText();
 	void slotExportToHTML();
+	void slotExportToClipboard();
 	void slotUpdateVersion();
 #ifdef CZ_USE_QHTTP
 	void slotHttpRequestFinished(int id, bool error);
