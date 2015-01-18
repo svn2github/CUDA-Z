@@ -25,7 +25,7 @@
 	win32:INCLUDEPATH += $$quote($$(CUDA_INC_PATH))
 	unix:INCLUDEPATH += /usr/local/cuda/include
 	unix:QMAKE_LIBDIR += /usr/local/cuda/lib
-	linux:QMAKE_LIBDIR += /usr/local/cuda/lib64
+	unix:QMAKE_LIBDIR += /usr/local/cuda/lib64
 
 	QMAKE_CUFLAGS += $$QMAKE_CXXFLAGS
 	mac:QMAKE_CUFLAGS += -stdlib=libstdc++
@@ -42,6 +42,8 @@
 	win32:QMAKE_CUEXTRAFLAGS += $$join(QMAKE_COMPILER_DEFINES, " -D", -D)
 	win32:QMAKE_CUEXTRAFLAGS += $(INCPATH)
 	mac:QMAKE_CUEXTRAFLAGS += -ccbin clang
+	unix:contains(QMAKE_CUFLAGS, -m64):QMAKE_CUEXTRAFLAGS += -m64
+	unix:contains(QMAKE_CUFLAGS, -m32):QMAKE_CUEXTRAFLAGS += -m32
 	QMAKE_CUEXTRAFLAGS += -c
 #	QMAKE_CUEXTRAFLAGS += -v
 #	QMAKE_CUEXTRAFLAGS += -keep
