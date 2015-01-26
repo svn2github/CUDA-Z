@@ -192,7 +192,7 @@ CZDialog::CZDialog(
 #endif /*CZ_USE_QHTTP*/
 
 	setupUi(this);
-	this->setWindowTitle(QString("%1 %2").arg(CZ_NAME_SHORT).arg(CZ_VERSION));
+	this->setWindowTitle(QString("%1 %2 %3 bit").arg(CZ_NAME_SHORT).arg(CZ_VERSION).arg(QString::number(QSysInfo::WordSize)));
 	connect(comboDevice, SIGNAL(activated(int)), SLOT(slotShowDevice(int)));
 
 	connect(pushUpdate, SIGNAL(clicked()), SLOT(slotUpdateVersion()));
@@ -521,16 +521,40 @@ void CZDialog::setupPerformanceTab(
 		labelInt24RateText->setText(getValue1000(info.perf.calcInteger24, prefixKilo, tr("iop/s")));
 }
 
+/*!	\brief Get C/C++ compiler name string
+	\hint This code is taken from Qt Creator code
+	creator-3.3.0/src/plugins/coreplugin/icore.cpp
+	\return C/C++ compiler string
+*/
+static QString compilerString() {
+#if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too
+	QString isAppleString;
+#if defined(__apple_build_version__) // Apple clang has other version numbers
+	isAppleString = QLatin1String(" (Apple)");
+#endif
+	return QLatin1String("Clang ") + QString::number(__clang_major__) + QLatin1Char('.')
+		+ QString::number(__clang_minor__) + isAppleString;
+#elif defined(Q_CC_GNU)
+	return QLatin1String("GCC ") + QLatin1String(__VERSION__);
+#elif defined(Q_CC_MSVC)
+	if(_MSC_VER >= 1800) // 1800: MSVC 2013 (yearly release cycle)
+		return QLatin1String("MSVC ") + QString::number(2008 + ((_MSC_VER / 100) - 13));
+	if(_MSC_VER >= 1500) // 1500: MSVC 2008, 1600: MSVC 2010, ... (2-year release cycle)
+		return QLatin1String("MSVC ") + QString::number(2008 + 2 * ((_MSC_VER / 100) - 15));
+#endif
+	return QLatin1String("<unknown compiler>");
+}
+
 /*!	\brief Fill tab "About" with information about this program.
 */
 void CZDialog::setupAboutTab() {
 	labelAppName->setText(QString("<b><font size=\"+2\">%1</font></b>")
 		.arg(CZ_NAME_LONG));
 
-	QString version = QString("<b>%1</b> %2").arg(tr("Version")).arg(CZ_VERSION);
+	QString version = QString("<b>%1</b> %2 %3 bit").arg(tr("Version")).arg(CZ_VERSION).arg(QString::number(QSysInfo::WordSize));
 #ifdef CZ_VER_STATE
 	version += QString("<br /><b>%1</b> %2 %3").arg(tr("Built")).arg(CZ_DATE).arg(CZ_TIME);
-	version += tr("<br /><b>%1</b> %2").arg(tr("Based on Qt")).arg(QT_VERSION_STR);
+	version += tr("<br /><b>%1</b> %2 %3").arg(tr("Based on Qt")).arg(QT_VERSION_STR).arg(compilerString());
 #ifdef CZ_VER_BUILD_URL
 	version += tr("<br /><b>%1</b> %2:%3").arg(tr("SVN URL")).arg(CZ_VER_BUILD_URL).arg(CZ_VER_BUILD_STRING);
 #endif//CZ_VER_BUILD_URL
@@ -665,7 +689,7 @@ QString CZDialog::generateTextReport() {
 	for(int i = 0; i < title.size(); i++)
 		out += "=";
 	out += "\n";
-	out += tr("Version") + ": " CZ_VERSION;
+	out += tr("Version") + ": " CZ_VERSION + " " + QString::number(QSysInfo::WordSize) + " bit";
 #ifdef CZ_VER_STATE
 	out += " " + tr("Built") + " " CZ_DATE " " CZ_TIME;
 #endif//CZ_VER_STATE
@@ -810,7 +834,7 @@ QString CZDialog::generateHTMLReport() {
 
 	out += "<h1>" + title + "</h1>\n";
 	out += "<p><small>";
-	out += "<b>" + tr("Version")+ ":</b> " CZ_VERSION;
+	out += "<b>" + tr("Version")+ ":</b> " CZ_VERSION " " + QString::number(QSysInfo::WordSize) + " bit";
 #ifdef CZ_VER_STATE
 	out += " <b>" + tr("Built") + "</b> " CZ_DATE " " CZ_TIME;
 #endif//CZ_VER_STATE
@@ -921,7 +945,7 @@ void CZDialog::startHttpRequest(
 #else
 	QNetworkRequest request;
 	request.setUrl(url);
-	request.setRawHeader("User-Agent", (QString("Mozilla/5.0 (%1) " CZ_NAME_SHORT " " CZ_VERSION " " CZ_OS_PLATFORM_STR).arg(getOSVersion()).toLocal8Bit()));
+	request.setRawHeader("User-Agent", (QString("Mozilla/5.0 (%1) " CZ_NAME_SHORT " " CZ_VERSION " %2 bit " CZ_OS_PLATFORM_STR).arg(getOSVersion()).arg(QString::number(QSysInfo::WordSize)).toLocal8Bit()));
 	request.setRawHeader("Accept-Encoding", "gzip, deflate");
 	m_reply = m_qnam.get(request);
 	connect(m_reply, SIGNAL(finished()), this, SLOT(slotHttpFinished()));

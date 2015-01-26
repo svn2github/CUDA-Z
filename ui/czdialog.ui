@@ -41,7 +41,7 @@
        <item row="5" column="0">
         <widget class="QLabel" name="labelThreadsMulti">
          <property name="text">
-          <string>Therds Per Multiproc.</string>
+          <string>Threads Per Multiproc.</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
