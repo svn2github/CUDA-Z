@@ -680,21 +680,6 @@ int CZCudaReadDeviceInfo(
 	cudaDeviceProp prop;
 //	int ecc;
 
-	COMPILE_ASSERT(ConvertSMVer2Cores(0, 0) == 0);
-	COMPILE_ASSERT(ConvertSMVer2Cores(1, 0) == 8);
-	COMPILE_ASSERT(ConvertSMVer2Cores(1, 1) == 8);
-	COMPILE_ASSERT(ConvertSMVer2Cores(1, 2) == 8);
-	COMPILE_ASSERT(ConvertSMVer2Cores(1, 3) == 8);
-	COMPILE_ASSERT(ConvertSMVer2Cores(1, 4) == 0);
-	COMPILE_ASSERT(ConvertSMVer2Cores(2, 0) == 32);
-	COMPILE_ASSERT(ConvertSMVer2Cores(2, 1) == 48);
-	COMPILE_ASSERT(ConvertSMVer2Cores(2, 2) == 0);
-	COMPILE_ASSERT(ConvertSMVer2Cores(3, 0) == 192);
-	COMPILE_ASSERT(ConvertSMVer2Cores(3, 1) == 0);
-	COMPILE_ASSERT(ConvertSMVer2Cores(3, 5) == 192);
-	COMPILE_ASSERT(ConvertSMVer2Cores(3, 6) == 0);
-	COMPILE_ASSERT(ConvertSMVer2Cores(4, 0) == 0);
-
 	if(info == NULL)
 		return -1;
 
