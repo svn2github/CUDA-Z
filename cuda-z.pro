@@ -49,7 +49,7 @@ mac: {
 SM_CONFIG = $$find(CONFIG, sm_.*)
 isEmpty(SM_CONFIG): CONFIG += sm_all
 
-sm_all:CONFIG += sm_11 sm_13 sm_20 sm_30 sm_32 sm_35 sm_50 sm_52
+sm_all:CONFIG += sm_11 sm_13 sm_20 sm_30 sm_32 sm_35 sm_37 sm_50 sm_52
 
 sm_10:CUFLAGS += -gencode=arch=compute_10,code=sm_10 \
 	-gencode=arch=compute_10,code=compute_10
@@ -71,6 +71,9 @@ sm_32:CUFLAGS += -gencode arch=compute_32,code=sm_32 \
 
 sm_35:CUFLAGS += -gencode=arch=compute_35,code=sm_35 \
 	-gencode=arch=compute_35,code=compute_35
+
+sm_37:CUFLAGS += -gencode=arch=compute_37,code=sm_37 \
+	-gencode=arch=compute_37,code=compute_37
 
 sm_50:CUFLAGS += -gencode arch=compute_50,code=sm_50 \
 	-gencode arch=compute_50,code=compute_50
