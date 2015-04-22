@@ -90,7 +90,7 @@ int main(
 	int devs = getCudaDeviceNum();
 	if(devs == 0) {
 		QMessageBox::critical(0, QObject::tr(CZ_NAME_LONG),
-			QObject::tr("No CUDA devices found!") + "\n" +
+			QObject::tr("No compatible CUDA devices found!") + "\n" +
 			QObject::tr("Please update your NVIDIA driver and try again!"));
 		delete splash;
 		exit(1);
