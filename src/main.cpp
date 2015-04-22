@@ -79,7 +79,8 @@ int main(
 	app.processEvents();
 	if(!testCudaPresent()) {
 		QMessageBox::critical(0, QObject::tr(CZ_NAME_LONG),
-			QObject::tr("CUDA not found!"));
+			QObject::tr("CUDA not found!") + "\n" +
+			QObject::tr("Please update your NVIDIA driver and try again!"));
 		delete splash;
 		exit(1);
 	}
@@ -89,7 +90,8 @@ int main(
 	int devs = getCudaDeviceNum();
 	if(devs == 0) {
 		QMessageBox::critical(0, QObject::tr(CZ_NAME_LONG),
-			QObject::tr("No CUDA devices found!"));
+			QObject::tr("No CUDA devices found!") + "\n" +
+			QObject::tr("Please update your NVIDIA driver and try again!"));
 		delete splash;
 		exit(1);
 	}
