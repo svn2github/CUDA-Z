@@ -1127,6 +1127,7 @@ static int CZCudaCalcDevicePerformanceReset(
 	info->perf.calcDouble = 0;
 	info->perf.calcInteger32 = 0;
 	info->perf.calcInteger24 = 0;
+	info->perf.calcInteger64 = 0;
 
 	return 0;
 }
@@ -1196,17 +1197,37 @@ static int CZCudaCalcDevicePerformanceReset(
 	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
 	CZ_CALC_IMAD32_16(a, b) CZ_CALC_IMAD32_16(a, b) \
 
+/*!	\brief 16 MAD instructions for 64-bit integer test.
+*/
+#define CZ_CALC_IMAD64_16(a, b) \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+	a = a * a + a; b = b * b + b; a = a * a + a; b = b * b + b; \
+
+/*!	\brief 256 MAD instructions for 64-bit integer test.
+*/
+#define CZ_CALC_IMAD64_256(a, b) \
+	CZ_CALC_IMAD64_16(a, b) CZ_CALC_IMAD64_16(a, b) \
+	CZ_CALC_IMAD64_16(a, b) CZ_CALC_IMAD64_16(a, b) \
+	CZ_CALC_IMAD64_16(a, b) CZ_CALC_IMAD64_16(a, b) \
+	CZ_CALC_IMAD64_16(a, b) CZ_CALC_IMAD64_16(a, b) \
+	CZ_CALC_IMAD64_16(a, b) CZ_CALC_IMAD64_16(a, b) \
+	CZ_CALC_IMAD64_16(a, b) CZ_CALC_IMAD64_16(a, b) \
+	CZ_CALC_IMAD64_16(a, b) CZ_CALC_IMAD64_16(a, b) \
+	CZ_CALC_IMAD64_16(a, b) CZ_CALC_IMAD64_16(a, b) \
+
 /*!	\brief 16 MAD instructions for 24-bit integer test.
 */
 #define CZ_CALC_IMAD24_16(a, b) \
-	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
-	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
-	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
-	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
-	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
-	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
-	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
-	a = __umul24(a, a) + a; b = __umul24(b, b) + b; \
+	a = __mul24(a, a) + a; b = __mul24(b, b) + b; \
+	a = __mul24(a, a) + a; b = __mul24(b, b) + b; \
+	a = __mul24(a, a) + a; b = __mul24(b, b) + b; \
+	a = __mul24(a, a) + a; b = __mul24(b, b) + b; \
+	a = __mul24(a, a) + a; b = __mul24(b, b) + b; \
+	a = __mul24(a, a) + a; b = __mul24(b, b) + b; \
+	a = __mul24(a, a) + a; b = __mul24(b, b) + b; \
+	a = __mul24(a, a) + a; b = __mul24(b, b) + b; \
 
 /*!	\brief 256 MAD instructions for 24-bit integer test.
 */
@@ -1224,6 +1245,7 @@ static int CZCudaCalcDevicePerformanceReset(
 #define CZ_CALC_MODE_DOUBLE	1	/*!< Double-precision float point test mode. */
 #define CZ_CALC_MODE_INTEGER32	2	/*!< 32-bit integer test mode. */
 #define CZ_CALC_MODE_INTEGER24	3	/*!< 24-bit integer test mode. */
+#define CZ_CALC_MODE_INTEGER64	4	/*!< 64-bit integer test mode. */
 
 /*!	\brief GPU code for float point test.
 */
@@ -1357,6 +1379,39 @@ __global__ void CZCudaCalcKernelInteger24(
 	arr[index] = val1 + val2;
 }
 
+/*!	\brief GPU code for 64-bit integer test.
+*/
+__global__ void CZCudaCalcKernelInteger64(
+	void *buf			/*!<[in] Data buffer. */
+) {
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
+	long long *arr = (long long*)buf;
+	long long val1 = index;
+	long long val2 = arr[index];
+	int i;
+
+	for(i = 0; i < CZ_CALC_BLOCK_LOOPS; i++) {
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+		CZ_CALC_IMAD64_256(val1, val2);
+	}
+
+	arr[index] = val1 + val2;
+}
+
 /*!	\brief Run GPU calculation performace tests.
 	\return \a 0 in case of success, \a -1 in case of error.
 */
@@ -1398,7 +1453,8 @@ static float CZCudaCalcDevicePerformanceTest(
 		(mode == CZ_CALC_MODE_FLOAT)? "single-precision float":
 		(mode == CZ_CALC_MODE_DOUBLE)? "double-precision float":
 		(mode == CZ_CALC_MODE_INTEGER32)? "32-bit integer":
-		(mode == CZ_CALC_MODE_INTEGER24)? "24-bit integer": "unknown",
+		(mode == CZ_CALC_MODE_INTEGER24)? "24-bit integer":
+		(mode == CZ_CALC_MODE_INTEGER64)? "64-bit integer": "unknown",
 		info->deviceName,
 		blocksNum,
 		threadsNum);
@@ -1427,6 +1483,10 @@ static float CZCudaCalcDevicePerformanceTest(
 
 		case CZ_CALC_MODE_INTEGER24:
 			CZCudaCalcKernelInteger24<<<blocksNum, threadsNum>>>(lData->memDevice1);
+			break;
+
+		case CZ_CALC_MODE_INTEGER64:
+			CZCudaCalcKernelInteger64<<<blocksNum, threadsNum>>>(lData->memDevice1);
 			break;
 
 		default: // WTF!
@@ -1498,6 +1558,7 @@ int CZCudaCalcDevicePerformance(
 		info->perf.calcDouble = CZCudaCalcDevicePerformanceTest(info, CZ_CALC_MODE_DOUBLE);
 	info->perf.calcInteger32 = CZCudaCalcDevicePerformanceTest(info, CZ_CALC_MODE_INTEGER32);
 	info->perf.calcInteger24 = CZCudaCalcDevicePerformanceTest(info, CZ_CALC_MODE_INTEGER24);
+	info->perf.calcInteger64 = CZCudaCalcDevicePerformanceTest(info, CZ_CALC_MODE_INTEGER64);
 
 	return 0;
 }

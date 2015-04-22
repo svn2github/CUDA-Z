@@ -510,6 +510,11 @@ void CZDialog::setupPerformanceTab(
 		labelDoubleRateText->setText(tr("Not Supported"));
 	}
 
+	if(info.perf.calcInteger64 == 0)
+		labelInt64RateText->setText("--");
+	else
+		labelInt64RateText->setText(getValue1000(info.perf.calcInteger64, prefixKilo, tr("iop/s")));
+
 	if(info.perf.calcInteger32 == 0)
 		labelInt32RateText->setText("--");
 	else
@@ -761,6 +766,7 @@ QString CZDialog::generateTextReport() {
 	out += tr("GPU Core Performance") + "\n";
 	CZ_TXT_EXPORT_TAB(labelFloatRate);
 	CZ_TXT_EXPORT_TAB(labelDoubleRate);
+	CZ_TXT_EXPORT_TAB(labelInt64Rate);
 	CZ_TXT_EXPORT_TAB(labelInt32Rate);
 	CZ_TXT_EXPORT_TAB(labelInt24Rate);
 	out += "\n";
@@ -897,6 +903,7 @@ QString CZDialog::generateHTMLReport() {
 	out += "<tr><th colspan=\"2\">" + tr("GPU Core Performance") + "</th></tr>\n";
 	CZ_HTML_EXPORT_TAB(labelFloatRate);
 	CZ_HTML_EXPORT_TAB(labelDoubleRate);
+	CZ_HTML_EXPORT_TAB(labelInt64Rate);
 	CZ_HTML_EXPORT_TAB(labelInt32Rate);
 	CZ_HTML_EXPORT_TAB(labelInt24Rate);
 	out += "</table>\n";
