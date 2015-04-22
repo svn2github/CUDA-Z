@@ -656,9 +656,11 @@ int CZCudaDeviceFound(void) {
 		((minor) == 0)? 192: /* GK10x */ \
 		((minor) == 2)? 192: /* GK10x */ \
 		((minor) == 5)? 192: /* GK11x */ \
+		((minor) == 7)? 192: /* GK21x */ \
 		0): \
 	((major) == 5)? ( /* Maxwell */ \
 		((minor) == 0)? 128: /* GM10X */ \
+		((minor) == 2)? 128: /* GM20X */ \
 		0): \
 	0)
 
