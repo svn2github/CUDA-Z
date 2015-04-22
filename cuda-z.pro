@@ -81,6 +81,9 @@ sm_50:CUFLAGS += -gencode arch=compute_50,code=sm_50 \
 sm_52:CUFLAGS += -gencode arch=compute_52,code=sm_52 \
 	-gencode arch=compute_52,code=compute_52
 
+sm_53:CUFLAGS += -gencode arch=compute_53,code=sm_53 \
+	-gencode arch=compute_53,code=compute_53
+
 #QMAKE_CUEXTRAFLAGS += -m32
 
 win32:INCLUDEPATH += $$quote($$replace(CZ_BUILD_SRC_DIR, /, \\))
