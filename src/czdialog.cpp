@@ -30,15 +30,15 @@
 
 #define CZ_TIMER_REFRESH	2000	/*!< Test results update timer period (ms). */
 
-/*!	\def CZ_OS_PLATFORM_STR
-	\brief Platform ID string.
+/*!	\def CZ_OS_OLD_PLATFORM_STR
+	\brief Old platform ID string.
 */
 #if defined(Q_OS_WIN)
-#define CZ_OS_PLATFORM_STR	"win32"
+#define CZ_OS_OLD_PLATFORM_STR	"win32"
 #elif defined(Q_OS_MAC)
-#define CZ_OS_PLATFORM_STR	"macosx"
+#define CZ_OS_OLD_PLATFORM_STR	"macosx"
 #elif defined(Q_OS_LINUX)
-#define CZ_OS_PLATFORM_STR	"linux"
+#define CZ_OS_OLD_PLATFORM_STR	"linux"
 #else
 #error Your platform is not supported by CUDA! Or it does but I know nothing about this...
 #endif
@@ -613,6 +613,16 @@ QString CZDialog::getOSVersion() {
 
 	return OSVersion;
 }
+
+QString CZDialog::getPlatformString() {
+	QString platformString = "win32";
+
+	if(QSysInfo::WordSize == 64)
+		platformString = "win64";
+
+	return platformString;
+}
+
 #elif defined (Q_OS_LINUX)
 #include <QProcess>
 QString CZDialog::getOSVersion() {
@@ -625,6 +635,16 @@ QString CZDialog::getOSVersion() {
 
 	return OSVersion.remove('\n');
 }
+
+QString CZDialog::getPlatformString() {
+	QString platformString = "linux";
+
+	if(QSysInfo::WordSize == 64)
+		platformString = "linux64";
+
+	return platformString;
+}
+
 #elif defined (Q_OS_MAC)
 #include "plist.h"
 QString CZDialog::getOSVersion() {
@@ -640,8 +660,18 @@ QString CZDialog::getOSVersion() {
 	
 	return OSVersion.remove('\n');
 }
+
+QString CZDialog::getPlatformString() {
+	QString platformString = "macosx";
+
+	if(QSysInfo::WordSize == 64)
+		platformString = "macosx64";
+
+	return platformString;
+}
+
 #else
-#error Function getOSVersion() is not implemented for your platform!
+#error Functions getOSVersion() and getPlatformString() are not implemented for your platform!
 #endif//Q_OS_WIN
 
 #define CZ_TXT_EXPORT(label)	out += label->text() + ": " + label ## Text->text() + "\n"
@@ -952,7 +982,7 @@ void CZDialog::startHttpRequest(
 #else
 	QNetworkRequest request;
 	request.setUrl(url);
-	request.setRawHeader("User-Agent", (QString("Mozilla/5.0 (%1) " CZ_NAME_SHORT " " CZ_VERSION " %2 bit " CZ_OS_PLATFORM_STR).arg(getOSVersion()).arg(QString::number(QSysInfo::WordSize)).toLocal8Bit()));
+	request.setRawHeader("User-Agent", (QString("Mozilla/5.0 (%1) " CZ_NAME_SHORT " " CZ_VERSION " %2 bit %3").arg(getOSVersion()).arg(QString::number(QSysInfo::WordSize).arg(getPlatformString())).toLocal8Bit()));
 	request.setRawHeader("Accept-Encoding", "gzip, deflate");
 	m_reply = m_qnam.get(request);
 	connect(m_reply, SIGNAL(finished()), this, SLOT(slotHttpFinished()));
@@ -1089,7 +1119,8 @@ void CZDialog::parseHistoryTxt(
 	static const QString nameVersion("version ");
 	static const QString nameNotes("release-notes ");
 	static const QString nameCritical("release-critical");
-	static const QString nameDownload("download-" CZ_OS_PLATFORM_STR " ");
+	static const QString nameOldDownload("download-" CZ_OS_OLD_PLATFORM_STR " ");
+	static const QString nameDownload("download-" + getPlatformString() + " ");
 
 	for(int i = 0; i < historyStrings.size(); i++) {
 
@@ -1114,6 +1145,13 @@ void CZDialog::parseHistoryTxt(
 			notes = historyStrings[i];
 			notes.remove(0, nameNotes.size());
 			CZLog(CZLogLevelLow, "Notes found: %s", notes.toLocal8Bit().data());
+		}
+
+		if(historyStrings[i].left(nameOldDownload.size()) == nameOldDownload) {
+			url = historyStrings[i];
+			url.remove(0, nameOldDownload.size());
+			CZLog(CZLogLevelLow, "Valid old URL found: %s", url.toLocal8Bit().data());
+			validVersion = true;
 		}
 
 		if(historyStrings[i].left(nameDownload.size()) == nameDownload) {

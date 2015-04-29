@@ -89,6 +89,7 @@ private:
 	void setupAboutTab();
 
 	QString getOSVersion();
+	QString getPlatformString();
 
 	void startGetHistoryHttp();
 	void cleanGetHistoryHttp();
