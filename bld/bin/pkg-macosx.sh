@@ -95,7 +95,7 @@ for lib in $czAppLibs; do
 done
 strip "$czAppBinPath/$czAppName"
 
-$czUpx --ultra-brute "$czAppBinPath/$czAppName"
+$czSourceDir/$czUpx --ultra-brute "$czAppBinPath/$czAppName"
 
 #Add copy of qt_menu.nib to Resource subdirectory!
 #if [ -d "$czQtGuiResPath/$czQtMenuNib" ]; then
@@ -163,7 +163,7 @@ newfs_hfs -v "$outVol" /dev/r${dmgDisk}s1
 hdiutil eject "$dmgDisk"
 
 hdid "$tmpDmg"
-cp $czVolumeIcon "/Volumes/$outVol/.VolumeIcon.icns"
+cp $czSourceDir/$czVolumeIcon "/Volumes/$outVol/.VolumeIcon.icns"
 SetFile -a C "/Volumes/$outVol/"
 mkdir "/Volumes/$outVol/$czAppName.app"
 sudo ditto -rsrcFork -v "$czAppDir" "/Volumes/$outVol/$czAppName.app"
