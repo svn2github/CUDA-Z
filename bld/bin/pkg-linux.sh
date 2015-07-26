@@ -9,13 +9,15 @@
 
 czExeName="cuda-z"
 czExeDir="bin"
-czUpx="bld/bin/upx-linux"
+czUpx="bld/bin/upx-linux32"
 
 czSourceDir=.
 czBuildDir=.
 
 czVerFile="src/version.h"
 czBldFile="src/build.h"
+
+czBldSuffix=
 
 if [ $# -gt 0 ]; then
 	czSourceDir="$1"
@@ -33,6 +35,16 @@ fi
 if [ ! -r "$czBuildDir/$czBldFile" ]; then
 	echo Can\'t find $czBuildDir/$czBldFile
 	exit 1
+fi
+
+czUname=`uname -m`
+
+if [ "$czUname" = "x86_64" ]; then
+	czUpx="bld/bin/upx-linux64"
+	czBldSuffix="64bit"
+elif [ "$czUname" = "i686" ]; then
+	czUpx="bld/bin/upx-linux32"
+	czBldSuffix="32bit"
 fi
 
 strip "$czBuildDir/$czExeDir/$czExeName"
@@ -70,11 +82,17 @@ if [ -z "$czBldState" ]; then
 fi
 
 if [ ! -z "$czBldState" ]; then
-	outFile="$czNameShort-$czVersion-$czBldState.run"
+	outFile="$czNameShort-$czVersion-$czBldState"
 	czVersion="$czVersion $czBldState"
 else
-	outFile="$czNameShort-$czVersion.run"
+	outFile="$czNameShort-$czVersion"
 fi
+
+if [ ! -z "$czBldSuffix" ]; then
+	outFile="$outFile-$czBldSuffix"
+fi
+
+outFile="$outFile.run"
 
 rm -f "$czBuildDir/$outFile"
 
