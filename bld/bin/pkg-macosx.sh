@@ -156,14 +156,14 @@ tmpDmg="tmp.dmg"
 sudo -v
 
 dmgSize=`du -sk "$czAppDir" | tr "\t" " " | sed -e 's/ .*$//'`
-dmgSize=$((${dmgSize}/1000+1))
+dmgSize=$((${dmgSize}/1000+2))
 hdiutil create "$tmpDmg" -megabytes ${dmgSize} -ov -type UDIF
 dmgDisk=`hdid -nomount "$tmpDmg" | awk '/scheme/ {print substr ($1, 6, length)}'`
 newfs_hfs -v "$outVol" /dev/r${dmgDisk}s1
 hdiutil eject "$dmgDisk"
 
 hdid "$tmpDmg"
-cp $czSourceDir/$czVolumeIcon "/Volumes/$outVol/.VolumeIcon.icns"
+cp "$czSourceDir/$czVolumeIcon" "/Volumes/$outVol/.VolumeIcon.icns"
 SetFile -a C "/Volumes/$outVol/"
 mkdir "/Volumes/$outVol/$czAppName.app"
 sudo ditto -rsrcFork -v "$czAppDir" "/Volumes/$outVol/$czAppName.app"
