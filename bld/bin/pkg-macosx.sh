@@ -156,7 +156,7 @@ tmpDmg="tmp.dmg"
 sudo -v
 
 dmgSize=`du -sk "$czAppDir" | tr "\t" " " | sed -e 's/ .*$//'`
-dmgSize=$((${dmgSize}/1000+2))
+dmgSize=$((${dmgSize}/1000+5))
 hdiutil create "$tmpDmg" -megabytes ${dmgSize} -ov -type UDIF
 dmgDisk=`hdid -nomount "$tmpDmg" | awk '/scheme/ {print substr ($1, 6, length)}'`
 newfs_hfs -v "$outVol" /dev/r${dmgDisk}s1
