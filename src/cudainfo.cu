@@ -474,50 +474,27 @@ static bool CZCudaIsInit(void) {
 #define CZ_FILE_STR_LEN		256			/*!< Version file string length. */
 #define CZ_PLIST_PATH		"/Contents/Info.plist"	/*!< Path to Info.plist inside of kext/app. */
 #define CZ_KEXT_SYSTEM_PATH	"/System/Library/Extensions/"	/*!< Main kext path. */
+#define CZ_KEXT_LIBRARY_PATH	"/Library/Extensions/"	/*!< Secondary kext path. */
 #define CZ_KEXT_EXTRA_PATH	"/Extra/Extensions/"	/*!< Alternative kext path. */
 #define CZ_PLIST_GETINFOSTR	"CFBundleGetInfoString"	/*!< Most informative property name. */
 #define CZ_PLIST_SHORTVERSTR	"CFBundleShortVersionString"	/*!< Less informative property name. */
 #define CZ_DLL_FNAME		"libcuda.dylib"		/*!< CUDA dll file name. */
 
-/*!	\brief Get version of Kext driver.
+#define CZ_KEXT_ID_GEFORCE	"com.apple.GeForce" /*!< Mac OS X native GeForce driver ID */
+#define CZ_KEXT_NAME_GEFORCE	"GeForce" /*!< Mac OS X native GeForce driver name */
+#define CZ_KEXT_ID_GEFORCEWEB	"com.nvidia.web.GeForceWeb" /*!< NVIDIA Web GeForce driver ID */
+#define CZ_KEXT_NAME_GEFORCEWEB	"GeForceWeb" /*!< NVIDIA Web GeForce driver name */
+
+/*!	\brief Read version of Kext driver from plist file.
+	\return \a NULL in case of error, a pointer to version string in case of success.
 */
-static char *CZGetKextVersion(
-	char *name,			/*!<[in] Name of kext file. E.g. "GeForce". */
+static char *CZReadPlistVersion(
+	char *plist,			/*!<[in] Full path of Info.plist file. */
+	char *name,			/*!<[in] Name of kext driver. E.g. "GeForce". */
 	char *version			/*!<[out] Kext version buffer. */
 ) {
-	char plist[CZ_FILE_STR_LEN];
 	char str[CZ_FILE_STR_LEN];
 	char *p;
-
-	sprintf(plist, CZ_KEXT_SYSTEM_PATH "%s.kext" CZ_PLIST_PATH, name);
-
-	if(CZPlistGet(plist, CZ_PLIST_GETINFOSTR, str, sizeof(str)) == 0) {
-		p = strstr(str, name);
-		if(p != NULL) {
-			p = p + strlen(name);
-			while(*p == ' ')
-				p++;
-		} else {
-			p = str;
-		}
-		strcpy(version, p);
-		return version;
-	}
-
-	if(CZPlistGet(plist, CZ_PLIST_SHORTVERSTR, str, sizeof(str)) == 0) {
-		p = strstr(str, name);
-		if(p != NULL) {
-			p = p + strlen(name);
-			while(*p == ' ')
-				p++;
-		} else {
-			p = str;
-		}
-		strcpy(version, p);
-		return version;
-	}
-
-	sprintf(plist, CZ_KEXT_EXTRA_PATH "%s.kext" CZ_PLIST_PATH, name);
 
 	if(CZPlistGet(plist, CZ_PLIST_GETINFOSTR, str, sizeof(str)) == 0) {
 		p = strstr(str, name);
@@ -546,6 +523,60 @@ static char *CZGetKextVersion(
 	}
 
 	return NULL;
+}
+
+/*!	\brief Get version of Kext driver.
+	\return \a NULL in case of error, a pointer to version string in case of success.
+*/
+static char *CZGetKextVersion(
+	char *name,			/*!<[in] Name of kext driver. E.g. "GeForce". */
+	char *version			/*!<[out] Kext version buffer. */
+) {
+	char plist[CZ_FILE_STR_LEN];
+	char *res = NULL;
+
+	sprintf(plist, CZ_KEXT_SYSTEM_PATH "%s.kext" CZ_PLIST_PATH, name);
+	res = CZReadPlistVersion(plist, name, version);
+	if(res != NULL)
+		return res;
+
+	sprintf(plist, CZ_KEXT_LIBRARY_PATH "%s.kext" CZ_PLIST_PATH, name);
+	res = CZReadPlistVersion(plist, name, version);
+	if(res != NULL)
+		return res;
+
+	sprintf(plist, CZ_KEXT_EXTRA_PATH "%s.kext" CZ_PLIST_PATH, name);
+	res = CZReadPlistVersion(plist, name, version);
+	if(res != NULL)
+		return res;
+    
+	return NULL;
+}
+
+/*!	\brief Check if Kext is loaded.
+	\return \a true if Kext is loaded, \a false if not.
+*/
+static bool CZCheckKextLoaded(
+	char *id			/*!<[in] ID string of Kext driver */
+) {
+	FILE *p = NULL;
+	char command[CZ_FILE_STR_LEN];
+
+	sprintf(command, "kextstat -l -b %s", id);
+
+	p = popen(command, "r");
+	if(p == NULL)
+		return false;
+
+	if(fgetc(p) == EOF) {
+		pclose(p);
+		CZLog(CZLogLevelLow, "Kext %s not found.", id);
+		return false;
+	}
+
+	pclose(p);
+	CZLog(CZLogLevelLow, "Kext %s found.", id);
+	return true;
 }
 
 /*!	\brief Check if CUDA fully initialized.
@@ -589,7 +620,11 @@ static bool CZCudaIsInit(void) {
 			return false;
 		}
 
-		CZGetKextVersion("GeForce", drvVersion);
+		if(CZCheckKextLoaded(CZ_KEXT_ID_GEFORCE))
+			CZGetKextVersion(CZ_KEXT_NAME_GEFORCE, drvVersion);
+
+		if(CZCheckKextLoaded(CZ_KEXT_ID_GEFORCEWEB))
+			CZGetKextVersion(CZ_KEXT_NAME_GEFORCEWEB, drvVersion);
 	}
 	return true;
 }
