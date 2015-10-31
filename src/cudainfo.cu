@@ -679,23 +679,24 @@ int CZCudaDeviceFound(void) {
 #define ConvertSMVer2Cores(major, minor) \
 	(((major) == 1)? ( /* Tesla */ \
 		((minor) == 0)? 8: /* G80*/ \
-		((minor) == 1)? 8: /* G8x */ \
-		((minor) == 2)? 8: /* G9x */ \
+		((minor) == 1)? 8: /* G8x, G9x */ \
+		((minor) == 2)? 8: /* GT21x */ \
 		((minor) == 3)? 8: /* GT200 */ \
 		0): \
 	((major) == 2)? ( /* Fermi */ \
-		((minor) == 0)? 32: /* GF100 */ \
-		((minor) == 1)? 48: /* GF10x */ \
+		((minor) == 0)? 32: /* GF100, GF110 */ \
+		((minor) == 1)? 48: /* GF10x, FG11x */ \
 		0): \
 	((major) == 3)? ( /* Kepler */ \
 		((minor) == 0)? 192: /* GK10x */ \
-		((minor) == 2)? 192: /* GK10x */ \
-		((minor) == 5)? 192: /* GK11x */ \
-		((minor) == 7)? 192: /* GK21x */ \
+		((minor) == 2)? 192: /* Tegra K1 */ \
+		((minor) == 5)? 192: /* GK11x, GK208 */ \
+		((minor) == 7)? 192: /* GK210 */ \
 		0): \
 	((major) == 5)? ( /* Maxwell */ \
 		((minor) == 0)? 128: /* GM10X */ \
 		((minor) == 2)? 128: /* GM20X */ \
+		((minor) == 3)? 128: /* Tegra X1 */ \
 		0): \
 	0)
 

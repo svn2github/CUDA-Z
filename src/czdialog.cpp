@@ -383,6 +383,9 @@ void CZDialog::setupCoreTab(
 	if(deviceName.contains("tesla", Qt::CaseInsensitive)) {
 		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-tesla.png"));
 	} else
+	if(deviceName.contains("tegra", Qt::CaseInsensitive)) {
+		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-tegra.png"));
+	} else
 	if(deviceName.contains("quadro", Qt::CaseInsensitive)) {
 		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-quadro.png"));
 	} else
