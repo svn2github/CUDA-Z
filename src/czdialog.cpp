@@ -444,7 +444,7 @@ void CZDialog::setupMemoryTab(
 	labelBusWidthText->setText(tr("%1 bits").arg(info.mem.memoryBusWidth));
 	labelMemClockText->setText(getValue1000(info.mem.memoryClockRate, prefixKilo, tr("Hz")));
 	labelErrorCorrectionText->setText(info.mem.errorCorrection? tr("Yes"): tr("No"));
-	labelL2CasheSizeText->setText(info.mem.l2CacheSize?getValue1024(info.mem.sharedPerBlock, prefixNothing, tr("B")): tr("No"));
+	labelL2CasheSizeText->setText(info.mem.l2CacheSize?getValue1024(info.mem.l2CacheSize, prefixNothing, tr("B")): tr("No"));
 	labelSharedText->setText(getValue1024(info.mem.sharedPerBlock, prefixNothing, tr("B")));
 	labelPitchText->setText(getValue1024(info.mem.maxPitch, prefixNothing, tr("B")));
 	labelTotalConstText->setText(getValue1024(info.mem.totalConst, prefixNothing, tr("B")));
