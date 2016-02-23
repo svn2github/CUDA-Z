@@ -23,7 +23,7 @@ typedef enum {
 	CZLogLevelLow = 2,		/*!< Not important information. */
 } CZLogLevel;
 
-void CZLog(CZLogLevel level, char *fmt, ...)
+void CZLog(CZLogLevel level, const char *fmt, ...)
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
 	__attribute__ ((format (printf, 2, 3)))
 #endif

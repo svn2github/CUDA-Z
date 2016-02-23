@@ -18,7 +18,7 @@
 */
 void CZLog(
 	CZLogLevel level,		/*!<[in] Log level value. */
-	char *fmt,			/*!<[in] printf()-like format string. */
+	const char *fmt,		/*!<[in] printf()-like format string. */
 	...				/* Additional arguments for printout. */
 ) {
 	QString buf;
