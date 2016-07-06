@@ -5,6 +5,12 @@
 #	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
 #	\license GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
 
+#	\paragraph commandline Command line arguments
+#	pkg-linux.sh \a [source_dir] \a [build_dir] \a [extra_suffix]
+#	\arg source_dir Source code directory
+#	\arg build_dir Build directory
+#	\arg extra_suffix Extra suffix for output file, e.g. CUDA-Z-...-EXTRASUFFIX-XXbit.run
+
 #set -x
 
 czExeName="cuda-z"
@@ -13,6 +19,7 @@ czUpx="bld/bin/upx-linux32"
 
 czSourceDir=.
 czBuildDir=.
+czBuildExtraSuffix=
 
 czVerFile="src/version.h"
 czBldFile="src/build.h"
@@ -25,6 +32,10 @@ fi
 
 if [ $# -gt 1 ]; then
 	czBuildDir="$2"
+fi
+
+if [ $# -gt 2 ]; then
+	czBuildExtraSuffix="$3"
 fi
 
 if [ ! -r "$czSourceDir/$czVerFile" ]; then
@@ -85,11 +96,14 @@ if [ -z "$czBldState" ]; then
 	czBldState=""
 fi
 
+outFile="$czNameShort-$czVersion"
+
 if [ ! -z "$czBldState" ]; then
-	outFile="$czNameShort-$czVersion-$czBldState"
-	czVersion="$czVersion $czBldState"
-else
-	outFile="$czNameShort-$czVersion"
+	outFile="$outFile-$czBldState"
+fi
+
+if [ ! -z "$czBuildExtraSuffix" ]; then
+	outFile="$outFile-$czBuildExtraSuffix"
 fi
 
 if [ ! -z "$czBldSuffix" ]; then

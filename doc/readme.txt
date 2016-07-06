@@ -82,7 +82,7 @@ In Windows you need:
    http://subversion.tigris.org/ http://tortoisesvn.net/
 
 Now you have enough tools for building CUDA-Z. I would recommend you to add
-all binary folders of installed tools to system PATH variable or tovsvars32.bat
+all binary folders of installed tools to system PATH variable or to vsvars32.bat
 located in your "X:\Programme\Microsoft Visual Studio <n>\Common7\Tools\".
 Now open Visual Studio Command Prompt, go to folder where you have
 placed source code of CUDA-Z and type:
@@ -93,6 +93,8 @@ If no error occurs you will find cuda-z.exe in ./bin folder.
 Than you can generate package by calling in
 Visual Studio Command Prompt:
    > nmake pkg-win32
+   or
+   > nmake pkg
 
 LINUX Platform
 ..............
@@ -108,6 +110,8 @@ If no error occurs you will find cuda-z binary file in ./bin folder.
 In case if you want to build redistributable package with CUDA-Z type
 additionally:
    # make pkg-linux
+   or
+   # make pkg
 
 It's a good idea to create cuda-z binary for redistributable package using
 static version of Qt instead of relaying on compatibility of dynamic version

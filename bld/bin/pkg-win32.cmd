@@ -5,6 +5,12 @@
 ::	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
 ::	\license GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
 
+::	\paragraph commandline Command line arguments
+::	pkg-win32.cmd \a [source_dir] \a [build_dir] \a [extra_suffix]
+::	\arg source_dir Source code directory
+::	\arg build_dir Build directory
+::	\arg extra_suffix Extra suffix for output file, e.g. CUDA-Z-...-EXTRASUFFIX-XXbit.exe
+
 ::set czAppName=CUDA-Z
 set czExeName=cuda-z.exe
 set czExeDir=bin
@@ -12,6 +18,7 @@ set czUpx=bld\bin\upx-win32.exe
 
 set czSourceDir=.
 set czBuildDir=.
+set czBuildExtraSuffix=
 
 set czVerFile=src\version.h
 set czBldFile=src\build.h
@@ -20,6 +27,7 @@ set czBldSuffix=
 
 if not "%~1" == "" set czSourceDir="%~1"
 if not "%~2" == "" set czBuildDir="%~2"
+if not "%~3" == "" set czBuildExtraSuffix="%~3"
 
 if not exist %czSourceDir%\%czVerFile% ( echo Can't find %czSourceDir%\%czVerFile% && goto END )
 if not exist %czBuildDir%\%czBldFile% ( echo Can't find %czBuildDir%\%czBldFile% && goto END )
@@ -48,11 +56,11 @@ for /f "tokens=3" %%i in ( 'findstr "^#define.CZ_NAME_SHORT\>" %czSourceDir%\%cz
 set czBldState=
 for /f "tokens=3" %%i in ( 'findstr "^#define.CZ_VER_STATE\>" %czSourceDir%\%czVerFile%' ) do set czBldState=%%i
 
-if "%czBldState%"=="" (
-	set czOutName=%czNameShort%-%czVersion%
-) else (
-	set czOutName=%czNameShort%-%czVersion%-%czBldState%
-)
+set czOutName=%czNameShort%-%czVersion%
+
+if not "%czBldState%"=="" set czOutName=%czOutName%-%czBldState%
+
+if not "%czBuildExtraSuffix%"=="" set czOutName=%czOutName%-%czBuildExtraSuffix%
 
 if not "%czBldSuffix%"=="" set czOutName=%czOutName%-%czBldSuffix%
 

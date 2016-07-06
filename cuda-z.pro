@@ -169,7 +169,7 @@ QMAKE_EXTRA_TARGETS += pkg
 win32: {
 	pkg.depends = pkg-win32
 	pkg-win32.target = pkg-win32
-	pkg-win32.commands = cmd /C $$CZ_SOURCE_DIR\\bld\\bin\\pkg-win32.cmd $$quote($$replace(CZ_SOURCE_DIR, /, \\)) $$quote($$replace(CZ_BUILD_DIR, /, \\))
+	pkg-win32.commands = cmd /C $$CZ_SOURCE_DIR\\bld\\bin\\pkg-win32.cmd $$quote($$replace(CZ_SOURCE_DIR, /, \\)) $$quote($$replace(CZ_BUILD_DIR, /, \\)) $(EXTRA_SUFFIX)
 	pkg-win32.depends = release
 	QMAKE_EXTRA_TARGETS += pkg-win32
 }
@@ -177,7 +177,7 @@ win32: {
 unix: {
 	pkg.depends = pkg-linux
 	pkg-linux.target = pkg-linux
-	pkg-linux.commands = sh $$CZ_SOURCE_DIR/bld/bin/pkg-linux.sh $$CZ_SOURCE_DIR $$CZ_BUILD_DIR
+	pkg-linux.commands = sh $$CZ_SOURCE_DIR/bld/bin/pkg-linux.sh $$CZ_SOURCE_DIR $$CZ_BUILD_DIR $(EXTRA_SUFFIX)
 	pkg-linux.depends = all
 	QMAKE_EXTRA_TARGETS += pkg-linux
 }
@@ -185,7 +185,7 @@ unix: {
 mac: {
 	pkg.depends = pkg-macosx
 	pkg-macosx.target = pkg-macosx
-	pkg-macosx.commands = sh $$CZ_SOURCE_DIR/bld/bin/pkg-macosx.sh $$CZ_SOURCE_DIR $$CZ_BUILD_DIR
+	pkg-macosx.commands = sh $$CZ_SOURCE_DIR/bld/bin/pkg-macosx.sh $$CZ_SOURCE_DIR $$CZ_BUILD_DIR $(EXTRA_SUFFIX)
 	pkg-macosx.depends = all
 	QMAKE_EXTRA_TARGETS += pkg-macosx
 }

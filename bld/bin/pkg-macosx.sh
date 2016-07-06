@@ -5,6 +5,12 @@
 #	\url http://cuda-z.sf.net/ http://sf.net/projects/cuda-z/
 #	\license GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
 
+#	\paragraph commandline Command line arguments
+#	pkg-macosx.sh \a [source_dir] \a [build_dir] \a [extra_suffix]
+#	\arg source_dir Source code directory
+#	\arg build_dir Build directory
+#	\arg extra_suffix Extra suffix for output file, e.g. CUDA-Z-...-EXTRASUFFIX.dmg
+
 #set -x
 
 czAppName="CUDA-Z"
@@ -38,6 +44,7 @@ fi
 
 czSourceDir=.
 czBuildDir=.
+czBuildExtraSuffix=
 
 czVerFile="src/version.h"
 czBldFile="src/build.h"
@@ -48,6 +55,10 @@ fi
 
 if [ $# -gt 1 ]; then
 	czBuildDir="$2"
+fi
+
+if [ $# -gt 2 ]; then
+	czBuildExtraSuffix="$3"
 fi
 
 if [ ! -r "$czSourceDir/$czVerFile" ]; then
@@ -137,14 +148,21 @@ if [ -z "$czBldState" ]; then
 	czBldState=""
 fi
 
+outFile="$czNameShort-$czVersion"
+outVol="$czNameShort-$czVersion"
+
 if [ ! -z "$czBldState" ]; then
-	outFile="$czNameShort-$czVersion-$czBldState.dmg"
-	outVol="$czNameShort-$czVersion-$czBldState"
+	outFile="$outFile-$czBldState"
+	outVol="$outVol-$czBldState"
 	czVersion="$czVersion $czBldState"
-else
-	outFile="$czNameShort-$czVersion.dmg"
-	outVol="$czNameShort-$czVersion"
 fi
+
+if [ ! -z "$czBuildExtraSuffix" ]; then
+	outFile="$outFile-$czBuildExtraSuffix"
+	outVol="$outVol-$czBuildExtraSuffix"
+fi
+
+outFile="$outFile.dmg"
 
 tmpPlistPath="Info.plist"
 
