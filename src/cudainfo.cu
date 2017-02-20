@@ -672,6 +672,7 @@ int CZCudaDeviceFound(void) {
 
 /*!	\def ConvertSMVer2Cores(major, minor)
 	\brief Get number of CUDA cores per multiprocessor.
+	\link https://en.wikipedia.org/wiki/CUDA
 	\arg[in] major GPU Architecture major version.
 	\arg[in] minor GPU Architecture minor version.
 	\returns 0 if GPU Architecture is unknown, or number of CUDA cores per multiprocessor.
@@ -689,14 +690,19 @@ int CZCudaDeviceFound(void) {
 		0): \
 	((major) == 3)? ( /* Kepler */ \
 		((minor) == 0)? 192: /* GK10x */ \
-		((minor) == 2)? 192: /* Tegra K1 */ \
+		((minor) == 2)? 192: /* GK20A */ \
 		((minor) == 5)? 192: /* GK11x, GK208 */ \
 		((minor) == 7)? 192: /* GK210 */ \
 		0): \
 	((major) == 5)? ( /* Maxwell */ \
 		((minor) == 0)? 128: /* GM10X */ \
 		((minor) == 2)? 128: /* GM20X */ \
-		((minor) == 3)? 128: /* Tegra X1 */ \
+		((minor) == 3)? 128: /* GM20B */ \
+		0): \
+	((major) == 6)? ( /* Pascal */ \
+		((minor) == 0)? 64:  /* GP100 */ \
+		((minor) == 1)? 128: /* GP10X */ \
+		((minor) == 2)? 128: /* GP10B */ \
 		0): \
 	0)
 

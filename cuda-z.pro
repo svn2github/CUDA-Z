@@ -49,7 +49,7 @@ mac: {
 SM_CONFIG = $$find(CONFIG, sm_.*)
 isEmpty(SM_CONFIG): CONFIG += sm_all
 
-sm_all:CONFIG += sm_20 sm_30 sm_32 sm_35 sm_37 sm_50 sm_52 sm_53
+sm_all:CONFIG += sm_30 sm_32 sm_35 sm_37 sm_50 sm_52 sm_53 sm_60 sm_61 sm_62
 
 sm_10:CUFLAGS += -gencode=arch=compute_10,code=sm_10 \
 	-gencode=arch=compute_10,code=compute_10
@@ -83,6 +83,15 @@ sm_52:CUFLAGS += -gencode arch=compute_52,code=sm_52 \
 
 sm_53:CUFLAGS += -gencode arch=compute_53,code=sm_53 \
 	-gencode arch=compute_53,code=compute_53
+
+sm_60:CUFLAGS += -gencode arch=compute_60,code=sm_60 \
+	-gencode arch=compute_60,code=compute_60
+
+sm_61:CUFLAGS += -gencode arch=compute_61,code=sm_61 \
+	-gencode arch=compute_61,code=compute_61
+
+sm_62:CUFLAGS += -gencode arch=compute_62,code=sm_62 \
+	-gencode arch=compute_62,code=compute_62
 
 win32:INCLUDEPATH += $$quote($$replace(CZ_BUILD_SRC_DIR, /, \\))
 else:INCLUDEPATH += $$CZ_BUILD_SRC_DIR
