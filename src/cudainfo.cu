@@ -30,9 +30,9 @@
 #define CZ_COPY_BUF_SIZE	(16 * (1 << 20))	/*!< Transfer buffer size. */
 #define CZ_COPY_LOOPS_NUM	8			/*!< Number of loops to run transfer test to. */
 
-#define CZ_CALC_BLOCK_LOOPS	16			/*!< Number of loops to run calculation loop. */
+#define CZ_CALC_BLOCK_LOOPS	32			/*!< Number of loops to run calculation loop. */
 #define CZ_CALC_BLOCK_SIZE	256			/*!< Size of instruction block. */
-#define CZ_CALC_BLOCK_NUM	16			/*!< Number of instruction blocks in loop. */
+#define CZ_CALC_BLOCK_NUM	8			/*!< Number of instruction blocks in loop. */
 #define CZ_CALC_OPS_NUM		2			/*!< Number of operations per one loop. */
 #define CZ_CALC_LOOPS_NUM	8			/*!< Number of loops to run performance test to. */
 
@@ -1296,14 +1296,6 @@ __global__ void CZCudaCalcKernelFloat(
 		CZ_CALC_FMAD_256(val1, val2);
 		CZ_CALC_FMAD_256(val1, val2);
 		CZ_CALC_FMAD_256(val1, val2);
-		CZ_CALC_FMAD_256(val1, val2);
-		CZ_CALC_FMAD_256(val1, val2);
-		CZ_CALC_FMAD_256(val1, val2);
-		CZ_CALC_FMAD_256(val1, val2);
-		CZ_CALC_FMAD_256(val1, val2);
-		CZ_CALC_FMAD_256(val1, val2);
-		CZ_CALC_FMAD_256(val1, val2);
-		CZ_CALC_FMAD_256(val1, val2);
 	}
 
 	arr[index] = val1 + val2;
@@ -1321,14 +1313,6 @@ __global__ void CZCudaCalcKernelDouble(
 	int i;
 
 	for(i = 0; i < CZ_CALC_BLOCK_LOOPS; i++) {
-		CZ_CALC_DFMAD_256(val1, val2);
-		CZ_CALC_DFMAD_256(val1, val2);
-		CZ_CALC_DFMAD_256(val1, val2);
-		CZ_CALC_DFMAD_256(val1, val2);
-		CZ_CALC_DFMAD_256(val1, val2);
-		CZ_CALC_DFMAD_256(val1, val2);
-		CZ_CALC_DFMAD_256(val1, val2);
-		CZ_CALC_DFMAD_256(val1, val2);
 		CZ_CALC_DFMAD_256(val1, val2);
 		CZ_CALC_DFMAD_256(val1, val2);
 		CZ_CALC_DFMAD_256(val1, val2);
@@ -1362,14 +1346,6 @@ __global__ void CZCudaCalcKernelInteger32(
 		CZ_CALC_IMAD32_256(val1, val2);
 		CZ_CALC_IMAD32_256(val1, val2);
 		CZ_CALC_IMAD32_256(val1, val2);
-		CZ_CALC_IMAD32_256(val1, val2);
-		CZ_CALC_IMAD32_256(val1, val2);
-		CZ_CALC_IMAD32_256(val1, val2);
-		CZ_CALC_IMAD32_256(val1, val2);
-		CZ_CALC_IMAD32_256(val1, val2);
-		CZ_CALC_IMAD32_256(val1, val2);
-		CZ_CALC_IMAD32_256(val1, val2);
-		CZ_CALC_IMAD32_256(val1, val2);
 	}
 
 	arr[index] = val1 + val2;
@@ -1395,14 +1371,6 @@ __global__ void CZCudaCalcKernelInteger24(
 		CZ_CALC_IMAD24_256(val1, val2);
 		CZ_CALC_IMAD24_256(val1, val2);
 		CZ_CALC_IMAD24_256(val1, val2);
-		CZ_CALC_IMAD24_256(val1, val2);
-		CZ_CALC_IMAD24_256(val1, val2);
-		CZ_CALC_IMAD24_256(val1, val2);
-		CZ_CALC_IMAD24_256(val1, val2);
-		CZ_CALC_IMAD24_256(val1, val2);
-		CZ_CALC_IMAD24_256(val1, val2);
-		CZ_CALC_IMAD24_256(val1, val2);
-		CZ_CALC_IMAD24_256(val1, val2);
 	}
 
 	arr[index] = val1 + val2;
@@ -1420,14 +1388,6 @@ __global__ void CZCudaCalcKernelInteger64(
 	int i;
 
 	for(i = 0; i < CZ_CALC_BLOCK_LOOPS; i++) {
-		CZ_CALC_IMAD64_256(val1, val2);
-		CZ_CALC_IMAD64_256(val1, val2);
-		CZ_CALC_IMAD64_256(val1, val2);
-		CZ_CALC_IMAD64_256(val1, val2);
-		CZ_CALC_IMAD64_256(val1, val2);
-		CZ_CALC_IMAD64_256(val1, val2);
-		CZ_CALC_IMAD64_256(val1, val2);
-		CZ_CALC_IMAD64_256(val1, val2);
 		CZ_CALC_IMAD64_256(val1, val2);
 		CZ_CALC_IMAD64_256(val1, val2);
 		CZ_CALC_IMAD64_256(val1, val2);
