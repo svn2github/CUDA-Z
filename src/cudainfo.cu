@@ -704,6 +704,9 @@ int CZCudaDeviceFound(void) {
 		((minor) == 1)? 128: /* GP10X */ \
 		((minor) == 2)? 128: /* GP10B */ \
 		0): \
+	((major) == 7)? ( /* Volta */ \
+		((minor) == 0)? 64:  /* GV100 */ \
+		0): \
 	0)
 
 /*!	\def COMPILE_ASSERT(cond)
