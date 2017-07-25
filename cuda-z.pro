@@ -9,7 +9,7 @@ QT = gui core network
 CONFIG += qt warn_on
 CONFIG += release
 #CONFIG += debug
-#CONFIG += console
+CONFIG += console
 #CONFIG += static
 #CONFIG += sm_all
 

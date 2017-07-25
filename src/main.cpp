@@ -14,6 +14,10 @@
 #include "cudainfo.h"
 #include "version.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 /*!	\brief Call function that checks CUDA presents.
 */
 bool testCudaPresent() {
@@ -54,14 +58,82 @@ static inline void sleep(
 ) {
 	::Sleep(sec * 1000);
 }
+
+/*!	\brief Do a console detection in windows and restart the app in detouched mode.
+	\note Inspired by behavior of ildasm.exe process on startup.
+*/
+static void check_open_windows_console(
+	void
+) {
+	/* check if console is attached */
+	HANDLE out_hdl = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	if(out_hdl != INVALID_HANDLE_VALUE) {
+		/* if we are still attached to a console we should restart detouched */
+
+		LPTSTR command_line = GetCommandLine();
+
+		STARTUPINFO startup_info;
+		memset(&startup_info, 0, sizeof(startup_info));
+		startup_info.dwFlags = STARTF_USESTDHANDLES;
+		startup_info.hStdInput = INVALID_HANDLE_VALUE;
+		startup_info.hStdOutput = INVALID_HANDLE_VALUE;
+		startup_info.hStdError = INVALID_HANDLE_VALUE;
+
+		PROCESS_INFORMATION process_information;
+
+		BOOL success = CreateProcess(NULL, command_line, NULL, NULL,
+			TRUE, DETACHED_PROCESS, NULL, NULL, &startup_info, &process_information);
+
+		if(!success) {
+			printf("Can't start myself detouched!/n");
+		}
+
+		exit(!success);
+	}
+
+}
+
 #endif
 
-/*!	\brief Main initialization function.
+/*!	\brief Main initialization function for CLI mode.
 */
-int main(
+static int main_cli(
 	int argc,		/*!<[in] Count of command line arguments. */
 	char *argv[]		/*!<[in] List of command line arguments. */
 ) {
+	QCoreApplication app(argc, argv);
+
+	CZLog(CZLogLevelHigh, "Checking CUDA ...");
+	if(!testCudaPresent()) {
+		CZLog(CZLogLevelFatal, "CUDA not found!");
+		CZLog(CZLogLevelHigh, "Please update your NVIDIA driver and try again!");
+		exit(1);
+	}
+
+	int devs = getCudaDeviceNum();
+	if(devs == 0) {
+		CZLog(CZLogLevelFatal, "No compatible CUDA devices found!");
+		CZLog(CZLogLevelHigh, "Please update your NVIDIA driver and try again!");
+		exit(1);
+	}
+
+	CZLog(CZLogLevelHigh, "Found %d CUDA Device(s) ...", devs);
+
+	// TODO - add more info functionality here, e.g. generating a text-file export or running a certain test set
+
+	return 0;
+}
+
+/*!	\brief Main initialization function for GUI mode.
+*/
+static int main_gui(
+	int argc,		/*!<[in] Count of command line arguments. */
+	char *argv[]		/*!<[in] List of command line arguments. */
+) {
+#ifdef Q_OS_WIN
+	check_open_windows_console();
+#endif
 
 	QApplication app(argc, argv);
 
@@ -115,3 +187,23 @@ int main(
 
 	CZLog(CZLogLevelHigh, "CUDA-Z Stopped!");
 }
+
+/*!	\brief Main initialization function.
+*/
+int main(
+	int argc,		/*!<[in] Count of command line arguments. */
+	char *argv[]		/*!<[in] List of command line arguments. */
+) {
+	bool bCli = false;
+
+	for(int n = 1; n < argc; n++) {
+		if((strcmp(argv[n], "-CLI") == 0) || (strcmp(argv[n], "-cli") == 0))
+			bCli = true;
+	}
+
+	if(bCli)
+		return main_cli(argc, argv);
+	else
+		return main_gui(argc, argv);
+}
+
