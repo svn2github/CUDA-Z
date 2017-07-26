@@ -9,6 +9,7 @@
 #define CZ_LOG_H
 
 #ifdef __cplusplus
+#include <QString>
 extern "C" {
 #endif
 
@@ -31,6 +32,8 @@ void CZLog(CZLogLevel level, const char *fmt, ...)
 
 #ifdef __cplusplus
 }
+
+void CZLog(CZLogLevel level, QString text);
 #endif
 
 #endif//CZ_LOG_H

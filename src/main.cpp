@@ -104,21 +104,21 @@ static int main_cli(
 ) {
 	QCoreApplication app(argc, argv);
 
-	CZLog(CZLogLevelHigh, "Checking CUDA ...");
+	CZLog(CZLogLevelHigh, QObject::tr("Checking CUDA ..."));
 	if(!testCudaPresent()) {
-		CZLog(CZLogLevelFatal, "CUDA not found!");
-		CZLog(CZLogLevelHigh, "Please update your NVIDIA driver and try again!");
+		CZLog(CZLogLevelFatal, QObject::tr("CUDA not found!"));
+		CZLog(CZLogLevelHigh, QObject::tr("Please update your NVIDIA driver and try again!"));
 		exit(1);
 	}
 
 	int devs = getCudaDeviceNum();
 	if(devs == 0) {
-		CZLog(CZLogLevelFatal, "No compatible CUDA devices found!");
-		CZLog(CZLogLevelHigh, "Please update your NVIDIA driver and try again!");
+		CZLog(CZLogLevelFatal, QObject::tr("No compatible CUDA devices found!"));
+		CZLog(CZLogLevelHigh, QObject::tr("Please update your NVIDIA driver and try again!"));
 		exit(1);
 	}
 
-	CZLog(CZLogLevelHigh, "Found %d CUDA Device(s) ...", devs);
+	CZLog(CZLogLevelHigh, QObject::tr("Found %1 CUDA Device(s) ...").arg(devs));
 
 	// TODO - add more info functionality here, e.g. generating a text-file export or running a certain test set
 
@@ -137,7 +137,7 @@ static int main_gui(
 
 	QApplication app(argc, argv);
 
-	CZLog(CZLogLevelHigh, "CUDA-Z Started!");
+	CZLog(CZLogLevelHigh, QObject::tr("CUDA-Z Started!"));
 
 	QPixmap pixmap1(":/img/splash1.png");
 	QPixmap pixmap2(":/img/splash2.png");
@@ -185,7 +185,7 @@ static int main_gui(
 	delete splash;
 	return app.exec();
 
-	CZLog(CZLogLevelHigh, "CUDA-Z Stopped!");
+	CZLog(CZLogLevelHigh, QObject::tr("CUDA-Z Stopped!"));
 }
 
 /*!	\brief Main initialization function.
@@ -197,7 +197,7 @@ int main(
 	bool bCli = false;
 
 	for(int n = 1; n < argc; n++) {
-		if((strcmp(argv[n], "-CLI") == 0) || (strcmp(argv[n], "-cli") == 0))
+		if(stricmp(argv[n], "-cli") == 0)
 			bCli = true;
 	}
 

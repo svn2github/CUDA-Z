@@ -21,7 +21,7 @@ void CZLog(
 	const char *fmt,		/*!<[in] printf()-like format string. */
 	...				/* Additional arguments for printout. */
 ) {
-	QString buf;
+	QString text;
 
 #ifdef QT_NO_DEBUG
 	if(level > CZ_LOG_DEFAULT_LEVEL) {
@@ -32,8 +32,25 @@ void CZLog(
 	va_list ap;
 	va_start(ap, fmt);
 	if(fmt)
-		buf.vsprintf(fmt, ap);
+		text.vsprintf(fmt, ap);
 	va_end(ap);
+
+	CZLog(level, text);
+
+}
+
+/*!	\brief Logging function for QString.
+*/
+void CZLog(
+	CZLogLevel level,		/*!<[in] Log level value. */
+	QString text			/*!<[in] Qt string. */
+) {
+
+#ifdef QT_NO_DEBUG
+	if(level > CZ_LOG_DEFAULT_LEVEL) {
+		return;
+	}
+#endif
 
 	QtMsgType type;
 	switch(level) {
@@ -52,9 +69,9 @@ void CZLog(
 	}
 
 #if QT_VERSION < 0x050000
-	qt_message_output(type, buf.toLocal8Bit().constData());
+	qt_message_output(type, text.toLocal8Bit().constData());
 #else
 	QMessageLogContext context;
-	qt_message_output(type, context, buf.toLocal8Bit().constData());
-#endif//QT_VERSION 
+	qt_message_output(type, context, text.toLocal8Bit().constData());
+#endif//QT_VERSION
 }
