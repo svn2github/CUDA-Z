@@ -91,9 +91,10 @@ struct CZDeviceInfoPerf {
 struct CZDeviceInfo {
 	int		num;			/*!< Device index. */
 	int		heavyMode;		/*!< Heavy test mode flag. */
-	char		deviceName[256];	/*!< ASCII string identifying the device. */
+	char		deviceName[256];	/*!< ASCII string identifying the device name. */
 	int		major;			/*!< Major revision numbers defining the device's compute capability. */
 	int		minor;			/*!< Minor revision numbers defining the device's compute capability. */
+	char		archName[256];		/*!< ASCII string identifying the device architecture name. */
 	char		*drvVersion;		/*!< Driver version string. */
 	int		drvDllVer;		/*!< Driver Dll version. */
 	char		*drvDllVerStr;		/*!< Driver Dll version string. */

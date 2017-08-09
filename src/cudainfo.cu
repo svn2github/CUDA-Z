@@ -709,6 +709,22 @@ int CZCudaDeviceFound(void) {
 		0): \
 	0)
 
+/*!	\def ConvertSMVer2ArchName(major, minor)
+	\brief Get a name of GPU Architecture.
+	\link https://en.wikipedia.org/wiki/CUDA
+	\arg[in] major GPU Architecture major version.
+	\arg[in] minor GPU Architecture minor version.
+	\returns "" if GPU Architecture is unknown, or a name of architecture.
+*/
+#define ConvertSMVer2ArchName(major, minor) \
+	(((major) == 1)? "Tesla": \
+	((major) == 2)? "Fermi": \
+	((major) == 3)? "Kepler": \
+	((major) == 5)? "Maxwell": \
+	((major) == 6)? "Pascal": \
+	((major) == 7)? "Volta": \
+	"")
+
 /*!	\def COMPILE_ASSERT(cond)
 	\arg[in] cond Static condition.
 	\brief Compile time assert() for constant conditions.
@@ -738,9 +754,10 @@ int CZCudaReadDeviceInfo(
 		return -1);
 
 	info->num = num;
-	strcpy(info->deviceName, prop.name);
+	strncpy(info->deviceName, prop.name, sizeof(info->deviceName));
 	info->major = prop.major;
 	info->minor = prop.minor;
+	strncpy(info->archName, ConvertSMVer2ArchName(prop.major, prop.minor), sizeof(info->archName));
 	info->drvVersion = drvVersion;
 	info->drvDllVer = drvDllVer;
 	info->drvDllVerStr = drvDllVerStr;

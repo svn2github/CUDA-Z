@@ -341,9 +341,13 @@ void CZDialog::setupCoreTab(
 	struct CZDeviceInfo &info	/*!<[in] Information about CUDA-device. */
 ) {
 	QString deviceName(info.deviceName);
+	QString archName(info.archName);
 
 	labelNameText->setText(deviceName);
-	labelCapabilityText->setText(QString("%1.%2").arg(info.major).arg(info.minor));
+	if(archName.isEmpty())
+		labelCapabilityText->setText(QString("%1.%2").arg(info.major).arg(info.minor));
+	else
+		labelCapabilityText->setText(QString("%1.%2 (%3)").arg(info.major).arg(info.minor).arg(archName));
 	labelClockText->setText(getValue1000(info.core.clockRate, prefixKilo, tr("Hz")));
 	if(info.core.muliProcCount == 0)
 		labelMultiProcText->setText(tr("Unknown"));
