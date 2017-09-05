@@ -851,19 +851,19 @@ QString CZDialog::generateHTMLReport() {
 	QString out;
 	QString title = tr(CZ_NAME_SHORT " Report");
 
-	out += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n"
-		"<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"mul\" lang=\"mul\" dir=\"ltr\">\n"
+	out += "<!DOCTYPE html>\n"
+		"<html>\n"
 		"<head>\n"
 		"<title>" + title + "</title>\n"
-		"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n"
+		"<meta charset=\"utf-8\">\n"
 		"<style type=\"text/css\">\n"
 
 		"@charset \"utf-8\";\n"
-		"body { font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: normal; font-style: normal; }\n"
+		"body { font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: normal; font-style: normal; background: #fff; }\n"
 		"h1 { font-size: 15px; color: #690; }\n"
 		"h2 { font-size: 13px; color: #690; }\n"
-		"table { border-collapse: collapse; border: 1px solid #000; width: 500px; }\n"
+		"table, td, th { border: 1px solid #000; }\n"
+		"table { border-collapse: collapse; width: 500px; }\n"
 		"th { background-color: #deb; text-align: left; }\n"
 		"td { width: 50%; }\n"
 		"a:link { color: #9c3; text-decoration: none; }\n"
@@ -873,7 +873,7 @@ QString CZDialog::generateHTMLReport() {
 
 		"</style>\n"
 		"</head>\n"
-		"<body style=\"background: #fff;\">\n";
+		"<body>\n";
 
 	out += "<h1>" + title + "</h1>\n";
 	out += "<p><small>";
@@ -890,7 +890,7 @@ QString CZDialog::generateHTMLReport() {
 	out += "</small></p>\n";
 
 	out += "<h2>" + tr("Core Information") + "</h2>\n";
-	out += "<table border=\"1\">\n";
+	out += "<table>\n";
 	CZ_HTML_EXPORT_TAB(labelName);
 	CZ_HTML_EXPORT_TAB(labelCapability);
 	CZ_HTML_EXPORT_TAB(labelClock);
@@ -910,7 +910,7 @@ QString CZDialog::generateHTMLReport() {
 	out += "</table>\n";
 
 	out += "<h2>" + tr("Memory Information") + "</h2>\n";
-	out += "<table border=\"1\">\n";
+	out += "<table>\n";
 	CZ_HTML_EXPORT_TAB(labelTotalGlobal);
 	CZ_HTML_EXPORT_TAB(labelBusWidth);
 	CZ_HTML_EXPORT_TAB(labelMemClock);
@@ -930,7 +930,7 @@ QString CZDialog::generateHTMLReport() {
 	out += "</table>\n";
 
 	out += "<h2>" + tr("Performance Information") + "</h2>\n";
-	out += "<table border=\"1\">\n";
+	out += "<table>\n";
 	out += "<tr><th colspan=\"2\">" + tr("Memory Copy") + "</th></tr>\n";
 	CZ_HTML_EXPORT_TAB_TITLE("Host Pinned to Device", labelHDRatePin);
 	CZ_HTML_EXPORT_TAB_TITLE("Host Pageable to Device", labelHDRatePage);
@@ -949,7 +949,7 @@ QString CZDialog::generateHTMLReport() {
 	time(&t);
 	out +=	"<p><small><b>" + tr("Generated") + ":</b> " + ctime(&t) + "</small></p>\n";
 
-	out +=	"<p><a href=\"http://cuda-z.sourceforge.net/\"><img src=\"http://cuda-z.sourceforge.net/img/web-button.png\" border=\"0\" alt=\"CUDA-Z\" title=\"CUDA-Z\" /></a></p>\n";
+	out +=	"<p><a href=\"http://cuda-z.sourceforge.net/\"><img src=\"http://cuda-z.sourceforge.net/img/web-button.png\" alt=\"CUDA-Z\" title=\"CUDA-Z\" /></a></p>\n";
 
 	out +=	"</body>\n"
 		"</html>\n";
