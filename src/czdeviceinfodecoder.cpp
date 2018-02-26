@@ -5,7 +5,11 @@
 	\license GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
 */
 
+#include <time.h>
+
+#include "version.h"
 #include "log.h"
+#include "platform.h"
 #include "czdeviceinfodecoder.h"
 
 /*!	\class CZCudaDeviceInfoDecoder
@@ -543,4 +547,220 @@ const QString CZCudaDeviceInfoDecoder::getValue1024(
 	}
 
 	return QString("%1 %2%3").arg(value).arg(prefixTab[resPrefix]).arg(unitBase);
+}
+
+#define CZ_TXT_EXPORT(_id_)		out += getName(id ## _id_) + ": " + getValue(id ## _id_) + "\n"
+#define CZ_TXT_EXPORT_TAB(_id_)		out += "\t" + getName(id ## _id_) + ": " + getValue(id ## _id_) + "\n"
+
+/*!	\brief Generate plane text report.
+*/
+const QString CZCudaDeviceInfoDecoder::generateTextReport() const {
+
+	QString out;
+	QString title = tr(CZ_NAME_SHORT " Report");
+	QString subtitle;
+
+	out += title;
+	out += "\n";
+	for(int i = 0; i < title.size(); i++)
+		out += "=";
+	out += "\n";
+	out += tr("Version") + ": " CZ_VERSION + " " + QString::number(QSysInfo::WordSize) + " bit";
+#ifdef CZ_VER_STATE
+	out += " " + tr("Built") + " " CZ_DATE " " CZ_TIME;
+#endif//CZ_VER_STATE
+	out += " " CZ_ORG_URL_MAINPAGE "\n";
+	out += tr("OS Version") + ": " + getOSVersion() + "\n";
+
+	CZ_TXT_EXPORT(DrvVersion);
+	CZ_TXT_EXPORT(DrvDllVersion);
+	CZ_TXT_EXPORT(RtDllVersion);
+	out += "\n";
+
+	subtitle = tr("Core Information");
+	out += subtitle + "\n";
+	for(int i = 0; i < subtitle.size(); i++)
+		out += "-";
+	out += "\n";
+	CZ_TXT_EXPORT_TAB(Name);
+	CZ_TXT_EXPORT_TAB(Capability);
+	CZ_TXT_EXPORT_TAB(Clock);
+	CZ_TXT_EXPORT_TAB(PCIInfo);
+	CZ_TXT_EXPORT_TAB(MultiProc);
+	CZ_TXT_EXPORT_TAB(ThreadsMulti);
+	CZ_TXT_EXPORT_TAB(Warp);
+	CZ_TXT_EXPORT_TAB(RegsBlock);
+	CZ_TXT_EXPORT_TAB(ThreadsBlock);
+	CZ_TXT_EXPORT_TAB(ThreadsDim);
+	CZ_TXT_EXPORT_TAB(GridDim);
+	CZ_TXT_EXPORT_TAB(Watchdog);
+	CZ_TXT_EXPORT_TAB(Integrated);
+	CZ_TXT_EXPORT_TAB(ConcurrentKernels);
+	CZ_TXT_EXPORT_TAB(ComputeMode);
+	CZ_TXT_EXPORT_TAB(StreamPriorities);
+	out += "\n";
+
+	subtitle = tr("Memory Information");
+	out += subtitle + "\n";
+	for(int i = 0; i < subtitle.size(); i++)
+		out += "-";
+	out += "\n";
+	CZ_TXT_EXPORT_TAB(TotalGlobal);
+	CZ_TXT_EXPORT_TAB(BusWidth);
+	CZ_TXT_EXPORT_TAB(MemClock);
+	CZ_TXT_EXPORT_TAB(ErrorCorrection);
+	CZ_TXT_EXPORT_TAB(L2CasheSize);
+	CZ_TXT_EXPORT_TAB(Shared);
+	CZ_TXT_EXPORT_TAB(Pitch);
+	CZ_TXT_EXPORT_TAB(TotalConst);
+	CZ_TXT_EXPORT_TAB(TextureAlign);
+	CZ_TXT_EXPORT_TAB(Texture1D);
+	CZ_TXT_EXPORT_TAB(Texture2D);
+	CZ_TXT_EXPORT_TAB(Texture3D);
+	CZ_TXT_EXPORT_TAB(GpuOverlap);
+	CZ_TXT_EXPORT_TAB(MapHostMemory);
+	CZ_TXT_EXPORT_TAB(UnifiedAddressing);
+	CZ_TXT_EXPORT_TAB(AsyncEngine);
+	out += "\n";
+
+	subtitle = tr("Performance Information");
+	out += subtitle + "\n";
+	for(int i = 0; i < subtitle.size(); i++)
+		out += "-";
+	out += "\n";
+	out += tr("Memory Copy") + "\n";
+	CZ_TXT_EXPORT_TAB(HostPinnedToDevice);
+	CZ_TXT_EXPORT_TAB(HostPageableToDevice);
+	CZ_TXT_EXPORT_TAB(DeviceToHostPinned);
+	CZ_TXT_EXPORT_TAB(DeviceToHostPageable);
+	CZ_TXT_EXPORT_TAB(DeviceToDevice);
+	out += tr("GPU Core Performance") + "\n";
+	CZ_TXT_EXPORT_TAB(FloatRate);
+	CZ_TXT_EXPORT_TAB(DoubleRate);
+	CZ_TXT_EXPORT_TAB(Int64Rate);
+	CZ_TXT_EXPORT_TAB(Int32Rate);
+	CZ_TXT_EXPORT_TAB(Int24Rate);
+	out += "\n";
+
+	time_t t;
+	time(&t);
+	out += QString("%1: %2").arg(tr("Generated")).arg(ctime(&t)) + "\n";
+
+	return out;
+}
+
+#define CZ_HTML_EXPORT(_id_)		out += "<b>" + getName(id ## _id_) + "</b>: " + getValue(id ## _id_) + "<br/>\n"
+#define CZ_HTML_EXPORT_TAB(_id_)	out += "<tr><th>" + getName(id ## _id_) + "</th><td>" + getValue(id ## _id_) + "</td></tr>\n"
+
+/*!	\brief Generate HTML v5 report.
+*/
+const QString CZCudaDeviceInfoDecoder::generateHTMLReport() const {
+
+	QString out;
+	QString title = tr(CZ_NAME_SHORT " Report");
+
+	out += "<!DOCTYPE html>\n"
+		"<html>\n"
+		"<head>\n"
+		"<title>" + title + "</title>\n"
+		"<meta charset=\"utf-8\">\n"
+		"<style type=\"text/css\">\n"
+
+		"@charset \"utf-8\";\n"
+		"body { font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: normal; font-style: normal; background: #fff; }\n"
+		"h1 { font-size: 15px; color: #690; }\n"
+		"h2 { font-size: 13px; color: #690; }\n"
+		"table, td, th { border: 1px solid #000; }\n"
+		"table { border-collapse: collapse; width: 500px; }\n"
+		"th { background-color: #deb; text-align: left; }\n"
+		"td { width: 50%; }\n"
+		"a:link { color: #9c3; text-decoration: none; }\n"
+		"a:visited { color: #690; text-decoration: none; }\n"
+		"a:hover { color: #9c3; text-decoration: underline; }\n"
+		"a:active { color: #9c3; text-decoration: underline; }\n"
+
+		"</style>\n"
+		"</head>\n"
+		"<body>\n";
+
+	out += "<h1>" + title + "</h1>\n";
+	out += "<p><small>";
+	out += "<b>" + tr("Version")+ ":</b> " CZ_VERSION " " + QString::number(QSysInfo::WordSize) + " bit";
+#ifdef CZ_VER_STATE
+	out += " <b>" + tr("Built") + "</b> " CZ_DATE " " CZ_TIME;
+#endif//CZ_VER_STATE
+	out += " <a href=\"" CZ_ORG_URL_MAINPAGE "\">" CZ_ORG_URL_MAINPAGE "</a><br/>\n";
+	out += "<b>" + tr("OS Version") + ":</b> " + getOSVersion() + "<br/>\n";
+
+	CZ_HTML_EXPORT(DrvVersion);
+	CZ_HTML_EXPORT(DrvDllVersion);
+	CZ_HTML_EXPORT(RtDllVersion);
+	out += "</small></p>\n";
+
+	out += "<h2>" + tr("Core Information") + "</h2>\n";
+	out += "<table>\n";
+	CZ_HTML_EXPORT_TAB(Name);
+	CZ_HTML_EXPORT_TAB(Capability);
+	CZ_HTML_EXPORT_TAB(Clock);
+	CZ_HTML_EXPORT_TAB(PCIInfo);
+	CZ_HTML_EXPORT_TAB(MultiProc);
+	CZ_HTML_EXPORT_TAB(ThreadsMulti);
+	CZ_HTML_EXPORT_TAB(Warp);
+	CZ_HTML_EXPORT_TAB(RegsBlock);
+	CZ_HTML_EXPORT_TAB(ThreadsBlock);
+	CZ_HTML_EXPORT_TAB(ThreadsDim);
+	CZ_HTML_EXPORT_TAB(GridDim);
+	CZ_HTML_EXPORT_TAB(Watchdog);
+	CZ_HTML_EXPORT_TAB(Integrated);
+	CZ_HTML_EXPORT_TAB(ConcurrentKernels);
+	CZ_HTML_EXPORT_TAB(ComputeMode);
+	CZ_HTML_EXPORT_TAB(StreamPriorities);
+	out += "</table>\n";
+
+	out += "<h2>" + tr("Memory Information") + "</h2>\n";
+	out += "<table>\n";
+	CZ_HTML_EXPORT_TAB(TotalGlobal);
+	CZ_HTML_EXPORT_TAB(BusWidth);
+	CZ_HTML_EXPORT_TAB(MemClock);
+	CZ_HTML_EXPORT_TAB(ErrorCorrection);
+	CZ_HTML_EXPORT_TAB(L2CasheSize);
+	CZ_HTML_EXPORT_TAB(Shared);
+	CZ_HTML_EXPORT_TAB(Pitch);
+	CZ_HTML_EXPORT_TAB(TotalConst);
+	CZ_HTML_EXPORT_TAB(TextureAlign);
+	CZ_HTML_EXPORT_TAB(Texture1D);
+	CZ_HTML_EXPORT_TAB(Texture2D);
+	CZ_HTML_EXPORT_TAB(Texture3D);
+	CZ_HTML_EXPORT_TAB(GpuOverlap);
+	CZ_HTML_EXPORT_TAB(MapHostMemory);
+	CZ_HTML_EXPORT_TAB(UnifiedAddressing);
+	CZ_HTML_EXPORT_TAB(AsyncEngine);
+	out += "</table>\n";
+
+	out += "<h2>" + tr("Performance Information") + "</h2>\n";
+	out += "<table>\n";
+	out += "<tr><th colspan=\"2\">" + tr("Memory Copy") + "</th></tr>\n";
+	CZ_HTML_EXPORT_TAB(HostPinnedToDevice);
+	CZ_HTML_EXPORT_TAB(HostPageableToDevice);
+	CZ_HTML_EXPORT_TAB(DeviceToHostPinned);
+	CZ_HTML_EXPORT_TAB(DeviceToHostPageable);
+	CZ_HTML_EXPORT_TAB(DeviceToDevice);
+	out += "<tr><th colspan=\"2\">" + tr("GPU Core Performance") + "</th></tr>\n";
+	CZ_HTML_EXPORT_TAB(FloatRate);
+	CZ_HTML_EXPORT_TAB(DoubleRate);
+	CZ_HTML_EXPORT_TAB(Int64Rate);
+	CZ_HTML_EXPORT_TAB(Int32Rate);
+	CZ_HTML_EXPORT_TAB(Int24Rate);
+	out += "</table>\n";
+
+	time_t t;
+	time(&t);
+	out +=	"<p><small><b>" + tr("Generated") + ":</b> " + ctime(&t) + "</small></p>\n";
+
+	out +=	"<p><a href=\"http://cuda-z.sourceforge.net/\"><img src=\"http://cuda-z.sourceforge.net/img/web-button.png\" alt=\"CUDA-Z\" title=\"CUDA-Z\" /></a></p>\n";
+
+	out +=	"</body>\n"
+		"</html>\n";
+
+	return out;
 }

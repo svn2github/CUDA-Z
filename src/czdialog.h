@@ -74,6 +74,7 @@ private:
 #endif /*CZ_USE_QHTTP*/
 	QUrl m_url;
 	QString m_history;
+	int m_index;
 
 	void readCudaDevices();
 	void freeCudaDevices();
@@ -88,16 +89,10 @@ private:
 
 	void setupAboutTab();
 
-	QString getOSVersion();
-	QString getPlatformString();
-
 	void startGetHistoryHttp();
 	void cleanGetHistoryHttp();
 	void startHttpRequest(QUrl url);
 	void parseHistoryTxt(QString history);
-
-	QString generateTextReport();
-	QString generateHTMLReport();
 
 private slots:
 	void slotShowDevice(int index);

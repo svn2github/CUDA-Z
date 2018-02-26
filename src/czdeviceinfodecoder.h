@@ -112,9 +112,6 @@ public:
 	const QString generateTextReport() const;
 	const QString generateHTMLReport() const;
 
-	static const QString getOSVersion();
-	static const QString getPlatformString();
-
 	static const QString getValue1000(double value, int valuePrefix, QString unitBase);
 	static const QString getValue1024(double value, int valuePrefix, QString unitBase);
 

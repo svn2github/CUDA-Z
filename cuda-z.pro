@@ -31,12 +31,14 @@ HEADERS = src/version.h \
 	src/czdeviceinfo.h \
 	src/czdeviceinfodecoder.h \
 	src/log.h \
+	src/platform.h \
 	src/cudainfo.h
 mac:HEADERS += src/plist.h
 SOURCES = src/czdialog.cpp \
 	src/czdeviceinfo.cpp \
 	src/czdeviceinfodecoder.cpp \
 	src/log.cpp \
+	src/platform.cpp \
 	src/main.cpp
 mac:SOURCES += src/plist.cpp
 CUSOURCES = src/cudainfo.cu

@@ -23,6 +23,7 @@
 #include "log.h"
 #include "czdialog.h"
 #include "czdeviceinfodecoder.h"
+#include "platform.h"
 #include "version.h"
 
 /*!	\def CZ_USE_QHTTP
@@ -184,6 +185,7 @@ CZDialog::CZDialog(
 	Qt::WindowFlags f	/*!<[in] Window flags. */
 )	: QDialog(parent, f /*| Qt::MSWindowsFixedSizeDialogHint*/ | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint) {
 
+	m_index = 0;
 #ifdef CZ_USE_QHTTP
 	m_http = new QHttp(this);
 	m_httpId = -1;
@@ -290,6 +292,7 @@ void CZDialog::setupDeviceList() {
 void CZDialog::slotShowDevice(
 	int index			/*!<[in] Index of device in list. */
 ) {
+	m_index = index;
 	setupDeviceInfo(index);
 	if(checkUpdateResults->checkState() == Qt::Checked) {
 		CZLog(CZLogLevelModerate, "Switch device -> update performance for device %d", index);
@@ -414,30 +417,6 @@ void CZDialog::setupPerformanceTab(
 	CZ_DLG_FILL(decoder, Int24Rate);
 }
 
-/*!	\brief Get C/C++ compiler name string
-	\hint This code is taken from Qt Creator code
-	creator-3.3.0/src/plugins/coreplugin/icore.cpp
-	\returns C/C++ compiler string
-*/
-static QString compilerString() {
-#if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too
-	QString isAppleString;
-#if defined(__apple_build_version__) // Apple clang has other version numbers
-	isAppleString = QLatin1String(" (Apple)");
-#endif
-	return QLatin1String("Clang ") + QString::number(__clang_major__) + QLatin1Char('.')
-		+ QString::number(__clang_minor__) + isAppleString;
-#elif defined(Q_CC_GNU)
-	return QLatin1String("GCC ") + QLatin1String(__VERSION__);
-#elif defined(Q_CC_MSVC)
-	if(_MSC_VER >= 1800) // 1800: MSVC 2013 (yearly release cycle)
-		return QLatin1String("MSVC ") + QString::number(2008 + ((_MSC_VER / 100) - 13));
-	if(_MSC_VER >= 1500) // 1500: MSVC 2008, 1600: MSVC 2010, ... (2-year release cycle)
-		return QLatin1String("MSVC ") + QString::number(2008 + 2 * ((_MSC_VER / 100) - 15));
-#endif
-	return QLatin1String("<unknown compiler>");
-}
-
 /*!	\brief Fill tab "About" with information about this program.
 */
 void CZDialog::setupAboutTab() {
@@ -447,7 +426,7 @@ void CZDialog::setupAboutTab() {
 	QString version = QString("<b>%1</b> %2 %3 bit").arg(tr("Version")).arg(CZ_VERSION).arg(QString::number(QSysInfo::WordSize));
 #ifdef CZ_VER_STATE
 	version += QString("<br /><b>%1</b> %2 %3").arg(tr("Built")).arg(CZ_DATE).arg(CZ_TIME);
-	version += tr("<br /><b>%1</b> %2 %3").arg(tr("Based on Qt")).arg(QT_VERSION_STR).arg(compilerString());
+	version += tr("<br /><b>%1</b> %2 %3").arg(tr("Based on Qt")).arg(QT_VERSION_STR).arg(getCompilerVersion());
 #ifdef CZ_VER_BUILD_URL
 	version += tr("<br /><b>%1</b> %2:%3").arg(tr("SVN URL")).arg(CZ_VER_BUILD_URL).arg(CZ_VER_BUILD_STRING);
 #endif//CZ_VER_BUILD_URL
@@ -459,112 +438,6 @@ void CZDialog::setupAboutTab() {
 	labelAppAuthor->setText(QString("<b>%1</b> %2").arg(tr("Author")).arg(CZ_ORG_NAME));
 	labelAppCopy->setText(QString("%1 <a href=\"%2\">%2</a>").arg(CZ_COPY_INFO).arg(CZ_COPY_URL));
 }
-
-/*!	\fn CZDialog::getOSVersion
-	\brief Get OS version string.
-	\returns string that describes version of OS we running at.
-*/
-#if defined(Q_OS_WIN)
-#include <windows.h>
-typedef BOOL (WINAPI *IsWow64Process_t)(HANDLE, PBOOL);
-
-QString CZDialog::getOSVersion() {
-	QString OSVersion = "Windows";
-
-	BOOL is_os64bit = FALSE;
-	IsWow64Process_t p_IsWow64Process = (IsWow64Process_t)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
-	if(p_IsWow64Process != NULL) {
-		if(!p_IsWow64Process(GetCurrentProcess(), &is_os64bit)) {
-			is_os64bit = FALSE;
-	        }
-	}
-
-	OSVersion += QString(" %1").arg(
-		(is_os64bit == TRUE)? "AMD64": "x86");
-
-/*	GetSystemInfo(&systemInfo);
-	OSVersion += QString(" %1").arg(
-		(systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)? "AMD64":
-		(systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)? "IA64":
-		(systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)? "x86":
-		"Unknown architecture");*/
-
-	OSVERSIONINFO versionInfo;
-	ZeroMemory(&versionInfo, sizeof(OSVERSIONINFO));
-	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx(&versionInfo);
-	OSVersion += QString(" %1.%2.%3 %4")
-		.arg(versionInfo.dwMajorVersion)
-		.arg(versionInfo.dwMinorVersion)
-		.arg(versionInfo.dwBuildNumber)
-		.arg(QString::fromWCharArray(versionInfo.szCSDVersion));
-
-	return OSVersion;
-}
-
-QString CZDialog::getPlatformString() {
-	QString platformString = "win32";
-
-	if(QSysInfo::WordSize == 64)
-		platformString = "win64";
-
-	return platformString;
-}
-
-#elif defined (Q_OS_LINUX)
-#include <QProcess>
-QString CZDialog::getOSVersion() {
-	QProcess uname; 
-
-	uname.start("uname", QStringList() << "-srvm");
-	if(!uname.waitForFinished())
-		return QString("Linux (unknown)");
-	QString OSVersion = uname.readLine();
-
-	return OSVersion.remove('\n');
-}
-
-QString CZDialog::getPlatformString() {
-	QString platformString = "linux";
-
-	if(QSysInfo::WordSize == 64)
-		platformString = "linux64";
-
-	return platformString;
-}
-
-#elif defined (Q_OS_MAC)
-#include "plist.h"
-QString CZDialog::getOSVersion() {
-	char osName[256];
-	char osVersion[256];
-	char osBuild[256];
-
-	if((CZPlistGet("/System/Library/CoreServices/SystemVersion.plist", "ProductName", osName, sizeof(osName)) != 0) ||
-	   (CZPlistGet("/System/Library/CoreServices/SystemVersion.plist", "ProductUserVisibleVersion", osVersion, sizeof(osVersion)) != 0) ||
-	   (CZPlistGet("/System/Library/CoreServices/SystemVersion.plist", "ProductBuildVersion", osBuild, sizeof(osBuild)) != 0))
-	   return QString("Mac OS X (unknown)");
-	QString OSVersion = QString(osName) + " " + QString(osVersion) + " " + QString(osBuild);
-	
-	return OSVersion.remove('\n');
-}
-
-QString CZDialog::getPlatformString() {
-	QString platformString = "macosx";
-
-	if(QSysInfo::WordSize == 64)
-		platformString = "macosx64";
-
-	return platformString;
-}
-
-#else
-#error Functions getOSVersion() and getPlatformString() are not implemented for your platform!
-#endif//Q_OS_WIN
-
-#define CZ_TXT_EXPORT(label)	out += label->text() + ": " + label ## Text->text() + "\n"
-#define CZ_TXT_EXPORT_TAB(label)	out += "\t" + label->text() + ": " + label ## Text->text() + "\n"
-#define CZ_TXT_EXPORT_TAB_TITLE(title, label)	out += "\t" + tr(title) + ": " + label ## Text->text() + "\n"
 
 /*!	\brief Export information to plane text file.
 */
@@ -587,7 +460,8 @@ void CZDialog::slotExportToText() {
 	}
 
 	QTextStream stream(&file);
-	stream << generateTextReport();
+	CZCudaDeviceInfoDecoder decoder(m_deviceList[m_index]->info());
+	stream << decoder.generateTextReport();
 }
 
 /*!	\brief Export information to clipboard as a plane text.
@@ -596,109 +470,9 @@ void CZDialog::slotExportToClipboard() {
 
 	QClipboard *clipboard = QApplication::clipboard();
 
-	clipboard->setText(generateTextReport());
+	CZCudaDeviceInfoDecoder decoder(m_deviceList[m_index]->info());
+	clipboard->setText(decoder.generateTextReport());
 }
-
-/*!	\brief Generate plane text report.
-*/
-QString CZDialog::generateTextReport() {
-
-	QString out;
-	QString title = tr(CZ_NAME_SHORT " Report");
-	QString subtitle;
-
-	out += title;
-	out += "\n";
-	for(int i = 0; i < title.size(); i++)
-		out += "=";
-	out += "\n";
-	out += tr("Version") + ": " CZ_VERSION + " " + QString::number(QSysInfo::WordSize) + " bit";
-#ifdef CZ_VER_STATE
-	out += " " + tr("Built") + " " CZ_DATE " " CZ_TIME;
-#endif//CZ_VER_STATE
-	out += " " CZ_ORG_URL_MAINPAGE "\n";
-	out += tr("OS Version") + ": " + getOSVersion() + "\n";
-
-	CZ_TXT_EXPORT(labelDrvVersion);
-	CZ_TXT_EXPORT(labelDrvDllVersion);
-	CZ_TXT_EXPORT(labelRtDllVersion);
-	out += "\n";
-
-	subtitle = tr("Core Information");
-	out += subtitle + "\n";
-	for(int i = 0; i < subtitle.size(); i++)
-		out += "-";
-	out += "\n";
-	CZ_TXT_EXPORT_TAB(labelName);
-	CZ_TXT_EXPORT_TAB(labelCapability);
-	CZ_TXT_EXPORT_TAB(labelClock);
-	CZ_TXT_EXPORT_TAB(labelPCIInfo);
-	CZ_TXT_EXPORT_TAB(labelMultiProc);
-	CZ_TXT_EXPORT_TAB(labelThreadsMulti);
-	CZ_TXT_EXPORT_TAB(labelWarp);
-	CZ_TXT_EXPORT_TAB(labelRegsBlock);
-	CZ_TXT_EXPORT_TAB(labelThreadsBlock);
-	CZ_TXT_EXPORT_TAB(labelThreadsDim);
-	CZ_TXT_EXPORT_TAB(labelGridDim);
-	CZ_TXT_EXPORT_TAB(labelWatchdog);
-	CZ_TXT_EXPORT_TAB(labelIntegrated);
-	CZ_TXT_EXPORT_TAB(labelConcurrentKernels);
-	CZ_TXT_EXPORT_TAB(labelComputeMode);
-	CZ_TXT_EXPORT_TAB(labelStreamPriorities);
-	out += "\n";
-
-	subtitle = tr("Memory Information");
-	out += subtitle + "\n";
-	for(int i = 0; i < subtitle.size(); i++)
-		out += "-";
-	out += "\n";
-	CZ_TXT_EXPORT_TAB(labelTotalGlobal);
-	CZ_TXT_EXPORT_TAB(labelBusWidth);
-	CZ_TXT_EXPORT_TAB(labelMemClock);
-	CZ_TXT_EXPORT_TAB(labelErrorCorrection);
-	CZ_TXT_EXPORT_TAB(labelL2CasheSize);
-	CZ_TXT_EXPORT_TAB(labelShared);
-	CZ_TXT_EXPORT_TAB(labelPitch);
-	CZ_TXT_EXPORT_TAB(labelTotalConst);
-	CZ_TXT_EXPORT_TAB(labelTextureAlign);
-	CZ_TXT_EXPORT_TAB(labelTexture1D);
-	CZ_TXT_EXPORT_TAB(labelTexture2D);
-	CZ_TXT_EXPORT_TAB(labelTexture3D);
-	CZ_TXT_EXPORT_TAB(labelGpuOverlap);
-	CZ_TXT_EXPORT_TAB(labelMapHostMemory);
-	CZ_TXT_EXPORT_TAB(labelUnifiedAddressing);
-	CZ_TXT_EXPORT_TAB(labelAsyncEngine);
-	out += "\n";
-
-	subtitle = tr("Performance Information");
-	out += subtitle + "\n";
-	for(int i = 0; i < subtitle.size(); i++)
-		out += "-";
-	out += "\n";
-	out += tr("Memory Copy") + "\n";
-	CZ_TXT_EXPORT_TAB_TITLE("Host Pinned to Device", labelHDRatePin);
-	CZ_TXT_EXPORT_TAB_TITLE("Host Pageable to Device", labelHDRatePage);
-	CZ_TXT_EXPORT_TAB_TITLE("Device to Host Pinned", labelDHRatePin);
-	CZ_TXT_EXPORT_TAB_TITLE("Device to Host Pageable", labelDHRatePage);
-	CZ_TXT_EXPORT_TAB(labelDDRate);
-	out += tr("GPU Core Performance") + "\n";
-	CZ_TXT_EXPORT_TAB(labelFloatRate);
-	CZ_TXT_EXPORT_TAB(labelDoubleRate);
-	CZ_TXT_EXPORT_TAB(labelInt64Rate);
-	CZ_TXT_EXPORT_TAB(labelInt32Rate);
-	CZ_TXT_EXPORT_TAB(labelInt24Rate);
-	out += "\n";
-
-	time_t t;
-	time(&t);
-	out += QString("%1: %2").arg(tr("Generated")).arg(ctime(&t)) + "\n";
-
-	return out;
-}
-
-#define CZ_HTML_EXPORT(label)	out += "<b>" + label->text() + "</b>: " + label ## Text->text() + "<br/>\n"
-#define CZ_HTML_EXPORT_TAB(label)	out += "<tr><th>" + label->text() + "</th><td>" + label ## Text->text() + "</td></tr>\n"
-#define CZ_HTML_EXPORT_TAB_TITLE(title, label)	out += "<tr><th>" + tr(title) + "</th><td>" + label ## Text->text() + "</td></tr>\n"
 
 /*!	\brief Export information to HTML file.
 */
@@ -721,121 +495,8 @@ void CZDialog::slotExportToHTML() {
 	}
 
 	QTextStream stream(&file);
-	stream << generateHTMLReport();
-}
-
-/*!	\brief Generate HTML v4 report.
-	\todo Use HTML v5 insteand of v4.
-*/
-QString CZDialog::generateHTMLReport() {
-
-	QString out;
-	QString title = tr(CZ_NAME_SHORT " Report");
-
-	out += "<!DOCTYPE html>\n"
-		"<html>\n"
-		"<head>\n"
-		"<title>" + title + "</title>\n"
-		"<meta charset=\"utf-8\">\n"
-		"<style type=\"text/css\">\n"
-
-		"@charset \"utf-8\";\n"
-		"body { font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: normal; font-style: normal; background: #fff; }\n"
-		"h1 { font-size: 15px; color: #690; }\n"
-		"h2 { font-size: 13px; color: #690; }\n"
-		"table, td, th { border: 1px solid #000; }\n"
-		"table { border-collapse: collapse; width: 500px; }\n"
-		"th { background-color: #deb; text-align: left; }\n"
-		"td { width: 50%; }\n"
-		"a:link { color: #9c3; text-decoration: none; }\n"
-		"a:visited { color: #690; text-decoration: none; }\n"
-		"a:hover { color: #9c3; text-decoration: underline; }\n"
-		"a:active { color: #9c3; text-decoration: underline; }\n"
-
-		"</style>\n"
-		"</head>\n"
-		"<body>\n";
-
-	out += "<h1>" + title + "</h1>\n";
-	out += "<p><small>";
-	out += "<b>" + tr("Version")+ ":</b> " CZ_VERSION " " + QString::number(QSysInfo::WordSize) + " bit";
-#ifdef CZ_VER_STATE
-	out += " <b>" + tr("Built") + "</b> " CZ_DATE " " CZ_TIME;
-#endif//CZ_VER_STATE
-	out += " <a href=\"" CZ_ORG_URL_MAINPAGE "\">" CZ_ORG_URL_MAINPAGE "</a><br/>\n";
-	out += "<b>" + tr("OS Version") + ":</b> " + getOSVersion() + "<br/>\n";
-
-	CZ_HTML_EXPORT(labelDrvVersion);
-	CZ_HTML_EXPORT(labelDrvDllVersion);
-	CZ_HTML_EXPORT(labelRtDllVersion);
-	out += "</small></p>\n";
-
-	out += "<h2>" + tr("Core Information") + "</h2>\n";
-	out += "<table>\n";
-	CZ_HTML_EXPORT_TAB(labelName);
-	CZ_HTML_EXPORT_TAB(labelCapability);
-	CZ_HTML_EXPORT_TAB(labelClock);
-	CZ_HTML_EXPORT_TAB(labelPCIInfo);
-	CZ_HTML_EXPORT_TAB(labelMultiProc);
-	CZ_HTML_EXPORT_TAB(labelThreadsMulti);
-	CZ_HTML_EXPORT_TAB(labelWarp);
-	CZ_HTML_EXPORT_TAB(labelRegsBlock);
-	CZ_HTML_EXPORT_TAB(labelThreadsBlock);
-	CZ_HTML_EXPORT_TAB(labelThreadsDim);
-	CZ_HTML_EXPORT_TAB(labelGridDim);
-	CZ_HTML_EXPORT_TAB(labelWatchdog);
-	CZ_HTML_EXPORT_TAB(labelIntegrated);
-	CZ_HTML_EXPORT_TAB(labelConcurrentKernels);
-	CZ_HTML_EXPORT_TAB(labelComputeMode);
-	CZ_HTML_EXPORT_TAB(labelStreamPriorities);
-	out += "</table>\n";
-
-	out += "<h2>" + tr("Memory Information") + "</h2>\n";
-	out += "<table>\n";
-	CZ_HTML_EXPORT_TAB(labelTotalGlobal);
-	CZ_HTML_EXPORT_TAB(labelBusWidth);
-	CZ_HTML_EXPORT_TAB(labelMemClock);
-	CZ_HTML_EXPORT_TAB(labelErrorCorrection);
-	CZ_HTML_EXPORT_TAB(labelL2CasheSize);
-	CZ_HTML_EXPORT_TAB(labelShared);
-	CZ_HTML_EXPORT_TAB(labelPitch);
-	CZ_HTML_EXPORT_TAB(labelTotalConst);
-	CZ_HTML_EXPORT_TAB(labelTextureAlign);
-	CZ_HTML_EXPORT_TAB(labelTexture1D);
-	CZ_HTML_EXPORT_TAB(labelTexture2D);
-	CZ_HTML_EXPORT_TAB(labelTexture3D);
-	CZ_HTML_EXPORT_TAB(labelGpuOverlap);
-	CZ_HTML_EXPORT_TAB(labelMapHostMemory);
-	CZ_HTML_EXPORT_TAB(labelUnifiedAddressing);
-	CZ_HTML_EXPORT_TAB(labelAsyncEngine);
-	out += "</table>\n";
-
-	out += "<h2>" + tr("Performance Information") + "</h2>\n";
-	out += "<table>\n";
-	out += "<tr><th colspan=\"2\">" + tr("Memory Copy") + "</th></tr>\n";
-	CZ_HTML_EXPORT_TAB_TITLE("Host Pinned to Device", labelHDRatePin);
-	CZ_HTML_EXPORT_TAB_TITLE("Host Pageable to Device", labelHDRatePage);
-	CZ_HTML_EXPORT_TAB_TITLE("Device to Host Pinned", labelDHRatePin);
-	CZ_HTML_EXPORT_TAB_TITLE("Device to Host Pageable", labelDHRatePage);
-	CZ_HTML_EXPORT_TAB(labelDDRate);
-	out += "<tr><th colspan=\"2\">" + tr("GPU Core Performance") + "</th></tr>\n";
-	CZ_HTML_EXPORT_TAB(labelFloatRate);
-	CZ_HTML_EXPORT_TAB(labelDoubleRate);
-	CZ_HTML_EXPORT_TAB(labelInt64Rate);
-	CZ_HTML_EXPORT_TAB(labelInt32Rate);
-	CZ_HTML_EXPORT_TAB(labelInt24Rate);
-	out += "</table>\n";
-
-	time_t t;
-	time(&t);
-	out +=	"<p><small><b>" + tr("Generated") + ":</b> " + ctime(&t) + "</small></p>\n";
-
-	out +=	"<p><a href=\"http://cuda-z.sourceforge.net/\"><img src=\"http://cuda-z.sourceforge.net/img/web-button.png\" alt=\"CUDA-Z\" title=\"CUDA-Z\" /></a></p>\n";
-
-	out +=	"</body>\n"
-		"</html>\n";
-
-	return out;
+	CZCudaDeviceInfoDecoder decoder(m_deviceList[m_index]->info());
+	stream << decoder.generateHTMLReport();
 }
 
 /*!	\brief Resend a version request.
