@@ -29,11 +29,13 @@ FORMS = ui/czdialog.ui
 HEADERS = src/version.h \
 	src/czdialog.h \
 	src/czdeviceinfo.h \
+	src/czdeviceinfodecoder.h \
 	src/log.h \
 	src/cudainfo.h
 mac:HEADERS += src/plist.h
 SOURCES = src/czdialog.cpp \
 	src/czdeviceinfo.cpp \
+	src/czdeviceinfodecoder.cpp \
 	src/log.cpp \
 	src/main.cpp
 mac:SOURCES += src/plist.cpp

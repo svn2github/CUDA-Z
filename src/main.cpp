@@ -86,7 +86,7 @@ static void check_open_windows_console(
 			TRUE, DETACHED_PROCESS, NULL, NULL, &startup_info, &process_information);
 
 		if(!success) {
-			printf("Can't start myself detouched!/n");
+			printf("Can't start myself detouched!\n");
 		}
 
 		exit(!success);

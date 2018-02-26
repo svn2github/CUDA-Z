@@ -22,6 +22,7 @@
 
 #include "log.h"
 #include "czdialog.h"
+#include "czdeviceinfodecoder.h"
 #include "version.h"
 
 /*!	\def CZ_USE_QHTTP
@@ -108,7 +109,7 @@ void CZSplashScreen::setMaxLines(
 }
 
 /*!	\brief Returns the maximal number of lines in log.
-	\return number of lines in log.
+	\returns number of lines in log.
 */
 int CZSplashScreen::maxLines() {
 	return m_maxLines;
@@ -268,7 +269,7 @@ void CZDialog::freeCudaDevices() {
 }
 
 /*!	\brief Gets number of CUDA devices.
-	\return number of CUDA-devices in case of success, \a 0 if no CUDA-devies were found.
+	\returns number of CUDA-devices in case of success, \a 0 if no CUDA-devies were found.
 */
 int CZDialog::getCudaDeviceNumber() {
 	return CZCudaDeviceFound();
@@ -335,108 +336,38 @@ void CZDialog::setupDeviceInfo(
 	setupPerformanceTab(m_deviceList[dev]->info());
 }
 
+#define CZ_DLG_FILL(decoder, _id_) \
+	{ \
+		label ## _id_->setText(decoder.getName(CZCudaDeviceInfoDecoder::id ## _id_)); \
+		label ## _id_ ## Text->setText(decoder.getValue(CZCudaDeviceInfoDecoder::id ## _id_)); \
+	}
+
 /*!	\brief Fill tab "Core" with CUDA devices information.
 */
 void CZDialog::setupCoreTab(
 	struct CZDeviceInfo &info	/*!<[in] Information about CUDA-device. */
 ) {
-	QString deviceName(info.deviceName);
-	QString archName(info.archName);
+	CZCudaDeviceInfoDecoder decoder(info);
 
-	labelNameText->setText(deviceName);
-	if(archName.isEmpty())
-		labelCapabilityText->setText(QString("%1.%2").arg(info.major).arg(info.minor));
-	else
-		labelCapabilityText->setText(QString("%1.%2 (%3)").arg(info.major).arg(info.minor).arg(archName));
-	labelClockText->setText(getValue1000(info.core.clockRate, prefixKilo, tr("Hz")));
-	if(info.core.muliProcCount == 0)
-		labelMultiProcText->setText(tr("Unknown"));
-	else {
-		if(info.core.cudaCores == 0)
-			labelMultiProcText->setNum(info.core.muliProcCount);
-		else
-			labelMultiProcText->setText(tr("%1 (%2 Cores)")
-				.arg(info.core.muliProcCount)
-				.arg(info.core.cudaCores));
-	}
-	labelThreadsMultiText->setNum(info.core.maxThreadsPerMultiProcessor);
-	labelWarpText->setNum(info.core.SIMDWidth);
-	labelRegsBlockText->setNum(info.core.regsPerBlock);
-	labelThreadsBlockText->setNum(info.core.maxThreadsPerBlock);
-	if(info.core.watchdogEnabled == -1)
-		labelWatchdogText->setText(tr("Unknown"));
-	else
-		labelWatchdogText->setText(info.core.watchdogEnabled? tr("Yes"): tr("No"));
-	labelIntegratedText->setText(info.core.integratedGpu? tr("Yes"): tr("No"));
-	labelConcurrentKernelsText->setText(info.core.concurrentKernels? tr("Yes"): tr("No"));
-	if(info.core.computeMode == CZComputeModeDefault) {
-		labelComputeModeText->setText(tr("Default"));
-	} else if(info.core.computeMode == CZComputeModeExclusive) {
-		labelComputeModeText->setText(tr("Compute-exclusive"));
-	} else if(info.core.computeMode == CZComputeModeProhibited) {
-		labelComputeModeText->setText(tr("Compute-prohibited"));
-	} else {
-		labelComputeModeText->setText(tr("Unknown"));
-	}
-	labelStreamPrioritiesText->setText(info.core.streamPrioritiesSupported? tr("Yes"): tr("No"));
-
-	labelThreadsDimText->setText(QString("%1 x %2 x %3").arg(info.core.maxThreadsDim[0]).arg(info.core.maxThreadsDim[1]).arg(info.core.maxThreadsDim[2]));
-	labelGridDimText->setText(QString("%1 x %2 x %3").arg(info.core.maxGridSize[0]).arg(info.core.maxGridSize[1]).arg(info.core.maxGridSize[2]));
-
-	labelDeviceLogo->setPixmap(QPixmap(":/img/logo-unknown.png"));
-	if(deviceName.contains("tesla", Qt::CaseInsensitive)) {
-		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-tesla.png"));
-	} else
-	if(deviceName.contains("tegra", Qt::CaseInsensitive)) {
-		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-tegra.png"));
-	} else
-	if(deviceName.contains("quadro", Qt::CaseInsensitive)) {
-		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-quadro.png"));
-	} else
-	if(deviceName.contains("ion", Qt::CaseInsensitive)) {
-		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-ion.png"));
-	} else
-	if(deviceName.contains("geforce", Qt::CaseInsensitive)) {
-		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-geforce.png"));
-	}
-
-	labelPCIInfoText->setText(tr("%1:%2:%3")
-		.arg(info.core.pciDomainID)
-		.arg(info.core.pciBusID)
-		.arg(info.core.pciDeviceID));
-
-	QString version;
-	if(strlen(info.drvVersion) != 0) {
-		version = QString(info.drvVersion);
-		version += info.tccDriver? " (TCC)": "";
-	} else {
-		version = tr("Unknown");
-	}
-	labelDrvVersionText->setText(version);
-
-	if(info.drvDllVer == 0) {
-		version = tr("Unknown");
-	} else {
-		version = QString("%1.%2")
-			.arg(info.drvDllVer / 1000)
-			.arg(info.drvDllVer % 1000);
-	}
-	if(strlen(info.drvDllVerStr) != 0) {
-		version += " (" + QString(info.drvDllVerStr) + ")";
-	}
-	labelDrvDllVersionText->setText(version);
-
-	if(info.rtDllVer == 0) {
-		version = tr("Unknown");
-	} else {
-		version = QString("%1.%2")
-			.arg(info.rtDllVer / 1000)
-			.arg(info.rtDllVer % 1000);
-	}
-	if(strlen(info.rtDllVerStr) != 0) {
-		version += " (" + QString(info.rtDllVerStr) + ")";
-	}
-	labelRtDllVersionText->setText(version);
+	CZ_DLG_FILL(decoder, DrvVersion);
+	CZ_DLG_FILL(decoder, DrvDllVersion);
+	CZ_DLG_FILL(decoder, RtDllVersion);
+	CZ_DLG_FILL(decoder, Name);
+	CZ_DLG_FILL(decoder, Capability);
+	CZ_DLG_FILL(decoder, Clock);
+	CZ_DLG_FILL(decoder, PCIInfo);
+	CZ_DLG_FILL(decoder, MultiProc);
+	CZ_DLG_FILL(decoder, ThreadsMulti);
+	CZ_DLG_FILL(decoder, Warp);
+	CZ_DLG_FILL(decoder, RegsBlock);
+	CZ_DLG_FILL(decoder, ThreadsBlock);
+	CZ_DLG_FILL(decoder, ThreadsDim);
+	CZ_DLG_FILL(decoder, GridDim);
+	CZ_DLG_FILL(decoder, Watchdog);
+	CZ_DLG_FILL(decoder, Integrated);
+	CZ_DLG_FILL(decoder, ConcurrentKernels);
+	CZ_DLG_FILL(decoder, ComputeMode);
+	CZ_DLG_FILL(decoder, StreamPriorities);
 }
 
 /*!	\brief Fill tab "Memory" with CUDA devices information.
@@ -444,31 +375,24 @@ void CZDialog::setupCoreTab(
 void CZDialog::setupMemoryTab(
 	struct CZDeviceInfo &info	/*!<[in] Information about CUDA-device. */
 ) {
-	labelTotalGlobalText->setText(getValue1024(info.mem.totalGlobal, prefixNothing, tr("B")));
-	labelBusWidthText->setText(tr("%1 bits").arg(info.mem.memoryBusWidth));
-	labelMemClockText->setText(getValue1000(info.mem.memoryClockRate, prefixKilo, tr("Hz")));
-	labelErrorCorrectionText->setText(info.mem.errorCorrection? tr("Yes"): tr("No"));
-	labelL2CasheSizeText->setText(info.mem.l2CacheSize?getValue1024(info.mem.l2CacheSize, prefixNothing, tr("B")): tr("No"));
-	labelSharedText->setText(getValue1024(info.mem.sharedPerBlock, prefixNothing, tr("B")));
-	labelPitchText->setText(getValue1024(info.mem.maxPitch, prefixNothing, tr("B")));
-	labelTotalConstText->setText(getValue1024(info.mem.totalConst, prefixNothing, tr("B")));
-	labelTextureAlignText->setText(getValue1024(info.mem.textureAlignment, prefixNothing, tr("B")));
-	labelTexture1DText->setText(QString("%1")
-		.arg((double)info.mem.texture1D[0]));
-	labelTexture2DText->setText(QString("%1 x %2")
-		.arg((double)info.mem.texture2D[0])
-		.arg((double)info.mem.texture2D[1]));
-	labelTexture3DText->setText(QString("%1 x %2 x %3")
-		.arg((double)info.mem.texture3D[0])
-		.arg((double)info.mem.texture3D[1])
-		.arg((double)info.mem.texture3D[2]));
-	labelGpuOverlapText->setText(info.mem.gpuOverlap? tr("Yes"): tr("No"));
-	labelMapHostMemoryText->setText(info.mem.mapHostMemory? tr("Yes"): tr("No"));
-	labelUnifiedAddressingText->setText(info.mem.unifiedAddressing? tr("Yes"): tr("No"));
-	labelAsyncEngineText->setText(
-		(info.mem.asyncEngineCount == 2)? tr("Yes, Bidirectional"):
-		(info.mem.asyncEngineCount == 1)? tr("Yes, Unidirectional"):
-		tr("No"));
+	CZCudaDeviceInfoDecoder decoder(info);
+
+	CZ_DLG_FILL(decoder, TotalGlobal);
+	CZ_DLG_FILL(decoder, BusWidth);
+	CZ_DLG_FILL(decoder, MemClock);
+	CZ_DLG_FILL(decoder, ErrorCorrection);
+	CZ_DLG_FILL(decoder, L2CasheSize);
+	CZ_DLG_FILL(decoder, Shared);
+	CZ_DLG_FILL(decoder, Pitch);
+	CZ_DLG_FILL(decoder, TotalConst);
+	CZ_DLG_FILL(decoder, TextureAlign);
+	CZ_DLG_FILL(decoder, Texture1D);
+	CZ_DLG_FILL(decoder, Texture2D);
+	CZ_DLG_FILL(decoder, Texture3D);
+	CZ_DLG_FILL(decoder, GpuOverlap);
+	CZ_DLG_FILL(decoder, MapHostMemory);
+	CZ_DLG_FILL(decoder, UnifiedAddressing);
+	CZ_DLG_FILL(decoder, AsyncEngine);
 }
 
 /*!	\brief Fill tab "Performance" with CUDA devices information.
@@ -476,67 +400,24 @@ void CZDialog::setupMemoryTab(
 void CZDialog::setupPerformanceTab(
 	struct CZDeviceInfo &info	/*!<[in] Information about CUDA-device. */
 ) {
+	CZCudaDeviceInfoDecoder decoder(info);
 
-	if(info.band.copyHDPin == 0)
-		labelHDRatePinText->setText("--");
-	else
-		labelHDRatePinText->setText(getValue1024(info.band.copyHDPin, prefixKibi, tr("B/s")));
-
-	if(info.band.copyHDPage == 0)
-		labelHDRatePageText->setText("--");
-	else
-		labelHDRatePageText->setText(getValue1024(info.band.copyHDPage, prefixKibi, tr("B/s")));
-
-	if(info.band.copyDHPin == 0)
-		labelDHRatePinText->setText("--");
-	else
-		labelDHRatePinText->setText(getValue1024(info.band.copyDHPin, prefixKibi, tr("B/s")));
-
-	if(info.band.copyDHPage == 0)
-		labelDHRatePageText->setText("--");
-	else
-		labelDHRatePageText->setText(getValue1024(info.band.copyDHPage, prefixKibi, tr("B/s")));
-
-	if(info.band.copyDD == 0)
-		labelDDRateText->setText("--");
-	else
-		labelDDRateText->setText(getValue1024(info.band.copyDD, prefixKibi, tr("B/s")));
-
-	if(info.perf.calcFloat == 0)
-		labelFloatRateText->setText("--");
-	else
-		labelFloatRateText->setText(getValue1000(info.perf.calcFloat, prefixKilo, tr("flop/s")));
-
-	if(((info.major > 1)) ||
-		((info.major == 1) && (info.minor >= 3))) {
-		if(info.perf.calcDouble == 0)
-			labelDoubleRateText->setText("--");
-		else
-			labelDoubleRateText->setText(getValue1000(info.perf.calcDouble, prefixKilo, tr("flop/s")));
-	} else {
-		labelDoubleRateText->setText(tr("Not Supported"));
-	}
-
-	if(info.perf.calcInteger64 == 0)
-		labelInt64RateText->setText("--");
-	else
-		labelInt64RateText->setText(getValue1000(info.perf.calcInteger64, prefixKilo, tr("iop/s")));
-
-	if(info.perf.calcInteger32 == 0)
-		labelInt32RateText->setText("--");
-	else
-		labelInt32RateText->setText(getValue1000(info.perf.calcInteger32, prefixKilo, tr("iop/s")));
-
-	if(info.perf.calcInteger24 == 0)
-		labelInt24RateText->setText("--");
-	else
-		labelInt24RateText->setText(getValue1000(info.perf.calcInteger24, prefixKilo, tr("iop/s")));
+	labelHDRatePinText->setText(decoder.getValue(CZCudaDeviceInfoDecoder::idHostPinnedToDevice));
+	labelHDRatePageText->setText(decoder.getValue(CZCudaDeviceInfoDecoder::idHostPageableToDevice));
+	labelDHRatePinText->setText(decoder.getValue(CZCudaDeviceInfoDecoder::idDeviceToHostPinned));
+	labelDHRatePageText->setText(decoder.getValue(CZCudaDeviceInfoDecoder::idDeviceToHostPageable));
+	labelDDRateText->setText(decoder.getValue(CZCudaDeviceInfoDecoder::idDeviceToDevice));
+	CZ_DLG_FILL(decoder, FloatRate);
+	CZ_DLG_FILL(decoder, DoubleRate);
+	CZ_DLG_FILL(decoder, Int64Rate);
+	CZ_DLG_FILL(decoder, Int32Rate);
+	CZ_DLG_FILL(decoder, Int24Rate);
 }
 
 /*!	\brief Get C/C++ compiler name string
 	\hint This code is taken from Qt Creator code
 	creator-3.3.0/src/plugins/coreplugin/icore.cpp
-	\return C/C++ compiler string
+	\returns C/C++ compiler string
 */
 static QString compilerString() {
 #if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too
@@ -581,7 +462,7 @@ void CZDialog::setupAboutTab() {
 
 /*!	\fn CZDialog::getOSVersion
 	\brief Get OS version string.
-	\return string that describes version of OS we running at.
+	\returns string that describes version of OS we running at.
 */
 #if defined(Q_OS_WIN)
 #include <windows.h>
@@ -1238,64 +1119,4 @@ void CZDialog::parseHistoryTxt(
 		labelAppUpdateImg->setPixmap(QPixmap((criticalVersion == true)? CZ_UPD_ICON_DOWNLOAD_CR: CZ_UPD_ICON_DOWNLOAD));
 		labelAppUpdate->setText(updateString);
 	}
-}
-
-/*!	\brief This function returns value and unit in SI format.
-*/
-QString CZDialog::getValue1000(
-	double value,			/*!<[in] Value to print. */
-	int valuePrefix,		/*!<[in] Value current prefix. */
-	QString unitBase		/*!<[in] Unit base string. */
-) {
-	const int prefixBase = 1000;
-	int resPrefix = valuePrefix;
-
-	static const char *prefixTab[prefixSiMax + 1] = {
-		"",	/* prefixNothing */
-		"k",	/* prefixKilo */
-		"M",	/* prefixMega */
-		"G",	/* prefixGiga */
-		"T",	/* prefixTera */
-		"P",	/* prefixPeta */
-		"E",	/* prefixExa */
-		"Z",	/* prefixZetta */
-		"Y",	/* prefixYotta */
-	};
-
-	while((value > (10 * prefixBase)) && (resPrefix < prefixSiMax)) {
-		value /= prefixBase;
-		resPrefix++;
-	}
-
-	return QString("%1 %2%3").arg(value).arg(prefixTab[resPrefix]).arg(unitBase);
-}
-
-/*!	\brief This function returns value and unit in IEC 60027 format.
-*/
-QString CZDialog::getValue1024(
-	double value,			/*!<[in] Value to print. */
-	int valuePrefix,		/*!<[in] Value current prefix. */
-	QString unitBase		/*!<[in] Unit base string. */
-) {
-	const int prefixBase = 1024;
-	int resPrefix = valuePrefix;
-
-	static const char *prefixTab[prefixIecMax + 1] = {
-		"",	/* prefixNothing */
-		"Ki",	/* prefixKibi */
-		"Mi",	/* prefixMebi */
-		"Gi",	/* prefixGibi */
-		"Ti",	/* prefixTebi */
-		"Pi",	/* prefixPebi */
-		"Ei",	/* prefixExbi */
-		"Zi",	/* prefixZebi */
-		"Yi",	/* prefixYobi */
-	};
-
-	while((value > (10 * prefixBase)) && (resPrefix < prefixIecMax)) {
-		value /= prefixBase;
-		resPrefix++;
-	}
-
-	return QString("%1 %2%3").arg(value).arg(prefixTab[resPrefix]).arg(unitBase);
 }

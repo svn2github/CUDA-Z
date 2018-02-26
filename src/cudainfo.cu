@@ -211,7 +211,7 @@ static char *CZGetDllDescription(
 /*!	\brief Check if CUDA fully initialized.
 	This function loads nvcuda.dll and finds functions \a cuInit()
 	and \a cuDeviceGetAttribute().
-	\return \a true in case of success, \a false in case of error.
+	\returns \a true in case of success, \a false in case of error.
 */
 static bool CZCudaIsInit(void) {
 
@@ -354,7 +354,7 @@ static char *CZGetSoVersion(
 /*!	\brief Check if CUDA fully initialized.
 	This function loads libcuda.so and finds functions \a cuInit()
 	and \a cuDeviceGetAttribute().
-	\return \a true in case of success, \a false in case of error.
+	\returns \a true in case of success, \a false in case of error.
 */
 static bool CZCudaIsInit(void) {
 
@@ -486,7 +486,7 @@ static bool CZCudaIsInit(void) {
 #define CZ_KEXT_NAME_GEFORCEWEB	"GeForceWeb" /*!< NVIDIA Web GeForce driver name */
 
 /*!	\brief Read version of Kext driver from plist file.
-	\return \a NULL in case of error, a pointer to version string in case of success.
+	\returns \a NULL in case of error, a pointer to version string in case of success.
 */
 static char *CZReadPlistVersion(
 	char *plist,			/*!<[in] Full path of Info.plist file. */
@@ -526,7 +526,7 @@ static char *CZReadPlistVersion(
 }
 
 /*!	\brief Get version of Kext driver.
-	\return \a NULL in case of error, a pointer to version string in case of success.
+	\returns \a NULL in case of error, a pointer to version string in case of success.
 */
 static char *CZGetKextVersion(
 	char *name,			/*!<[in] Name of kext driver. E.g. "GeForce". */
@@ -554,7 +554,7 @@ static char *CZGetKextVersion(
 }
 
 /*!	\brief Check if Kext is loaded.
-	\return \a true if Kext is loaded, \a false if not.
+	\returns \a true if Kext is loaded, \a false if not.
 */
 static bool CZCheckKextLoaded(
 	char *id			/*!<[in] ID string of Kext driver */
@@ -582,7 +582,7 @@ static bool CZCheckKextLoaded(
 /*!	\brief Check if CUDA fully initialized.
 	This function loads libcuda.dylib and finds functions \a cuInit()
 	and \a cuDeviceGetAttribute().
-	\return \a true in case of success, \a false in case of error.
+	\returns \a true in case of success, \a false in case of error.
 */
 static bool CZCudaIsInit(void) {
 	void *hDll = NULL;
@@ -658,7 +658,7 @@ bool CZCudaCheck(void) {
 }
 
 /*!	\brief Check how many CUDA-devices are present.
-	\return number of CUDA-devices in case of success, \a 0 if no CUDA-devies were found.
+	\returns number of CUDA-devices in case of success, \a 0 if no CUDA-devies were found.
 */
 int CZCudaDeviceFound(void) {
 
@@ -695,13 +695,13 @@ int CZCudaDeviceFound(void) {
 		((minor) == 7)? 192: /* GK210 */ \
 		0): \
 	((major) == 5)? ( /* Maxwell */ \
-		((minor) == 0)? 128: /* GM10X */ \
-		((minor) == 2)? 128: /* GM20X */ \
+		((minor) == 0)? 128: /* GM10x */ \
+		((minor) == 2)? 128: /* GM20x */ \
 		((minor) == 3)? 128: /* GM20B */ \
 		0): \
 	((major) == 6)? ( /* Pascal */ \
 		((minor) == 0)? 64:  /* GP100 */ \
-		((minor) == 1)? 128: /* GP10X */ \
+		((minor) == 1)? 128: /* GP10x */ \
 		((minor) == 2)? 128: /* GP10B */ \
 		0): \
 	((major) == 7)? ( /* Volta */ \
@@ -714,7 +714,7 @@ int CZCudaDeviceFound(void) {
 	\link https://en.wikipedia.org/wiki/CUDA
 	\arg[in] major GPU Architecture major version.
 	\arg[in] minor GPU Architecture minor version.
-	\returns "" if GPU Architecture is unknown, or a name of architecture.
+	\returns "" if GPU Architecture is unknown, or a name of the architecture.
 */
 #define ConvertSMVer2ArchName(major, minor) \
 	(((major) == 1)? "Tesla": \
@@ -732,7 +732,7 @@ int CZCudaDeviceFound(void) {
 #define COMPILE_ASSERT(cond)	{typedef char compile_assert_error[(cond)? 1: -1];}
 
 /*!	\brief Read information about a CUDA-device.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaReadDeviceInfo(
 	struct CZDeviceInfo *info,	/*!<[in,out] CUDA-device information. */
@@ -842,7 +842,7 @@ int CZCudaCalcDeviceSelect(
 }
 
 /*!	\brief Allocate buffers for bandwidth calculations.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthAlloc(
 	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
@@ -908,7 +908,7 @@ static int CZCudaCalcDeviceBandwidthAlloc(
 }
 
 /*!	\brief Free buffers for bandwidth calculations.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthFree(
 	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
@@ -951,7 +951,7 @@ static int CZCudaCalcDeviceBandwidthFree(
 }
 
 /*!	\brief Reset results of bandwidth calculations.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthReset(
 	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
@@ -974,7 +974,7 @@ static int CZCudaCalcDeviceBandwidthReset(
 #define CZ_COPY_MODE_D2D	2	/*!< Device to device data copy mode. */
 
 /*!	\brief Run data transfer bandwidth tests.
-	\return \a 0 in case of success, \a other is value in KiB/s.
+	\returns \a 0 in case of success, \a other is value in KiB/s.
 */
 static float CZCudaCalcDeviceBandwidthTestCommon (
 	struct CZDeviceInfo *info,	/*!<[in,out] CUDA-device information. */
@@ -1087,7 +1087,7 @@ static float CZCudaCalcDeviceBandwidthTestCommon (
 }
 
 /*!	\brief Run several bandwidth tests.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDeviceBandwidthTest(
 	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
@@ -1103,7 +1103,7 @@ static int CZCudaCalcDeviceBandwidthTest(
 }
 
 /*!	\brief Prepare buffers bandwidth tests.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaPrepareDevice(
 	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
@@ -1122,7 +1122,7 @@ int CZCudaPrepareDevice(
 }
 
 /*!	\brief Calculate bandwidth information about CUDA-device.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaCalcDeviceBandwidth(
 	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
@@ -1147,7 +1147,7 @@ int CZCudaCalcDeviceBandwidth(
 }
 
 /*!	\brief Cleanup after test and bandwidth calculations.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaCleanDevice(
 	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
@@ -1163,7 +1163,7 @@ int CZCudaCleanDevice(
 }
 
 /*!	\brief Reset results of preformance calculations.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 static int CZCudaCalcDevicePerformanceReset(
 	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */
@@ -1422,7 +1422,7 @@ __global__ void CZCudaCalcKernelInteger64(
 }
 
 /*!	\brief Run GPU calculation performace tests.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 static float CZCudaCalcDevicePerformanceTest(
 	struct CZDeviceInfo *info,	/*!<[in,out] CUDA-device information. */
@@ -1546,7 +1546,7 @@ static float CZCudaCalcDevicePerformanceTest(
 }
 
 /*!	\brief Calculate performance information about CUDA-device.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaCalcDevicePerformance(
 	struct CZDeviceInfo *info	/*!<[in,out] CUDA-device information. */

@@ -171,14 +171,14 @@ CZCudaDeviceInfo::~CZCudaDeviceInfo() {
 }
 
 /*!	\brief This function reads CUDA-device basic information.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::readInfo() {
 	return CZCudaReadDeviceInfo(&_info, _info.num);
 }
 
 /*!	\brief This function prepare some buffers for budwidth tests.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::prepareDevice() {
 	if(CZCudaCalcDeviceSelect(&_info) != 0)
@@ -187,7 +187,7 @@ int CZCudaDeviceInfo::prepareDevice() {
 }
 
 /*!	\brief This function updates CUDA-device performance information.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::updateInfo() {
 	int r;
@@ -202,7 +202,7 @@ int CZCudaDeviceInfo::updateInfo() {
 }
 
 /*!	\brief This function cleans buffers used for bandwidth tests.
-	\return \a 0 in case of success, \a -1 in case of error.
+	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::cleanDevice() {
 	return CZCudaCleanDevice(&_info);
