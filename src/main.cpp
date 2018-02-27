@@ -13,6 +13,7 @@
 #include "czdialog.h"
 #include "cudainfo.h"
 #include "version.h"
+#include "czcommandline.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -121,6 +122,7 @@ static int main_cli(
 	CZLog(CZLogLevelHigh, QObject::tr("Found %1 CUDA Device(s) ...").arg(devs));
 
 	// TODO - add more info functionality here, e.g. generating a text-file export or running a certain test set
+	CZPrintCommandLineHelp();
 
 	return 0;
 }

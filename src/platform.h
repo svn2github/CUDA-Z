@@ -33,7 +33,6 @@ extern "C" {
 
 #ifdef __cplusplus
 }
-
 #endif
 
 #endif//CZ_PLATFORM_H
