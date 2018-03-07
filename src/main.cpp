@@ -7,6 +7,7 @@
 
 #include <QApplication>
 #include <QMessageBox>
+#include <QString>
 #include <QDebug>
 
 #include "log.h"
@@ -15,15 +16,11 @@
 #include "version.h"
 #include "czcommandline.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 /*!	\brief Call function that checks CUDA presents.
 */
 bool testCudaPresent() {
 	bool res = CZCudaCheck();
-	CZLog(CZLogLevelHigh, "CUDA Present: %d", res);
+	CZLog(CZLogLevelLow, "CUDA Present: %d", res);
 	return res;
 }
 
@@ -31,18 +28,18 @@ bool testCudaPresent() {
 */
 int getCudaDeviceNum() {
 	int res = CZCudaDeviceFound();
-	CZLog(CZLogLevelHigh, "CUDA Devices found: %d", res);
+	CZLog(CZLogLevelLow, "CUDA Devices found: %d", res);
 
 	if(res == 1) { // Check for emulator device
 		struct CZDeviceInfo info;
 
 		if(CZCudaReadDeviceInfo(&info, 0) == -1) {
-			CZLog(CZLogLevelHigh, "CUDA Devices error: Can't get device info!");
+			CZLog(CZLogLevelError, "CUDA Devices error: Can't get device info!");
 			return 0;
 		}
 
 		if(info.deviceName[0] == 0) {
-			CZLog(CZLogLevelHigh, "CUDA Devices error: Emulator detected!");
+			CZLog(CZLogLevelError, "CUDA Devices error: Emulator detected!");
 			return 0;
 		}
 	}
@@ -87,7 +84,7 @@ static void check_open_windows_console(
 			TRUE, DETACHED_PROCESS, NULL, NULL, &startup_info, &process_information);
 
 		if(!success) {
-			printf("Can't start myself detouched!\n");
+			CZLog(CZLogLevelFatal, "Can't start myself detouched!");
 		}
 
 		exit(!success);
@@ -105,26 +102,24 @@ static int main_cli(
 ) {
 	QCoreApplication app(argc, argv);
 
-	CZLog(CZLogLevelHigh, QObject::tr("Checking CUDA ..."));
+	CZLog(CZLogLevelLow, QObject::tr("Checking CUDA ..."));
 	if(!testCudaPresent()) {
 		CZLog(CZLogLevelFatal, QObject::tr("CUDA not found!"));
-		CZLog(CZLogLevelHigh, QObject::tr("Please update your NVIDIA driver and try again!"));
-		exit(1);
+		CZLog(CZLogLevelHigh, QObject::tr("Please update your NVIDIA driver and try again"));
+		return 1;
 	}
 
 	int devs = getCudaDeviceNum();
 	if(devs == 0) {
 		CZLog(CZLogLevelFatal, QObject::tr("No compatible CUDA devices found!"));
-		CZLog(CZLogLevelHigh, QObject::tr("Please update your NVIDIA driver and try again!"));
-		exit(1);
+		CZLog(CZLogLevelHigh, QObject::tr("Please update your NVIDIA driver and try again"));
+		return 1;
 	}
 
-	CZLog(CZLogLevelHigh, QObject::tr("Found %1 CUDA Device(s) ...").arg(devs));
+	CZLog(CZLogLevelLow, QObject::tr("Found %1 CUDA Device(s) ...").arg(devs));
 
-	// TODO - add more info functionality here, e.g. generating a text-file export or running a certain test set
-	CZPrintCommandLineHelp();
-
-	return 0;
+	CZCommandLine cli(argc, argv);
+	return cli.parse();
 }
 
 /*!	\brief Main initialization function for GUI mode.
@@ -139,7 +134,7 @@ static int main_gui(
 
 	QApplication app(argc, argv);
 
-	CZLog(CZLogLevelHigh, QObject::tr("CUDA-Z Started!"));
+	CZLog(CZLogLevelLow, QObject::tr("CUDA-Z Started!"));
 
 	QPixmap pixmap1(":/img/splash1.png");
 	QPixmap pixmap2(":/img/splash2.png");
@@ -187,7 +182,7 @@ static int main_gui(
 	delete splash;
 	return app.exec();
 
-	CZLog(CZLogLevelHigh, QObject::tr("CUDA-Z Stopped!"));
+	CZLog(CZLogLevelLow, QObject::tr("CUDA-Z Stopped!"));
 }
 
 /*!	\brief Main initialization function.
@@ -196,16 +191,19 @@ int main(
 	int argc,		/*!<[in] Count of command line arguments. */
 	char *argv[]		/*!<[in] List of command line arguments. */
 ) {
-	bool bCli = false;
+	bool runAsCli = false;
+	bool runVerbose = false;
 
-	for(int n = 1; n < argc; n++) {
-		if(stricmp(argv[n], "-cli") == 0)
-			bCli = true;
+	for(int i = 1; i < argc; i++) {
+		if(QString(argv[i]) == "-cli")
+			runAsCli = true;
+		if(QString(argv[i]) == "-verbose")
+			runVerbose = true;
 	}
 
-	if(bCli)
-		return main_cli(argc, argv);
-	else
-		return main_gui(argc, argv);
+	if(runVerbose)
+		CZLogSetVerbosityLevel(CZLogLevelLow);
+
+	return runAsCli? main_cli(argc, argv): main_gui(argc, argv);
 }
 

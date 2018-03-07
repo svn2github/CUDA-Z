@@ -12,9 +12,28 @@
 #include "log.h"
 
 #define CZ_LOG_BUFFER_LENGTH		4096	/*!< Log bufer size. */
+#ifdef QT_NO_DEBUG
 #define CZ_LOG_DEFAULT_LEVEL		CZLogLevelHigh	/*!< Default logging level. */
+#else
+#define CZ_LOG_DEFAULT_LEVEL		CZLogLevelLow	/*!< Default logging level. */
+#endif
 
-/*!	\brief Logging function.
+/*!	\brief Current allowed verbosity level.
+*/
+static int s_verbosityLevel = CZ_LOG_DEFAULT_LEVEL;
+
+/*!	\brief Set current verbosity logging level.
+	\returns previous verbosity level.
+*/
+int CZLogSetVerbosityLevel(
+	int newVerbosityLevel		/*![in] New verbosity level. */
+) {
+	int oldVerbosityLevel = s_verbosityLevel;
+	s_verbosityLevel = newVerbosityLevel;
+	return oldVerbosityLevel;
+}
+
+/*!	\brief C-like logging function.
 */
 void CZLog(
 	CZLogLevel level,		/*!<[in] Log level value. */
@@ -23,11 +42,9 @@ void CZLog(
 ) {
 	QString text;
 
-#ifdef QT_NO_DEBUG
-	if(level > CZ_LOG_DEFAULT_LEVEL) {
+	if(level > s_verbosityLevel) {
 		return;
 	}
-#endif
 
 	va_list ap;
 	va_start(ap, fmt);
@@ -36,21 +53,18 @@ void CZLog(
 	va_end(ap);
 
 	CZLog(level, text);
-
 }
 
-/*!	\brief Logging function for QString.
+/*!	\brief C++ logging function.
 */
 void CZLog(
 	CZLogLevel level,		/*!<[in] Log level value. */
 	QString text			/*!<[in] Qt string. */
 ) {
 
-#ifdef QT_NO_DEBUG
-	if(level > CZ_LOG_DEFAULT_LEVEL) {
+	if(level > s_verbosityLevel) {
 		return;
 	}
-#endif
 
 	QtMsgType type;
 	switch(level) {

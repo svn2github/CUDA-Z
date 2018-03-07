@@ -57,6 +57,9 @@
 #define CZ_ORG_URL_PROJECT	"http://sf.net/projects/cuda-z/"
 						/*!< URL of project page. */
 
+#define CZ_ORG_URL_FACEBOOK	"http://fb.com/cuda.z.software"
+						/*!< URL of facebook page. */
+
 #define CZ_COPY_INFO		"This software is distributed under the terms of the GNU General Public License Version 3."
 						/*!< Program's copyright information. */
 

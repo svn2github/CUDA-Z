@@ -8,21 +8,39 @@
 #ifndef CZ_COMMANDLINE_H
 #define CZ_COMMANDLINE_H
 
+#include <QObject>
 #include <QString>
 
-#define CZ_EXPORT_FILENAME_LEN
+class CZCommandLine: public QObject {
+	Q_OBJECT
 
-struct CZCommandLineFlags {
-	bool needHelp;
-	int devIndex;
-	bool exportHTML;
-	QString fileNameHTML;
-	bool exportTXT;
-	QString fileNameTXT;
+public:
+	CZCommandLine(int argc, char **argv, QObject *parent = 0);
+	~CZCommandLine();
+
+	int exec();
+	bool parse();
+
+	static const QString getTitleString();
+	static const QString getVersionString();
+	static const QString getHelpString();
+
+	static void printCommandLineHelp();
+	static void printUtilityVersion();
+
+private:
+	int m_argc;
+	char **m_argv;
+
+	bool m_needHelp;
+	bool m_needVersion;
+	bool m_printVerbose;
+	bool m_listDevices;
+	int m_devIndex;
+	bool m_exportHTML;
+	QString m_fileNameHTML;
+	bool m_exportTXT;
+	QString m_fileNameTXT;
 };
-
-bool CZParseCommandLine(int argc, char *argv[], struct CZCommandLineFlags *flags);
-
-void CZPrintCommandLineHelp(void);
 
 #endif//CZ_COMMANDLINE_H

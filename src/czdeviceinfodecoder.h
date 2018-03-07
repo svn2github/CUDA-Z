@@ -8,6 +8,8 @@
 #ifndef CZ_DEVICEINFODECODER_H
 #define CZ_DEVICEINFODECODER_H
 
+#include <QObject>
+
 #include "czdeviceinfo.h"
 
 class CZCudaDeviceInfoDecoder: public QObject {

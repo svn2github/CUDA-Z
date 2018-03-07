@@ -414,14 +414,15 @@ void CZDialog::setupAboutTab() {
 	version += QString("<br /><b>%1</b> %2 %3").arg(tr("Built")).arg(CZ_DATE).arg(CZ_TIME);
 	version += tr("<br /><b>%1</b> %2 %3").arg(tr("Based on Qt")).arg(QT_VERSION_STR).arg(getCompilerVersion());
 #ifdef CZ_VER_BUILD_URL
-	version += tr("<br /><b>%1</b> %2:%3").arg(tr("SVN URL")).arg(CZ_VER_BUILD_URL).arg(CZ_VER_BUILD_STRING);
+	version += tr("<br /><b>%1</b>: %2:%3").arg(tr("SVN URL")).arg(CZ_VER_BUILD_URL).arg(CZ_VER_BUILD_STRING);
 #endif//CZ_VER_BUILD_URL
 #endif//CZ_VER_STATE
 	labelAppVersion->setText(version);
-	labelAppURL->setText(QString("<b>%1:</b> <a href=\"%2\">%2</a><br /><b>%3:</b> <a href=\"%4\">%4</a>")
-		.arg(tr("Main page")).arg(CZ_ORG_URL_MAINPAGE)
-		.arg(tr("Project page")).arg(CZ_ORG_URL_PROJECT));
-	labelAppAuthor->setText(QString("<b>%1</b> %2").arg(tr("Author")).arg(CZ_ORG_NAME));
+	labelAppURL->setText(
+		QString("<b>%1:</b> <a href=\"%2\">%2</a><br />").arg(tr("Main page")).arg(CZ_ORG_URL_MAINPAGE) +
+		QString("<b>%1:</b> <a href=\"%2\">%2</a><br />").arg(tr("Project page")).arg(CZ_ORG_URL_PROJECT) +
+		QString("<b>%1:</b> <a href=\"%2\">%2</a>").arg(tr("Facebook page")).arg(CZ_ORG_URL_FACEBOOK));
+	labelAppAuthor->setText(QString("<b>%1</b>: %2").arg(tr("Author")).arg(CZ_ORG_NAME));
 	labelAppCopy->setText(QString("%1 <a href=\"%2\">%2</a>").arg(CZ_COPY_INFO).arg(CZ_COPY_URL));
 }
 
