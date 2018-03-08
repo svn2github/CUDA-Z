@@ -9,7 +9,7 @@
 #include <QString>
 
 #include "log.h"
-#include "czdialog.h"
+#include "cudainfo.h"
 #include "czdeviceinfodecoder.h"
 #include "platform.h"
 #include "version.h"
@@ -68,12 +68,12 @@ bool CZCommandLine::parse() {
 				bool intOk;
 				m_devIndex = QString(m_argv[i]).toInt(&intOk);
 				if(!intOk) {
-					CZLog(CZLogLevelFatal, tr("Wrong usage of option '-dev <n>'!"));
+					CZLog(CZLogLevelError, tr("Wrong usage of option '-dev <n>'!"));
 					return false;
 				}
 				CZLog(CZLogLevelLow, tr("Device index: %1").arg(m_devIndex));
 			} else {
-				CZLog(CZLogLevelFatal, tr("Wrong usage of option '-dev <n>'!"));
+				CZLog(CZLogLevelError, tr("Wrong usage of option '-dev <n>'!"));
 				return false;
 			}
 		} else if(QString(m_argv[i]) == "-html") {
@@ -82,7 +82,7 @@ bool CZCommandLine::parse() {
 				m_fileNameHTML = m_argv[i];
 				CZLog(CZLogLevelLow, tr("HTML file name: %1").arg(m_fileNameHTML));
 			} else {
-				CZLog(CZLogLevelFatal, tr("Wrong usage of option '-html <file>'!"));
+				CZLog(CZLogLevelError, tr("Wrong usage of option '-html <file>'!"));
 				return false;
 			}
 		} else if(QString(m_argv[i]) == "-txt") {
@@ -91,11 +91,11 @@ bool CZCommandLine::parse() {
 				m_fileNameTXT = m_argv[i];
 				CZLog(CZLogLevelLow, tr("TXT file name: %1").arg(m_fileNameTXT));
 			} else {
-				CZLog(CZLogLevelFatal, tr("Wrong usage of option '-txt <file>'!"));
+				CZLog(CZLogLevelError, tr("Wrong usage of option '-txt <file>'!"));
 				return false;
 			}
 		} else {
-			CZLog(CZLogLevelFatal, tr("Wrong option '%1'!").arg(m_argv[i]));
+			CZLog(CZLogLevelError, tr("Wrong option '%1'!").arg(m_argv[i]));
 			return false;
 		}
 	}
@@ -109,7 +109,7 @@ bool CZCommandLine::parse() {
 int CZCommandLine::exec() {
 
 	if(!parse()) {
-		CZLog(CZLogLevelHigh, tr("Run '%1 -help' for more information").arg(CZ_NAME_SHORT));
+		CZLog(CZLogLevelHigh, tr("Run '%1 -cli -help' for more information").arg(CZ_NAME_SHORT));
 		return 1;
 	}
 
@@ -123,7 +123,15 @@ int CZCommandLine::exec() {
 		return 0;
 	}
 
+	if(m_listDevices) {
+		printDeviceList();
+		return 0;
+	}
+
 	// TODO - add more info functionality here, e.g. generating a text-file export or running a certain test set
+
+	CZLog(CZLogLevelError, tr("Nothing to do!"));
+	CZLog(CZLogLevelHigh, tr("Run '%1 -cli -help' for more information").arg(CZ_NAME_SHORT));
 
 	return 0;
 }
@@ -196,4 +204,22 @@ void CZCommandLine::printCommandLineHelp() {
 */
 void CZCommandLine::printUtilityVersion() {
 	CZLog(CZLogLevelHigh, getTitleString() + getVersionString());
+}
+
+/*!	\brief This function prints list of CUDA-enabled devices
+*/
+void CZCommandLine::printDeviceList() {
+	int num = CZCudaDeviceFound();
+	struct CZDeviceInfo info;
+
+	CZLog(CZLogLevelHigh, tr("Available device(s): %1").arg(num));
+	for(int i = 0; i < num; i++) {
+		memset(&info, 0, sizeof(info));
+		info.num = i;
+		info.heavyMode = 0;
+		CZLog(CZLogLevelLow, tr("Getting information about %1 ...").arg(info.num));
+		if(CZCudaReadDeviceInfo(&info, info.num) == 0) {
+			CZLog(CZLogLevelHigh, QString("\t%1: %2").arg(info.num).arg(info.deviceName));
+		}
+	}
 }

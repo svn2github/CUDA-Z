@@ -33,17 +33,17 @@ protected:
 	void run();
 
 private:
-	QMutex mutex;
-	QWaitCondition newLoop;
-	QWaitCondition readyForWork;
-	QWaitCondition testStart;
-	QWaitCondition testFinish;
-	CZCudaDeviceInfo *info;
+	QMutex m_mutex;
+	QWaitCondition m_newLoop;
+	QWaitCondition m_readyForWork;
+	QWaitCondition m_testStart;
+	QWaitCondition m_testFinish;
+	CZCudaDeviceInfo *m_info;
 
-	int index;
-	bool abort;
-	bool deviceReady;
-	bool testRunning;
+	int m_index;
+	bool m_abort;
+	bool m_deviceReady;
+	bool m_testRunning;
 };
 
 class CZCudaDeviceInfo: public QObject {
@@ -67,8 +67,8 @@ signals:
 	void testedPerformance(int index);
 
 private:
-	struct CZDeviceInfo _info;
-	CZUpdateThread *_thread;
+	struct CZDeviceInfo m_info;
+	CZUpdateThread *m_thread;
 };
 
 #endif//CZ_DEVICEINFO_H

@@ -84,7 +84,7 @@ static void check_open_windows_console(
 			TRUE, DETACHED_PROCESS, NULL, NULL, &startup_info, &process_information);
 
 		if(!success) {
-			CZLog(CZLogLevelFatal, "Can't start myself detouched!");
+			CZLog(CZLogLevelError, "Can't start myself detouched!");
 		}
 
 		exit(!success);
@@ -104,14 +104,14 @@ static int main_cli(
 
 	CZLog(CZLogLevelLow, QObject::tr("Checking CUDA ..."));
 	if(!testCudaPresent()) {
-		CZLog(CZLogLevelFatal, QObject::tr("CUDA not found!"));
+		CZLog(CZLogLevelError, QObject::tr("CUDA not found!"));
 		CZLog(CZLogLevelHigh, QObject::tr("Please update your NVIDIA driver and try again"));
 		return 1;
 	}
 
 	int devs = getCudaDeviceNum();
 	if(devs == 0) {
-		CZLog(CZLogLevelFatal, QObject::tr("No compatible CUDA devices found!"));
+		CZLog(CZLogLevelError, QObject::tr("No compatible CUDA devices found!"));
 		CZLog(CZLogLevelHigh, QObject::tr("Please update your NVIDIA driver and try again"));
 		return 1;
 	}
@@ -119,7 +119,7 @@ static int main_cli(
 	CZLog(CZLogLevelLow, QObject::tr("Found %1 CUDA Device(s) ...").arg(devs));
 
 	CZCommandLine cli(argc, argv);
-	return cli.parse();
+	return cli.exec();
 }
 
 /*!	\brief Main initialization function for GUI mode.

@@ -19,11 +19,11 @@ CZUpdateThread::CZUpdateThread(
 	QObject *parent			/*!<[in,out] Parent of the thread. */
 )	: QThread(parent) {
 
-	abort = false;
-	testRunning = false;
-	deviceReady = false;
-	this->info = info;
-	index = -1;
+	m_abort = false;
+	m_testRunning = false;
+	m_deviceReady = false;
+	m_info = info;
+	m_index = -1;
 
 	CZLog(CZLogLevelLow, "Thread created");
 }
@@ -33,16 +33,16 @@ CZUpdateThread::CZUpdateThread(
 */
 CZUpdateThread::~CZUpdateThread() {
 
-	mutex.lock();
-	deviceReady = true;
-	readyForWork.wakeOne();
-	abort = true;
-	newLoop.wakeOne();
-	testRunning = true;
-	testStart.wakeAll();
-	testRunning = false;
-	testFinish.wakeAll();
-	mutex.unlock();
+	m_mutex.lock();
+	m_deviceReady = true;
+	m_readyForWork.wakeOne();
+	m_abort = true;
+	m_newLoop.wakeOne();
+	m_testRunning = true;
+	m_testStart.wakeAll();
+	m_testRunning = false;
+	m_testFinish.wakeAll();
+	m_mutex.unlock();
 
 	wait();
 
@@ -56,18 +56,18 @@ void CZUpdateThread::testPerformance(
 ) {
 	CZLog(CZLogLevelModerate, "Rising update action for device %d", index);
 
-	mutex.lock();
-	this->index = index;
+	m_mutex.lock();
+	m_index = index;
 	if(!isRunning()) {
 		start();
 		CZLog(CZLogLevelLow, "Waiting for device is ready...");
 	}
 
-	while(!deviceReady)
-		readyForWork.wait(&mutex);
+	while(!m_deviceReady)
+		m_readyForWork.wait(&m_mutex);
 
-	newLoop.wakeOne();
-	mutex.unlock();
+	m_newLoop.wakeOne();
+	m_mutex.unlock();
 }
 
 /*!	\brief Wait for performance test results.
@@ -78,14 +78,14 @@ void CZUpdateThread::waitPerformance() {
 
 	CZLog(CZLogLevelModerate, "Waiting for results...");
 
-	mutex.lock();
+	m_mutex.lock();
 	CZLog(CZLogLevelLow, "Waiting for beginnig of test...");
-	while(!testRunning)
-		testStart.wait(&mutex);
+	while(!m_testRunning)
+		m_testStart.wait(&m_mutex);
 	CZLog(CZLogLevelLow, "Waiting for end of test...");
-	while(testRunning)
-		testFinish.wait(&mutex);
-	mutex.unlock();
+	while(m_testRunning)
+		m_testFinish.wait(&m_mutex);
+	m_mutex.unlock();
 
 	CZLog(CZLogLevelModerate, "Got results!");
 }
@@ -96,53 +96,54 @@ void CZUpdateThread::run() {
 
 	CZLog(CZLogLevelLow, "Thread started");
 
-	info->prepareDevice();
+	m_info->prepareDevice();
 
-	mutex.lock();
-	deviceReady = true;
-	readyForWork.wakeAll();
+	m_mutex.lock();
+	m_deviceReady = true;
+	m_readyForWork.wakeAll();
 
 	forever {
+		int index;
 
 		CZLog(CZLogLevelLow, "Waiting for new loop...");
-		newLoop.wait(&mutex);
-		index = this->index;
-		mutex.unlock();
+		m_newLoop.wait(&m_mutex);
+		index = m_index;
+		m_mutex.unlock();
 
 		CZLog(CZLogLevelLow, "Thread loop started");
 
-		if(abort) {
-			mutex.lock();
+		if(m_abort) {
+			m_mutex.lock();
 			break;
 		}
 
-		mutex.lock();
-		testRunning = true;
-		testStart.wakeAll();
-		mutex.unlock();
+		m_mutex.lock();
+		m_testRunning = true;
+		m_testStart.wakeAll();
+		m_mutex.unlock();
 
-		info->updateInfo();
+		m_info->updateInfo();
 
-		mutex.lock();
-		testRunning = false;
-		testFinish.wakeAll();
-		mutex.unlock();
+		m_mutex.lock();
+		m_testRunning = false;
+		m_testFinish.wakeAll();
+		m_mutex.unlock();
 
 		if(index != -1)
 			emit testedPerformance(index);
 
-		if(abort) {
-			mutex.lock();
+		if(m_abort) {
+			m_mutex.lock();
 			break;
 		}
 
-		mutex.lock();
+		m_mutex.lock();
 	}
 
-	deviceReady = false;
-	mutex.unlock();
+	m_deviceReady = false;
+	m_mutex.unlock();
 
-	info->cleanDevice();
+	m_info->cleanDevice();
 }
 
 /*!	\class CZCudaDeviceInfo
@@ -155,35 +156,35 @@ CZCudaDeviceInfo::CZCudaDeviceInfo(
 	int devNum,			/*!<[in] Index of device. */
 	QObject *parent			/*!<[in,out] Parent of CUDA device information. */
 ) 	: QObject(parent) {
-	memset(&_info, 0, sizeof(_info));
-	_info.num = devNum;
-	_info.heavyMode = 0;
+	memset(&m_info, 0, sizeof(m_info));
+	m_info.num = devNum;
+	m_info.heavyMode = 0;
 	readInfo();
-	_thread = new CZUpdateThread(this, this);
-	connect(_thread, SIGNAL(testedPerformance(int)), this, SIGNAL(testedPerformance(int)));
-	_thread->start();
+	m_thread = new CZUpdateThread(this, this);
+	connect(m_thread, SIGNAL(testedPerformance(int)), this, SIGNAL(testedPerformance(int)));
+	m_thread->start();
 }
 
 /*!	\brief Destroys cuda information container.
 */
 CZCudaDeviceInfo::~CZCudaDeviceInfo() {
-	delete _thread;
+	delete m_thread;
 }
 
 /*!	\brief This function reads CUDA-device basic information.
 	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::readInfo() {
-	return CZCudaReadDeviceInfo(&_info, _info.num);
+	return CZCudaReadDeviceInfo(&m_info, m_info.num);
 }
 
 /*!	\brief This function prepare some buffers for budwidth tests.
 	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::prepareDevice() {
-	if(CZCudaCalcDeviceSelect(&_info) != 0)
+	if(CZCudaCalcDeviceSelect(&m_info) != 0)
 		return 1;
-	return CZCudaPrepareDevice(&_info);
+	return CZCudaPrepareDevice(&m_info);
 }
 
 /*!	\brief This function updates CUDA-device performance information.
@@ -191,13 +192,13 @@ int CZCudaDeviceInfo::prepareDevice() {
 */
 int CZCudaDeviceInfo::updateInfo() {
 	int r;
-	struct CZDeviceInfo info = _info;
+	struct CZDeviceInfo info = m_info;
 
 	r = CZCudaCalcDeviceBandwidth(&info);
 	if(r != -1)
 		r = CZCudaCalcDevicePerformance(&info);
 
-	_info = info;
+	m_info = info;
 	return r;
 }
 
@@ -205,13 +206,13 @@ int CZCudaDeviceInfo::updateInfo() {
 	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::cleanDevice() {
-	return CZCudaCleanDevice(&_info);
+	return CZCudaCleanDevice(&m_info);
 }
 
 /*!	\brief Returns pointer to inforation structure.
 */
 struct CZDeviceInfo &CZCudaDeviceInfo::info() {
-	return _info;
+	return m_info;
 }
 
 /*!	\brief Push performance test in thread.
@@ -219,11 +220,11 @@ struct CZDeviceInfo &CZCudaDeviceInfo::info() {
 void CZCudaDeviceInfo::testPerformance(
 	int index			/*!<[in] Index of device in list. */
 ) {
-	_thread->testPerformance(index);
+	m_thread->testPerformance(index);
 }
 
 /*!	\brief Wait for performance test results.
 */
 void CZCudaDeviceInfo::waitPerformance() {
-	_thread->waitPerformance();
+	m_thread->waitPerformance();
 }

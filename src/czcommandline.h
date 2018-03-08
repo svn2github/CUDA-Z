@@ -27,6 +27,7 @@ public:
 
 	static void printCommandLineHelp();
 	static void printUtilityVersion();
+	static void printDeviceList();
 
 private:
 	int m_argc;
