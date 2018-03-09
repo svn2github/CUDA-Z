@@ -128,7 +128,41 @@ int CZCommandLine::exec() {
 		return 0;
 	}
 
+	if(m_devIndex >= CZCudaDeviceFound()) {
+		CZLog(CZLogLevelError, tr("Wrong CUDA device index!"));
+		CZLog(CZLogLevelHigh, tr("Run '%1 -cli -list' for more information").arg(CZ_NAME_SHORT));
+		return 1;
+	}
+
+	struct CZDeviceInfo info;
+	memset(&info, 0, sizeof(info));
+	info.num = m_devIndex;
+	info.heavyMode = 0;
+
+	CZLog(CZLogLevelLow, tr("Getting information about %1 ...").arg(info.num));
+	if(CZCudaReadDeviceInfo(&info, info.num) != 0) {
+		CZLog(CZLogLevelError, tr("Can't get information about device %1!").arg(info.num));
+		return 1;
+	}
+
+	CZLog(CZLogLevelLow, tr("Preparing device %1 ...").arg(info.num));
+	if(CZCudaPrepareDevice(&info) != 0) {
+		CZLog(CZLogLevelError, tr("Can't prepare device %1!").arg(info.num));
+		return 1;
+	}
+
+	int r;
+	r = CZCudaCalcDeviceBandwidth(&info);
+	if(r != -1)
+		r = CZCudaCalcDevicePerformance(&info);
+
+	if(r != 0) {
+		CZLog(CZLogLevelError, tr("Can't perform tests %1!").arg(info.num));
+	}
+
 	// TODO - add more info functionality here, e.g. generating a text-file export or running a certain test set
+
+	CZCudaCleanDevice(&info);
 
 	CZLog(CZLogLevelError, tr("Nothing to do!"));
 	CZLog(CZLogLevelHigh, tr("Run '%1 -cli -help' for more information").arg(CZ_NAME_SHORT));
@@ -217,6 +251,7 @@ void CZCommandLine::printDeviceList() {
 		memset(&info, 0, sizeof(info));
 		info.num = i;
 		info.heavyMode = 0;
+
 		CZLog(CZLogLevelLow, tr("Getting information about %1 ...").arg(info.num));
 		if(CZCudaReadDeviceInfo(&info, info.num) == 0) {
 			CZLog(CZLogLevelHigh, QString("\t%1: %2").arg(info.num).arg(info.deviceName));
