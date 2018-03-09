@@ -357,6 +357,24 @@ void CZDialog::setupCoreTab(
 	CZ_DLG_FILL(decoder, ConcurrentKernels);
 	CZ_DLG_FILL(decoder, ComputeMode);
 	CZ_DLG_FILL(decoder, StreamPriorities);
+
+	QString deviceName(info.deviceName);
+	labelDeviceLogo->setPixmap(QPixmap(":/img/logo-unknown.png"));
+	if(deviceName.contains("tesla", Qt::CaseInsensitive)) {
+		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-tesla.png"));
+	} else
+	if(deviceName.contains("tegra", Qt::CaseInsensitive)) {
+		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-tegra.png"));
+	} else
+	if(deviceName.contains("quadro", Qt::CaseInsensitive)) {
+		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-quadro.png"));
+	} else
+	if(deviceName.contains("ion", Qt::CaseInsensitive)) {
+		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-ion.png"));
+	} else
+	if(deviceName.contains("geforce", Qt::CaseInsensitive)) {
+		labelDeviceLogo->setPixmap(QPixmap(":/img/logo-geforce.png"));
+	}
 }
 
 /*!	\brief Fill tab "Memory" with CUDA devices information.
