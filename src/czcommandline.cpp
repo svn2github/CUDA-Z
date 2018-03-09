@@ -7,6 +7,8 @@
 
 #include <QObject>
 #include <QString>
+#include <QFile>
+#include <QTextStream>
 
 #include "log.h"
 #include "cudainfo.h"
@@ -160,12 +162,40 @@ int CZCommandLine::exec() {
 		CZLog(CZLogLevelError, tr("Can't perform tests %1!").arg(info.num));
 	}
 
-	// TODO - add more info functionality here, e.g. generating a text-file export or running a certain test set
+	CZCudaDeviceInfoDecoder decoder(info);
+
+	if(m_exportHTML) {
+		QString fileName = m_fileNameHTML;
+		QFile file(fileName);
+		if(!file.open(QFile::WriteOnly | QFile::Text)) {
+			CZLog(CZLogLevelError,
+				tr("Cannot write file %1:\n%2.").arg(fileName).arg(file.errorString()));
+			return 1;
+		}
+
+		QTextStream stream(&file);
+		stream << decoder.generateHTMLReport();
+	}
+
+	if(m_exportTXT) {
+		QString fileName = m_fileNameTXT;
+		QFile file(fileName);
+		if(!file.open(QFile::WriteOnly | QFile::Text)) {
+			CZLog(CZLogLevelError,
+				tr("Cannot write file %1:\n%2.").arg(fileName).arg(file.errorString()));
+			return 1;
+		}
+
+		QTextStream stream(&file);
+		stream << decoder.generateTextReport();
+	}
+
+	if(!m_exportHTML && !m_exportTXT) {
+		CZLog(CZLogLevelHigh, decoder.generateTextReport());
+		return 0;
+	}
 
 	CZCudaCleanDevice(&info);
-
-	CZLog(CZLogLevelError, tr("Nothing to do!"));
-	CZLog(CZLogLevelHigh, tr("Run '%1 -cli -help' for more information").arg(CZ_NAME_SHORT));
 
 	return 0;
 }
