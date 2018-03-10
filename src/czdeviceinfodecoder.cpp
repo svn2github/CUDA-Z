@@ -298,9 +298,9 @@ static const QString funcUnifiedAddressing(const struct CZDeviceInfo &info) {
 
 #define nameAsyncEngine		QT_TR_NOOP("Async Engine")
 static const QString funcAsyncEngine(const struct CZDeviceInfo &info) {
-	return (info.mem.asyncEngineCount == 2)? QObject::tr("Yes, Bidirectional"):
-		(info.mem.asyncEngineCount == 1)? QObject::tr("Yes, Unidirectional"):
-		QObject::tr("No");
+	return (info.mem.asyncEngineCount == 0)? QObject::tr("%1 No").arg(info.mem.asyncEngineCount):
+		(info.mem.asyncEngineCount == 1)? QObject::tr("%1 Yes, Unidirectional").arg(info.mem.asyncEngineCount):
+		QObject::tr("%1 Yes, Bidirectional").arg(info.mem.asyncEngineCount);
 }
 
 #define nameMemoryCopy		QT_TR_NOOP("Memory Copy")
