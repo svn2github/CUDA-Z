@@ -191,10 +191,9 @@ int CZCudaDeviceInfo::prepareDevice() {
 	\returns \a 0 in case of success, \a -1 in case of error.
 */
 int CZCudaDeviceInfo::updateInfo() {
-	int r;
 	struct CZDeviceInfo info = m_info;
 
-	r = CZCudaCalcDeviceBandwidth(&info);
+	int r = CZCudaCalcDeviceBandwidth(&info);
 	if(r != -1)
 		r = CZCudaCalcDevicePerformance(&info);
 

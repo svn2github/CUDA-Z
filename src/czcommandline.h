@@ -38,6 +38,7 @@ private:
 	bool m_printVerbose;
 	bool m_listDevices;
 	int m_devIndex;
+	bool m_printToConsole;
 	bool m_exportHTML;
 	QString m_fileNameHTML;
 	bool m_exportTXT;

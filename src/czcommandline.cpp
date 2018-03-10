@@ -37,6 +37,7 @@ CZCommandLine::CZCommandLine(
 	m_printVerbose = false;
 	m_listDevices = false;
 	m_devIndex = 0;
+	m_printToConsole = false;
 	m_exportHTML = false;
 	m_exportTXT = false;
 }
@@ -78,6 +79,8 @@ bool CZCommandLine::parse() {
 				CZLog(CZLogLevelError, tr("Wrong usage of option '-dev <n>'!"));
 				return false;
 			}
+		} else if(QString(m_argv[i]) == "-print") {
+			m_printToConsole = true;
 		} else if(QString(m_argv[i]) == "-html") {
 			if(++i < m_argc) {
 				m_exportHTML = true;
@@ -153,13 +156,14 @@ int CZCommandLine::exec() {
 		return 1;
 	}
 
-	int r;
-	r = CZCudaCalcDeviceBandwidth(&info);
-	if(r != -1)
-		r = CZCudaCalcDevicePerformance(&info);
+	for(int i = 0; i < 2; i++) { /* repeat tests twice for better precision */
+		int r = CZCudaCalcDeviceBandwidth(&info);
+		if(r != -1)
+			r = CZCudaCalcDevicePerformance(&info);
 
-	if(r != 0) {
-		CZLog(CZLogLevelError, tr("Can't perform tests %1!").arg(info.num));
+		if(r != 0) {
+			CZLog(CZLogLevelError, tr("Can't perform tests on device %1!").arg(info.num));
+		}
 	}
 
 	CZCudaDeviceInfoDecoder decoder(info);
@@ -191,6 +195,10 @@ int CZCommandLine::exec() {
 	}
 
 	if(!m_exportHTML && !m_exportTXT) {
+		m_printToConsole = true;
+	}
+
+	if(m_printToConsole) {
 		CZLog(CZLogLevelHigh, decoder.generateTextReport());
 		return 0;
 	}
@@ -252,6 +260,7 @@ const QString CZCommandLine::getHelpString() {
 	help += QString("\t-verbose      %1\n").arg(tr("Print more status information"));
 	help += QString("\t-list         %1\n").arg(tr("Print list of available CUDA devices"));
 	help += QString("\t-dev <n>      %1\n").arg(tr("Print/export CUDA information about device <n>"));
+	help += QString("\t-print        %1\n").arg(tr("Print CUDA information to a console (default)"));
 	help += QString("\t-html <file>  %1\n").arg(tr("Export CUDA information to a <file> as HTML"));
 	help += QString("\t-txt <file>   %1\n").arg(tr("Export CUDA information to a <file> as TXT"));
 

@@ -99,6 +99,12 @@ sm_61:CUFLAGS += -gencode arch=compute_61,code=sm_61 \
 sm_62:CUFLAGS += -gencode arch=compute_62,code=sm_62 \
 	-gencode arch=compute_62,code=compute_62
 
+sm_70:CUFLAGS += -gencode arch=compute_70,code=sm_70 \
+	-gencode arch=compute_70,code=compute_70
+
+sm_72:CUFLAGS += -gencode arch=compute_72,code=sm_72 \
+	-gencode arch=compute_72,code=compute_72
+
 win32:INCLUDEPATH += $$quote($$replace(CZ_BUILD_SRC_DIR, /, \\))
 else:INCLUDEPATH += $$CZ_BUILD_SRC_DIR
 
