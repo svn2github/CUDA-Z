@@ -664,7 +664,7 @@ const QString CZCudaDeviceInfoDecoder::generateHTMLReport() const {
 		"<head>\n"
 		"<title>" + title + "</title>\n"
 		"<meta charset=\"utf-8\">\n"
-		"<style type=\"text/css\">\n"
+		"<style>\n"
 
 		"@charset \"utf-8\";\n"
 		"body { font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: normal; font-style: normal; background: #fff; }\n"
