@@ -130,6 +130,13 @@ win32:make_src_dir.commands = $(MKDIR) $$replace(CZ_BUILD_SRC_DIR, /, \\)
 else:make_src_dir.commands = $(MKDIR) $$CZ_BUILD_SRC_DIR
 QMAKE_EXTRA_TARGETS += make_src_dir
 
+win32: {
+	del_cudaz_res.target = del_cudaz_res
+	del_cudaz_res.commands = -$(DEL_FILE) $(EXPORT_RES_FILE)
+	QMAKE_EXTRA_VARIABLES += RES_FILE
+	QMAKE_EXTRA_TARGETS += del_cudaz_res
+}
+
 BUILD_H = $$CZ_BUILD_SRC_DIR/build.h
 QMAKE_EXTRA_VARIABLES += BUILD_H
 PRE_TARGETDEPS += build_h
@@ -137,6 +144,7 @@ PRE_TARGETDEPS += build_h
 build_h.target = build_h
 build_h.commands = perl $$CZ_SOURCE_DIR/bld/bin/make_build_svn.pl $(EXPORT_BUILD_H) $$CZ_SOURCE_DIR
 build_h.depends = make_src_dir
+win32:build_h.depends += del_cudaz_res
 QMAKE_EXTRA_TARGETS += build_h
 
 # Cleaning...
