@@ -199,7 +199,8 @@ int CZCommandLine::exec() {
 	}
 
 	if(m_printToConsole) {
-		CZLog(CZLogLevelHigh, decoder.generateTextReport());
+		QTextStream stream(stdout);
+		stream << decoder.generateTextReport();
 		return 0;
 	}
 
@@ -270,13 +271,15 @@ const QString CZCommandLine::getHelpString() {
 /*!	\brief This function prints a command line help message
 */
 void CZCommandLine::printCommandLineHelp() {
-	CZLog(CZLogLevelHigh, getTitleString() + getHelpString());
+	QTextStream stream(stdout);
+	stream << getTitleString() + getHelpString();
 }
 
 /*!	\brief This function prints utility version message
 */
 void CZCommandLine::printUtilityVersion() {
-	CZLog(CZLogLevelHigh, getTitleString() + getVersionString());
+	QTextStream stream(stdout);
+	stream << getTitleString() + getVersionString();
 }
 
 /*!	\brief This function prints list of CUDA-enabled devices
@@ -285,7 +288,8 @@ void CZCommandLine::printDeviceList() {
 	int num = CZCudaDeviceFound();
 	struct CZDeviceInfo info;
 
-	CZLog(CZLogLevelHigh, tr("Available device(s): %1").arg(num));
+	QTextStream stream(stdout);
+	stream << tr("Available device(s): %1").arg(num) << endl;
 	for(int i = 0; i < num; i++) {
 		memset(&info, 0, sizeof(info));
 		info.num = i;
@@ -293,7 +297,7 @@ void CZCommandLine::printDeviceList() {
 
 		CZLog(CZLogLevelLow, tr("Getting information about %1 ...").arg(info.num));
 		if(CZCudaReadDeviceInfo(&info, info.num) == 0) {
-			CZLog(CZLogLevelHigh, QString("\t%1: %2").arg(info.num).arg(info.deviceName));
+			stream << QString("\t%1: %2").arg(info.num).arg(info.deviceName) << endl;
 		}
 	}
 }
